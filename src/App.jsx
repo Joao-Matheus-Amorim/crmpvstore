@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { supabase } from './supabaseClient.js'
-import Login from './login.jsx'
+import Login from './Login.jsx'
 import Dashboard from './Dashboard.jsx'
 import Clientes from './Clientes.jsx'
 import Produtos from './Produtos.jsx'
