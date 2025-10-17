@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <!-- Meta básicos -->
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- Título e cor do tema -->
+    <title>PV Store CRM</title>
+    <meta name="theme-color" content="#0A0E1A" />
+
+    <!-- Favicon / Logo -->
+    <link rel="icon" type="image/png" href="/logo.png" />
+
+    <!-- Fontes (Inter) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- SEO básico (opcional) -->
+    <meta name="description" content="PV Store CRM — Gestão de leads, clientes, produtos e contratos com visual 3D fluido." />
+    <meta name="robots" content="noindex, nofollow" />
+
+    <!-- Cor de fundo inicial para evitar flash -->
+    <style>
+      html, body { height: 100%; }
+      body {
+        margin: 0;
+        background: #0A0E1A;
+        color: #ffffff;
+        font-family: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      }
+      /* Tela de pré-carregamento mínima (fallback) */
+      #root:empty::before {
+        content: 'Carregando PV Store CRM...';
+        display: grid;
+        place-items: center;
+        height: 100vh;
+        color: #94A3B8;
+        font-weight: 600;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+    <!-- Entrada do app (Vite) -->
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>
