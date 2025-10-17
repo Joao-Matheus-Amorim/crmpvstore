@@ -10,26 +10,19 @@ export default function Produtos() {
   const [busca, setBusca] = useState('')
   
   const [form, setForm] = useState({
-    marca: 'Apple',
     modelo: '',
+    marca: '',
     cor: '',
+    capacidade: '',
     imei: '',
-    armazenamento: '',
-    ram: '',
-    originalidade: 'original',
-    origem: 'nacional',
-    nf_existe: false,
-    nf_data: '',
-    nf_numero: '',
-    grade: 'A',
-    desbloqueado: true,
-    operadoras: 'Todas',
-    acessorios: {
-      fone: false,
-      carregador: false,
-      pelicula: false,
-      outros: ''
-    }
+    estado: 'usado',
+    preco_compra_centavos: 0,
+    data_compra: '',
+    aparelho_desbloqueado: false,
+    fone: false,
+    carregador: false,
+    pelicula: false,
+    outros_acessorios: ''
   })
 
   useEffect(() => {
@@ -59,31 +52,47 @@ export default function Produtos() {
   async function salvarProduto(e) {
     e.preventDefault()
     
+    const dadosProduto = {
+      modelo: form.modelo,
+      marca: form.marca,
+      cor: form.cor || null,
+      capacidade: form.capacidade || null,
+      imei: form.imei || null,
+      estado: form.estado,
+      preco_compra_centavos: parseInt(form.preco_compra_centavos) || 0,
+      data_compra: form.data_compra || null,
+      aparelho_desbloqueado: form.aparelho_desbloqueado,
+      fone: form.fone,
+      carregador: form.carregador,
+      pelicula: form.pelicula,
+      outros_acessorios: form.outros_acessorios || null
+    }
+
     if (editando) {
       const { error } = await supabase
         .from('products')
-        .update(form)
+        .update(dadosProduto)
         .eq('id', editando)
       
       if (!error) {
-        alert('Produto atualizado!')
+        alert('Produto atualizado com sucesso!')
         resetarForm()
         carregarProdutos()
       } else {
-        alert('Erro: ' + error.message)
+        alert('Erro ao atualizar: ' + error.message)
       }
     } else {
       const { error } = await supabase.from('products').insert({
-        ...form,
+        ...dadosProduto,
         owner_id: ownerId
       })
       
       if (!error) {
-        alert('Produto cadastrado!')
+        alert('Produto cadastrado com sucesso!')
         resetarForm()
         carregarProdutos()
       } else {
-        alert('Erro: ' + error.message)
+        alert('Erro ao salvar: ' + error.message)
       }
     }
   }
@@ -99,348 +108,265 @@ export default function Produtos() {
   }
 
   function editarProduto(produto) {
-    setForm(produto)
+    setForm({
+      modelo: produto.modelo || '',
+      marca: produto.marca || '',
+      cor: produto.cor || '',
+      capacidade: produto.capacidade || '',
+      imei: produto.imei || '',
+      estado: produto.estado || 'usado',
+      preco_compra_centavos: produto.preco_compra_centavos || 0,
+      data_compra: produto.data_compra || '',
+      aparelho_desbloqueado: produto.aparelho_desbloqueado || false,
+      fone: produto.fone || false,
+      carregador: produto.carregador || false,
+      pelicula: produto.pelicula || false,
+      outros_acessorios: produto.outros_acessorios || ''
+    })
     setEditando(produto.id)
     setMostrarForm(true)
   }
 
   function resetarForm() {
     setForm({
-      marca: 'Apple',
       modelo: '',
+      marca: '',
       cor: '',
+      capacidade: '',
       imei: '',
-      armazenamento: '',
-      ram: '',
-      originalidade: 'original',
-      origem: 'nacional',
-      nf_existe: false,
-      nf_data: '',
-      nf_numero: '',
-      grade: 'A',
-      desbloqueado: true,
-      operadoras: 'Todas',
-      acessorios: {
-        fone: false,
-        carregador: false,
-        pelicula: false,
-        outros: ''
-      }
+      estado: 'usado',
+      preco_compra_centavos: 0,
+      data_compra: '',
+      aparelho_desbloqueado: false,
+      fone: false,
+      carregador: false,
+      pelicula: false,
+      outros_acessorios: ''
     })
     setEditando(null)
     setMostrarForm(false)
   }
 
   const produtosFiltrados = produtos.filter(p => 
-    p.modelo?.toLowerCase().includes(busca.toLowerCase()) ||
-    p.imei?.includes(busca) ||
-    p.cor?.toLowerCase().includes(busca.toLowerCase())
+    (p.modelo || '').toLowerCase().includes(busca.toLowerCase()) ||
+    (p.marca || '').toLowerCase().includes(busca.toLowerCase()) ||
+    (p.imei || '').includes(busca)
   )
 
   if (carregando) {
-    return <div style={{ padding: '40px', textAlign: 'center' }}>Carregando...</div>
+    return (
+      <div style={{ 
+        display: 'flex', 
+        justifyContent: 'center', 
+        alignItems: 'center', 
+        height: '80vh' 
+      }}>
+        <div className="spinner" style={{ width: '50px', height: '50px' }}></div>
+      </div>
+    )
   }
 
   return (
-    <div style={{ padding: '30px', background: '#f9fafb', minHeight: 'calc(100vh - 60px)' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+    <div style={{ padding: '40px 0', minHeight: 'calc(100vh - 90px)' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
         <div>
-          <h1 style={{ margin: 0 }}>📱 Produtos</h1>
-          <p style={{ color: '#666', margin: '5px 0 0 0' }}>Celulares, acessórios e eletrônicos</p>
+          <h1 style={{ margin: 0, fontSize: '32px', fontWeight: '900', color: 'var(--text-primary)', letterSpacing: '-0.5px' }}>
+            Produtos
+          </h1>
+          <p style={{ color: 'var(--text-secondary)', margin: '8px 0 0 0', fontSize: '16px', fontWeight: 500 }}>
+            Gerenciar celulares e estoque
+          </p>
         </div>
         <button 
           onClick={() => mostrarForm ? resetarForm() : setMostrarForm(true)} 
+          className={mostrarForm ? 'btn-secondary' : 'btn-primary'}
           style={{ 
-            background: mostrarForm ? '#ef4444' : '#0070f3', 
-            color: 'white', 
-            border: 'none', 
-            padding: '12px 24px', 
-            borderRadius: '6px', 
-            cursor: 'pointer',
-            fontSize: '14px',
-            fontWeight: 'bold'
+            background: mostrarForm ? 'var(--gradient-secondary)' : undefined,
+            color: mostrarForm ? 'white' : undefined,
+            padding: '14px 28px',
+            fontSize: '15px'
           }}
         >
-          {mostrarForm ? '✕ Cancelar' : '+ Novo Produto'}
+          {mostrarForm ? 'Cancelar' : 'Novo Produto'}
         </button>
       </div>
 
-      {/* FORMULÁRIO */}
       {mostrarForm && (
-        <form onSubmit={salvarProduto} style={{ 
-          background: 'white', 
-          padding: '30px', 
-          borderRadius: '10px', 
-          marginBottom: '30px',
-          border: '1px solid #e5e7eb'
-        }}>
-          <h3 style={{ marginTop: 0 }}>
-            {editando ? '✏️ Editar Produto' : '➕ Cadastrar Novo Produto'}
+        <form onSubmit={salvarProduto} className="stat-card" style={{ marginBottom: '40px', padding: '32px' }}>
+          <h3 style={{ marginTop: 0, fontSize: '20px', fontWeight: '800', color: 'var(--text-primary)', marginBottom: '24px' }}>
+            {editando ? 'Editar Produto' : 'Cadastrar Novo Produto'}
           </h3>
-
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr 1fr', gap: '15px', marginBottom: '20px' }}>
+          
+          <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '20px', marginBottom: '20px' }}>
             <div>
-              <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>Marca*:</label>
-              <select 
-                value={form.marca} 
-                onChange={(e) => setForm({...form, marca: e.target.value})} 
-                required
-                style={{ width: '100%', padding: '10px', border: '1px solid #ddd', borderRadius: '5px', fontSize: '14px' }}
-              >
-                <option value="Apple">Apple</option>
-                <option value="Samsung">Samsung</option>
-                <option value="Xiaomi">Xiaomi</option>
-                <option value="Motorola">Motorola</option>
-                <option value="Outro">Outro</option>
-              </select>
-            </div>
-            <div>
-              <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>Modelo*:</label>
+              <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: 'var(--text-primary)', fontSize: '14px' }}>
+                Modelo*
+              </label>
               <input 
                 type="text" 
                 value={form.modelo} 
                 onChange={(e) => setForm({...form, modelo: e.target.value})} 
                 required 
                 placeholder="Ex: iPhone 13 Pro Max"
-                style={{ width: '100%', padding: '10px', border: '1px solid #ddd', borderRadius: '5px', fontSize: '14px' }} 
               />
             </div>
             <div>
-              <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>Cor:</label>
+              <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: 'var(--text-primary)', fontSize: '14px' }}>
+                Marca*
+              </label>
+              <input 
+                type="text" 
+                value={form.marca} 
+                onChange={(e) => setForm({...form, marca: e.target.value})} 
+                required 
+                placeholder="Ex: Apple"
+              />
+            </div>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '20px', marginBottom: '20px' }}>
+            <div>
+              <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: 'var(--text-primary)', fontSize: '14px' }}>
+                Cor
+              </label>
               <input 
                 type="text" 
                 value={form.cor} 
                 onChange={(e) => setForm({...form, cor: e.target.value})} 
                 placeholder="Ex: Preto"
-                style={{ width: '100%', padding: '10px', border: '1px solid #ddd', borderRadius: '5px', fontSize: '14px' }} 
               />
             </div>
-          </div>
-
-          <div style={{ marginBottom: '20px' }}>
-            <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>IMEI*:</label>
-            <input 
-              type="text" 
-              value={form.imei} 
-              onChange={(e) => setForm({...form, imei: e.target.value})} 
-              required 
-              placeholder="000000000000000"
-              maxLength="15"
-              style={{ width: '100%', padding: '10px', border: '1px solid #ddd', borderRadius: '5px', fontSize: '14px' }} 
-            />
-            <small style={{ color: '#666', fontSize: '12px' }}>
-              ⚠️ Importante: Anote este número para verificação de blacklist
-            </small>
-          </div>
-
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '15px', marginBottom: '20px' }}>
             <div>
-              <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>Armazenamento:</label>
-              <select 
-                value={form.armazenamento} 
-                onChange={(e) => setForm({...form, armazenamento: e.target.value})}
-                style={{ width: '100%', padding: '10px', border: '1px solid #ddd', borderRadius: '5px', fontSize: '14px' }}
-              >
-                <option value="">Selecione...</option>
-                <option value="64GB">64GB</option>
-                <option value="128GB">128GB</option>
-                <option value="256GB">256GB</option>
-                <option value="512GB">512GB</option>
-                <option value="1TB">1TB</option>
-              </select>
-            </div>
-            <div>
-              <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>RAM:</label>
-              <select 
-                value={form.ram} 
-                onChange={(e) => setForm({...form, ram: e.target.value})}
-                style={{ width: '100%', padding: '10px', border: '1px solid #ddd', borderRadius: '5px', fontSize: '14px' }}
-              >
-                <option value="">Selecione...</option>
-                <option value="4GB">4GB</option>
-                <option value="6GB">6GB</option>
-                <option value="8GB">8GB</option>
-                <option value="12GB">12GB</option>
-                <option value="16GB">16GB</option>
-              </select>
-            </div>
-            <div>
-              <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>Grade:</label>
-              <select 
-                value={form.grade} 
-                onChange={(e) => setForm({...form, grade: e.target.value})}
-                style={{ width: '100%', padding: '10px', border: '1px solid #ddd', borderRadius: '5px', fontSize: '14px' }}
-              >
-                <option value="A">Grade A - Excelente</option>
-                <option value="B">Grade B - Bom</option>
-                <option value="C">Grade C - Regular</option>
-              </select>
-            </div>
-          </div>
-
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px', marginBottom: '20px' }}>
-            <div>
-              <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>Originalidade:</label>
-              <select 
-                value={form.originalidade} 
-                onChange={(e) => setForm({...form, originalidade: e.target.value})}
-                style={{ width: '100%', padding: '10px', border: '1px solid #ddd', borderRadius: '5px', fontSize: '14px' }}
-              >
-                <option value="original">✅ Original</option>
-                <option value="replica">⚠️ Réplica</option>
-              </select>
-            </div>
-            <div>
-              <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>Origem:</label>
-              <select 
-                value={form.origem} 
-                onChange={(e) => setForm({...form, origem: e.target.value})}
-                style={{ width: '100%', padding: '10px', border: '1px solid #ddd', borderRadius: '5px', fontSize: '14px' }}
-              >
-                <option value="nacional">🇧🇷 Nacional</option>
-                <option value="importado">🌎 Importado</option>
-              </select>
-            </div>
-          </div>
-
-          <h4 style={{ marginTop: '30px', marginBottom: '15px', color: '#374151' }}>📄 Nota Fiscal</h4>
-          
-          <div style={{ marginBottom: '15px' }}>
-            <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
-              <input 
-                type="checkbox" 
-                checked={form.nf_existe} 
-                onChange={(e) => setForm({...form, nf_existe: e.target.checked})}
-                style={{ width: '18px', height: '18px', cursor: 'pointer' }}
-              />
-              <span style={{ fontWeight: '500' }}>Possui Nota Fiscal</span>
-            </label>
-          </div>
-
-          {form.nf_existe && (
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px', marginBottom: '20px' }}>
-              <div>
-                <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>Data da NF:</label>
-                <input 
-                  type="date" 
-                  value={form.nf_data} 
-                  onChange={(e) => setForm({...form, nf_data: e.target.value})}
-                  style={{ width: '100%', padding: '10px', border: '1px solid #ddd', borderRadius: '5px', fontSize: '14px' }}
-                />
-              </div>
-              <div>
-                <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>Número da NF:</label>
-                <input 
-                  type="text" 
-                  value={form.nf_numero} 
-                  onChange={(e) => setForm({...form, nf_numero: e.target.value})}
-                  placeholder="Ex: 12345"
-                  style={{ width: '100%', padding: '10px', border: '1px solid #ddd', borderRadius: '5px', fontSize: '14px' }}
-                />
-              </div>
-            </div>
-          )}
-
-          <h4 style={{ marginTop: '30px', marginBottom: '15px', color: '#374151' }}>📶 Operadora</h4>
-          
-          <div style={{ marginBottom: '15px' }}>
-            <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
-              <input 
-                type="checkbox" 
-                checked={form.desbloqueado} 
-                onChange={(e) => setForm({...form, desbloqueado: e.target.checked})}
-                style={{ width: '18px', height: '18px', cursor: 'pointer' }}
-              />
-              <span style={{ fontWeight: '500' }}>Aparelho Desbloqueado</span>
-            </label>
-          </div>
-
-          {form.desbloqueado && (
-            <div style={{ marginBottom: '20px' }}>
-              <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>Funciona em:</label>
+              <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: 'var(--text-primary)', fontSize: '14px' }}>
+                Capacidade
+              </label>
               <input 
                 type="text" 
-                value={form.operadoras} 
-                onChange={(e) => setForm({...form, operadoras: e.target.value})}
-                placeholder="Ex: Vivo, Claro, Tim, Oi"
-                style={{ width: '100%', padding: '10px', border: '1px solid #ddd', borderRadius: '5px', fontSize: '14px' }}
+                value={form.capacidade} 
+                onChange={(e) => setForm({...form, capacidade: e.target.value})} 
+                placeholder="Ex: 256GB"
               />
             </div>
-          )}
+            <div>
+              <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: 'var(--text-primary)', fontSize: '14px' }}>
+                Estado*
+              </label>
+              <select 
+                value={form.estado} 
+                onChange={(e) => setForm({...form, estado: e.target.value})}
+                required
+              >
+                <option value="novo">Novo</option>
+                <option value="usado">Usado</option>
+              </select>
+            </div>
+          </div>
 
-          <h4 style={{ marginTop: '30px', marginBottom: '15px', color: '#374151' }}>📦 Acessórios</h4>
-          
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '15px', marginBottom: '15px' }}>
-            <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr', gap: '20px', marginBottom: '20px' }}>
+            <div>
+              <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: 'var(--text-primary)', fontSize: '14px' }}>
+                IMEI
+              </label>
+              <input 
+                type="text" 
+                value={form.imei} 
+                onChange={(e) => setForm({...form, imei: e.target.value})} 
+                placeholder="Ex: 123456789012345"
+                maxLength="15"
+              />
+            </div>
+            <div>
+              <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: 'var(--text-primary)', fontSize: '14px' }}>
+                Preço Compra (R$)
+              </label>
+              <input 
+                type="number" 
+                step="0.01"
+                value={form.preco_compra_centavos / 100} 
+                onChange={(e) => setForm({...form, preco_compra_centavos: Math.round(parseFloat(e.target.value || 0) * 100)})} 
+                placeholder="0.00"
+              />
+            </div>
+            <div>
+              <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: 'var(--text-primary)', fontSize: '14px' }}>
+                Data da Compra
+              </label>
+              <input 
+                type="date" 
+                value={form.data_compra} 
+                onChange={(e) => setForm({...form, data_compra: e.target.value})} 
+              />
+            </div>
+          </div>
+
+          <h4 style={{ marginTop: '30px', marginBottom: '16px', color: 'var(--text-secondary)', fontSize: '16px', fontWeight: '700' }}>
+            Acessórios
+          </h4>
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px', marginBottom: '20px' }}>
+            <label style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', fontSize: '14px', fontWeight: 600, padding: '12px', background: 'var(--bg-secondary)', borderRadius: 'var(--radius-md)', border: '2px solid var(--pv-gray-200)' }}>
               <input 
                 type="checkbox" 
-                checked={form.acessorios.fone} 
-                onChange={(e) => setForm({...form, acessorios: {...form.acessorios, fone: e.target.checked}})}
-                style={{ width: '18px', height: '18px', cursor: 'pointer' }}
+                checked={form.aparelho_desbloqueado} 
+                onChange={(e) => setForm({...form, aparelho_desbloqueado: e.target.checked})}
+                style={{ width: '18px', height: '18px', cursor: 'pointer', accentColor: 'var(--pv-blue)' }}
               />
-              <span>🎧 Fone</span>
+              Desbloqueado
             </label>
-            <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+            <label style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', fontSize: '14px', fontWeight: 600, padding: '12px', background: 'var(--bg-secondary)', borderRadius: 'var(--radius-md)', border: '2px solid var(--pv-gray-200)' }}>
               <input 
                 type="checkbox" 
-                checked={form.acessorios.carregador} 
-                onChange={(e) => setForm({...form, acessorios: {...form.acessorios, carregador: e.target.checked}})}
-                style={{ width: '18px', height: '18px', cursor: 'pointer' }}
+                checked={form.fone} 
+                onChange={(e) => setForm({...form, fone: e.target.checked})}
+                style={{ width: '18px', height: '18px', cursor: 'pointer', accentColor: 'var(--pv-blue)' }}
               />
-              <span>🔌 Carregador</span>
+              Fone
             </label>
-            <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+            <label style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', fontSize: '14px', fontWeight: 600, padding: '12px', background: 'var(--bg-secondary)', borderRadius: 'var(--radius-md)', border: '2px solid var(--pv-gray-200)' }}>
               <input 
                 type="checkbox" 
-                checked={form.acessorios.pelicula} 
-                onChange={(e) => setForm({...form, acessorios: {...form.acessorios, pelicula: e.target.checked}})}
-                style={{ width: '18px', height: '18px', cursor: 'pointer' }}
+                checked={form.carregador} 
+                onChange={(e) => setForm({...form, carregador: e.target.checked})}
+                style={{ width: '18px', height: '18px', cursor: 'pointer', accentColor: 'var(--pv-blue)' }}
               />
-              <span>🛡️ Película</span>
+              Carregador
+            </label>
+            <label style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', fontSize: '14px', fontWeight: 600, padding: '12px', background: 'var(--bg-secondary)', borderRadius: 'var(--radius-md)', border: '2px solid var(--pv-gray-200)' }}>
+              <input 
+                type="checkbox" 
+                checked={form.pelicula} 
+                onChange={(e) => setForm({...form, pelicula: e.target.checked})}
+                style={{ width: '18px', height: '18px', cursor: 'pointer', accentColor: 'var(--pv-blue)' }}
+              />
+              Película
             </label>
           </div>
 
           <div style={{ marginBottom: '20px' }}>
-            <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>Outros acessórios:</label>
-            <input 
-              type="text" 
-              value={form.acessorios.outros} 
-              onChange={(e) => setForm({...form, acessorios: {...form.acessorios, outros: e.target.value}})}
-              placeholder="Ex: Capa, cabo extra..."
-              style={{ width: '100%', padding: '10px', border: '1px solid #ddd', borderRadius: '5px', fontSize: '14px' }}
+            <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: 'var(--text-primary)', fontSize: '14px' }}>
+              Outros Acessórios
+            </label>
+            <textarea 
+              value={form.outros_acessorios} 
+              onChange={(e) => setForm({...form, outros_acessorios: e.target.value})} 
+              placeholder="Caixa, nota fiscal, capa, etc."
+              rows="3"
             />
           </div>
 
-          <div style={{ display: 'flex', gap: '10px' }}>
+          <div style={{ display: 'flex', gap: '12px', marginTop: '30px' }}>
             <button 
               type="submit" 
-              style={{ 
-                flex: 1,
-                background: '#10b981', 
-                color: 'white', 
-                border: 'none', 
-                padding: '14px', 
-                borderRadius: '6px', 
-                cursor: 'pointer', 
-                fontSize: '16px',
-                fontWeight: 'bold'
-              }}
+              className="btn-primary"
+              style={{ flex: 1, padding: '14px' }}
             >
-              {editando ? '💾 Salvar Alterações' : '✅ Cadastrar Produto'}
+              {editando ? 'Salvar Alterações' : 'Cadastrar Produto'}
             </button>
             <button 
               type="button"
               onClick={resetarForm}
-              style={{ 
-                background: '#6b7280', 
-                color: 'white', 
-                border: 'none', 
-                padding: '14px 24px', 
-                borderRadius: '6px', 
-                cursor: 'pointer', 
-                fontSize: '16px',
-                fontWeight: 'bold'
-              }}
+              className="btn-secondary"
+              style={{ padding: '14px 28px' }}
             >
               Cancelar
             </button>
@@ -448,93 +374,85 @@ export default function Produtos() {
         </form>
       )}
 
-      {/* BUSCA E LISTA */}
-      <div style={{ background: 'white', padding: '25px', borderRadius: '10px', border: '1px solid #e5e7eb' }}>
-        <div style={{ marginBottom: '20px' }}>
+      <div className="stat-card" style={{ padding: '28px' }}>
+        <div style={{ marginBottom: '24px' }}>
           <input 
             type="text"
-            placeholder="🔍 Buscar por modelo, IMEI ou cor..."
+            placeholder="Buscar por modelo, marca ou IMEI..."
             value={busca}
             onChange={(e) => setBusca(e.target.value)}
-            style={{ 
-              width: '100%', 
-              padding: '12px', 
-              border: '2px solid #e5e7eb', 
-              borderRadius: '6px',
-              fontSize: '14px'
-            }}
           />
         </div>
 
-        <h3 style={{ marginTop: 0, marginBottom: '15px' }}>
+        <h3 style={{ marginTop: 0, marginBottom: '20px', fontSize: '18px', fontWeight: '800', color: 'var(--text-primary)' }}>
           Lista de Produtos ({produtosFiltrados.length})
         </h3>
         
         {produtosFiltrados.length === 0 ? (
-          <p style={{ textAlign: 'center', color: '#666', padding: '40px' }}>
+          <p style={{ textAlign: 'center', color: 'var(--text-secondary)', padding: '60px 20px', fontSize: '15px', fontWeight: 500 }}>
             {busca ? 'Nenhum produto encontrado.' : 'Nenhum produto cadastrado ainda.'}
           </p>
         ) : (
           <div style={{ overflowX: 'auto' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+            <table className="table-modern">
               <thead>
-                <tr style={{ background: '#f9fafb', borderBottom: '2px solid #e5e7eb' }}>
-                  <th style={{ padding: '12px', textAlign: 'left', fontSize: '14px', fontWeight: '600' }}>Marca</th>
-                  <th style={{ padding: '12px', textAlign: 'left', fontSize: '14px', fontWeight: '600' }}>Modelo</th>
-                  <th style={{ padding: '12px', textAlign: 'left', fontSize: '14px', fontWeight: '600' }}>IMEI</th>
-                  <th style={{ padding: '12px', textAlign: 'left', fontSize: '14px', fontWeight: '600' }}>Armazenamento</th>
-                  <th style={{ padding: '12px', textAlign: 'left', fontSize: '14px', fontWeight: '600' }}>Grade</th>
-                  <th style={{ padding: '12px', textAlign: 'center', fontSize: '14px', fontWeight: '600' }}>Ações</th>
+                <tr>
+                  <th>Modelo</th>
+                  <th>Marca</th>
+                  <th>Cor</th>
+                  <th>Capacidade</th>
+                  <th>Estado</th>
+                  <th>Acessórios</th>
+                  <th>Preço Compra</th>
+                  <th style={{ textAlign: 'center' }}>Ações</th>
                 </tr>
               </thead>
               <tbody>
                 {produtosFiltrados.map((p) => (
-                  <tr key={p.id} style={{ borderBottom: '1px solid #e5e7eb' }}>
-                    <td style={{ padding: '12px', fontWeight: '500' }}>{p.marca}</td>
-                    <td style={{ padding: '12px' }}>{p.modelo}</td>
-                    <td style={{ padding: '12px', fontFamily: 'monospace', color: '#666' }}>{p.imei}</td>
-                    <td style={{ padding: '12px', color: '#666' }}>{p.armazenamento || '-'}</td>
-                    <td style={{ padding: '12px' }}>
-                      <span style={{ 
-                        background: p.grade === 'A' ? '#dcfce7' : p.grade === 'B' ? '#fef3c7' : '#fee2e2',
-                        color: p.grade === 'A' ? '#15803d' : p.grade === 'B' ? '#92400e' : '#991b1b',
-                        padding: '4px 10px',
-                        borderRadius: '4px',
-                        fontSize: '12px',
-                        fontWeight: '600'
-                      }}>
-                        Grade {p.grade}
+                  <tr key={p.id}>
+                    <td style={{ fontWeight: '700', color: 'var(--text-primary)' }}>{p.modelo || '—'}</td>
+                    <td>{p.marca || '—'}</td>
+                    <td>{p.cor || '—'}</td>
+                    <td>{p.capacidade || '—'}</td>
+                    <td>
+                      <span className={p.estado === 'novo' ? 'badge-success' : 'badge-info'}>
+                        {p.estado === 'novo' ? 'Novo' : 'Usado'}
                       </span>
                     </td>
-                    <td style={{ padding: '12px', textAlign: 'center' }}>
+                    <td style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
+                      {[
+                        p.aparelho_desbloqueado && 'Desb.',
+                        p.fone && 'Fone',
+                        p.carregador && 'Carr.',
+                        p.pelicula && 'Pelíc.'
+                      ].filter(Boolean).join(', ') || '—'}
+                    </td>
+                    <td style={{ fontWeight: '700', color: 'var(--pv-blue)' }}>
+                      R$ {((p.preco_compra_centavos || 0) / 100).toFixed(2)}
+                    </td>
+                    <td style={{ textAlign: 'center' }}>
                       <button 
                         onClick={() => editarProduto(p)}
-                        style={{ 
-                          background: '#3b82f6', 
-                          color: 'white', 
-                          border: 'none', 
-                          padding: '6px 12px', 
-                          borderRadius: '4px', 
-                          cursor: 'pointer',
-                          fontSize: '12px',
-                          marginRight: '5px'
-                        }}
+                        className="btn-secondary"
+                        style={{ padding: '8px 14px', fontSize: '13px', marginRight: '8px' }}
                       >
-                        ✏️ Editar
+                        Editar
                       </button>
                       <button 
                         onClick={() => excluirProduto(p.id, p.modelo)}
                         style={{ 
-                          background: '#ef4444', 
+                          background: 'var(--gradient-secondary)', 
                           color: 'white', 
                           border: 'none', 
-                          padding: '6px 12px', 
-                          borderRadius: '4px', 
+                          padding: '8px 14px', 
+                          borderRadius: 'var(--radius-md)', 
                           cursor: 'pointer',
-                          fontSize: '12px'
+                          fontSize: '13px',
+                          fontWeight: 700,
+                          boxShadow: '0 4px 12px rgba(230, 57, 70, 0.25)'
                         }}
                       >
-                        🗑️ Excluir
+                        Excluir
                       </button>
                     </td>
                   </tr>
