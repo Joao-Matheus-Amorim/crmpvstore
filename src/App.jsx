@@ -35,7 +35,9 @@ function App() {
             borderWidth: '4px',
             marginBottom: '20px'
           }}></div>
-          <p style={{ color: 'var(--text-secondary)' }}>Carregando PV Store CRM...</p>
+          <p style={{ color: 'var(--text-secondary)', fontWeight: 600 }}>
+            Carregando PV Store CRM...
+          </p>
         </div>
       </div>
     )
@@ -46,18 +48,18 @@ function App() {
   }
 
   const menus = [
-    { id: 'dashboard', label: 'Dashboard', icon: '🏠' },
-    { id: 'leads', label: 'Leads', icon: '📊' },
-    { id: 'clientes', label: 'Clientes', icon: '👥' },
-    { id: 'produtos', label: 'Produtos', icon: '📱' },
-    { id: 'contratos', label: 'Contratos', icon: '📄' }
+    { id: 'dashboard', label: 'Dashboard' },
+    { id: 'leads', label: 'Leads' },
+    { id: 'clientes', label: 'Clientes' },
+    { id: 'produtos', label: 'Produtos' },
+    { id: 'contratos', label: 'Contratos' }
   ]
 
   return (
     <div style={{ minHeight: '100vh', background: 'var(--bg-primary)' }}>
       <nav className="header-3d">
         <div className="header-rail">
-          {/* Marca */}
+          {/* Logo e Marca */}
           <div className="brand">
             <div className="brand-badge">
               <img src="/logo.png" alt="PV Store" />
@@ -68,7 +70,7 @@ function App() {
             </div>
           </div>
 
-          {/* Pills */}
+          {/* Menu de Navegação */}
           <div className="nav-pills">
             {menus.map(m => (
               <button
@@ -76,17 +78,28 @@ function App() {
                 onClick={() => setTelaAtual(m.id)}
                 className={`pill ${telaAtual === m.id ? 'active' : ''}`}
               >
-                <span style={{ marginRight: 8 }}>{m.icon}</span>
                 {m.label}
               </button>
             ))}
 
-            <div style={{ width: 1, height: 32, background: 'rgba(255,255,255,0.12)', margin: '0 8px' }} />
+            {/* Separador */}
+            <div style={{ 
+              width: 1, 
+              height: 32, 
+              background: 'var(--pv-gray-200)', 
+              margin: '0 8px' 
+            }} />
 
-            {/* Usuário */}
+            {/* Usuário e Logout */}
             <div className="user-chip">
-              <div className="user-avatar">{user.email[0].toUpperCase()}</div>
-              <span style={{ color: 'var(--text-secondary)', fontSize: 13 }}>
+              <div className="user-avatar">
+                {user.email[0].toUpperCase()}
+              </div>
+              <span style={{ 
+                color: 'var(--text-secondary)', 
+                fontSize: 13, 
+                fontWeight: 600 
+              }}>
                 {user.email.split('@')[0]}
               </span>
               <button
@@ -98,15 +111,21 @@ function App() {
             </div>
           </div>
         </div>
-        <div className="header-glow"></div>
       </nav>
 
-      <main style={{ maxWidth: '1600px', margin: '0 auto', animation: 'fadeIn 0.5s ease-out' }}>
-        {telaAtual === 'dashboard' && <Dashboard />}
-        {telaAtual === 'leads' && <Leads />}
-        {telaAtual === 'clientes' && <Clientes />}
-        {telaAtual === 'produtos' && <Produtos />}
-        {telaAtual === 'contratos' && <Contratos />}
+      {/* Conteúdo Principal */}
+      <main style={{ 
+        maxWidth: '1600px', 
+        margin: '0 auto',
+        padding: '0 20px'
+      }}>
+        <div className="animate-fade-in">
+          {telaAtual === 'dashboard' && <Dashboard />}
+          {telaAtual === 'leads' && <Leads />}
+          {telaAtual === 'clientes' && <Clientes />}
+          {telaAtual === 'produtos' && <Produtos />}
+          {telaAtual === 'contratos' && <Contratos />}
+        </div>
       </main>
     </div>
   )

@@ -29,21 +29,18 @@ export default function Dashboard() {
   async function carregarStats() {
     if (!ownerId) return
 
-    // Leads novos (status "novo")
     const { count: leadsCount } = await supabase
       .from('leads')
       .select('*', { count: 'exact', head: true })
       .eq('owner_id', ownerId)
       .eq('status', 'novo')
 
-    // Contratos ativos
     const { count: contratosCount } = await supabase
       .from('contracts')
       .select('*', { count: 'exact', head: true })
       .eq('owner_id', ownerId)
       .eq('status', 'ativo')
 
-    // Vendas do mês (soma de contratos fechados)
     const inicioMes = new Date()
     inicioMes.setDate(1)
     inicioMes.setHours(0, 0, 0, 0)
@@ -57,13 +54,11 @@ export default function Dashboard() {
 
     const totalVendas = vendasData?.reduce((acc, v) => acc + (v.valor_centavos || 0), 0) || 0
 
-    // Total de clientes
     const { count: clientesCount } = await supabase
       .from('clients')
       .select('*', { count: 'exact', head: true })
       .eq('owner_id', ownerId)
 
-    // Total de produtos
     const { count: produtosCount } = await supabase
       .from('products')
       .select('*', { count: 'exact', head: true })
@@ -86,7 +81,7 @@ export default function Dashboard() {
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
-        height: '80vh'
+        height: '70vh'
       }}>
         <div className="spinner" style={{ width: '50px', height: '50px' }}></div>
       </div>
@@ -97,61 +92,65 @@ export default function Dashboard() {
     {
       titulo: 'Novos Leads',
       valor: stats.novosLeads,
-      icon: '📊',
-      gradient: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-      descricao: 'Leads não contatados'
+      descricao: 'Aguardando contato',
+      color: '#0066CC',
+      bgGradient: 'linear-gradient(135deg, #0066CC 0%, #004C99 100%)'
     },
     {
       titulo: 'Contratos Ativos',
       valor: stats.contratosAtivos,
-      icon: '📄',
-      gradient: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
-      descricao: 'Contratos em andamento'
+      descricao: 'Em andamento',
+      color: '#E63946',
+      bgGradient: 'linear-gradient(135deg, #E63946 0%, #C72938 100%)'
     },
     {
       titulo: 'Vendas do Mês',
       valor: `R$ ${stats.vendasMes}`,
-      icon: '💰',
-      gradient: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
-      descricao: 'Faturamento mensal'
+      descricao: 'Faturamento mensal',
+      color: '#10B981',
+      bgGradient: 'linear-gradient(135deg, #10B981 0%, #059669 100%)'
     },
     {
       titulo: 'Total de Clientes',
       valor: stats.totalClientes,
-      icon: '👥',
-      gradient: 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
-      descricao: 'Compradores e vendedores'
+      descricao: 'Compradores e vendedores',
+      color: '#0066CC',
+      bgGradient: 'linear-gradient(135deg, #0066CC 0%, #004C99 100%)'
     },
     {
       titulo: 'Produtos Cadastrados',
       valor: stats.totalProdutos,
-      icon: '📱',
-      gradient: 'linear-gradient(135deg, #fa709a 0%, #fee140 100%)',
-      descricao: 'Celulares em estoque'
+      descricao: 'Celulares em estoque',
+      color: '#E63946',
+      bgGradient: 'linear-gradient(135deg, #E63946 0%, #C72938 100%)'
     }
   ]
 
   return (
-    <div style={{ padding: '40px 30px', minHeight: 'calc(100vh - 60px)' }}>
-      {/* Header com saudação */}
+    <div style={{ padding: '40px 0', minHeight: 'calc(100vh - 90px)' }}>
+      {/* Header */}
       <div style={{ marginBottom: '40px' }}>
         <h1 style={{
           margin: 0,
           fontSize: '32px',
-          fontWeight: '800',
-          background: 'var(--gradient-primary)',
-          WebkitBackgroundClip: 'text',
-          WebkitTextFillColor: 'transparent',
+          fontWeight: '900',
+          color: 'var(--text-primary)',
+          letterSpacing: '-0.5px',
           marginBottom: '8px'
         }}>
-          Bem-vindo ao PV Store CRM
+          Bem-vindo ao Dashboard
         </h1>
-        <p style={{ color: 'var(--text-secondary)', fontSize: '16px', margin: 0 }}>
+        <p style={{ 
+          color: 'var(--text-secondary)', 
+          fontSize: '16px', 
+          margin: 0,
+          fontWeight: 500
+        }}>
           Visão geral do seu negócio em tempo real
         </p>
       </div>
 
-      {/* Grid de cards */}
+      {/* Grid de Cards */}
       <div style={{
         display: 'grid',
         gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
@@ -161,69 +160,66 @@ export default function Dashboard() {
         {cards.map((card, index) => (
           <div
             key={index}
-            className="stat-card gradient-border"
+            className="stat-card"
             style={{
-              padding: '28px',
+              padding: '32px',
               position: 'relative',
               overflow: 'hidden',
               animation: `fadeIn 0.5s ease-out ${index * 0.1}s both`
             }}
           >
-            {/* Fundo com gradiente sutil */}
+            {/* Borda colorida no topo */}
             <div style={{
               position: 'absolute',
-              top: '-50%',
-              right: '-30%',
-              width: '200px',
-              height: '200px',
-              background: card.gradient,
-              opacity: 0.08,
+              top: 0,
+              left: 0,
+              right: 0,
+              height: '4px',
+              background: card.bgGradient
+            }} />
+
+            {/* Fundo decorativo */}
+            <div style={{
+              position: 'absolute',
+              top: '-40%',
+              right: '-20%',
+              width: '180px',
+              height: '180px',
+              background: card.bgGradient,
+              opacity: 0.05,
               borderRadius: '50%',
               filter: 'blur(40px)'
-            }}></div>
+            }} />
 
             {/* Conteúdo */}
             <div style={{ position: 'relative', zIndex: 1 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
-                <div style={{
-                  width: '48px',
-                  height: '48px',
-                  background: card.gradient,
-                  borderRadius: '12px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontSize: '24px',
-                  boxShadow: '0 8px 16px rgba(0,0,0,0.15)'
-                }}>
-                  {card.icon}
-                </div>
-                <h3 style={{
-                  margin: 0,
-                  fontSize: '14px',
-                  fontWeight: '600',
-                  color: 'var(--text-secondary)',
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.5px'
-                }}>
-                  {card.titulo}
-                </h3>
-              </div>
+              <h3 style={{
+                margin: '0 0 12px 0',
+                fontSize: '13px',
+                fontWeight: '700',
+                color: 'var(--text-secondary)',
+                textTransform: 'uppercase',
+                letterSpacing: '1px'
+              }}>
+                {card.titulo}
+              </h3>
 
               <p style={{
                 margin: '0 0 8px 0',
-                fontSize: '36px',
-                fontWeight: '800',
-                color: 'var(--text-primary)',
-                lineHeight: 1
+                fontSize: '40px',
+                fontWeight: '900',
+                color: card.color,
+                lineHeight: 1,
+                letterSpacing: '-1px'
               }}>
                 {card.valor}
               </p>
 
               <p style={{
                 margin: 0,
-                fontSize: '13px',
-                color: 'var(--text-muted)'
+                fontSize: '14px',
+                color: 'var(--text-muted)',
+                fontWeight: 500
               }}>
                 {card.descricao}
               </p>
@@ -232,27 +228,32 @@ export default function Dashboard() {
         ))}
       </div>
 
-      {/* Seção de ações rápidas */}
+      {/* Ações Rápidas */}
       <div className="stat-card" style={{ padding: '32px' }}>
-        <h2 style={{ margin: '0 0 24px 0', fontSize: '20px', fontWeight: '700' }}>
-          ⚡ Ações Rápidas
+        <h2 style={{ 
+          margin: '0 0 24px 0', 
+          fontSize: '20px', 
+          fontWeight: '800',
+          color: 'var(--text-primary)'
+        }}>
+          Ações Rápidas
         </h2>
         <div style={{
           display: 'grid',
           gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
           gap: '16px'
         }}>
-          <button className="btn-primary" style={{ padding: '14px 20px', fontSize: '14px' }}>
-            + Novo Lead
+          <button className="btn-primary" style={{ padding: '14px 20px' }}>
+            Novo Lead
           </button>
-          <button className="btn-primary" style={{ padding: '14px 20px', fontSize: '14px' }}>
-            + Novo Cliente
+          <button className="btn-primary" style={{ padding: '14px 20px' }}>
+            Novo Cliente
           </button>
-          <button className="btn-primary" style={{ padding: '14px 20px', fontSize: '14px' }}>
-            + Novo Produto
+          <button className="btn-primary" style={{ padding: '14px 20px' }}>
+            Novo Produto
           </button>
-          <button className="btn-primary" style={{ padding: '14px 20px', fontSize: '14px' }}>
-            + Novo Contrato
+          <button className="btn-primary" style={{ padding: '14px 20px' }}>
+            Novo Contrato
           </button>
         </div>
       </div>
