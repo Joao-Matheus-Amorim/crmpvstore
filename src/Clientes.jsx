@@ -467,7 +467,8 @@ export default function Clientes() {
           </p>
         ) : (
           <div style={{ overflowX: 'auto' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+            <table className="table-modern">
+
               <thead>
                 <tr style={{ background: '#f9fafb', borderBottom: '2px solid #e5e7eb' }}>
                   <th style={{ padding: '12px', textAlign: 'left', fontSize: '14px', fontWeight: '600' }}>Tipo</th>
