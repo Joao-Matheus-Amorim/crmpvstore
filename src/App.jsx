@@ -14,10 +14,34 @@ function App() {
   const [menuAberto, setMenuAberto] = useState(false)
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    const fetchSession = async () => {
+      try {
+        const { data: { session }, error } = await supabase.auth.getSession()
+        
+        if (error) {
+          console.error('Erro ao buscar sessão:', error)
+          setUser(null)
+        } else {
+          setUser(session?.user ?? null)
+        }
+      } catch (err) {
+        console.error('Erro inesperado:', err)
+        setUser(null)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchSession()
+
+    // Listener para mudanças de autenticação
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null)
-      setLoading(false)
     })
+
+    return () => {
+      subscription?.unsubscribe()
+    }
   }, [])
 
   if (loading) {
@@ -62,6 +86,21 @@ function App() {
     setMenuAberto(false)
   }
 
+  const handleLogout = async () => {
+    try {
+      await supabase.auth.signOut()
+      setUser(null)
+      setTelaAtual('dashboard')
+    } catch (error) {
+      console.error('Erro ao fazer logout:', error)
+    }
+  }
+
+  // Verificação de segurança para email
+  const userEmail = user?.email || 'usuário'
+  const userInitial = userEmail.charAt(0).toUpperCase()
+  const userName = userEmail.split('@')[0]
+
   return (
     <div style={{ minHeight: '100vh', background: 'var(--bg-primary)' }}>
       <nav className="header-3d">
@@ -82,6 +121,7 @@ function App() {
             className="hamburger-btn"
             onClick={() => setMenuAberto(!menuAberto)}
             aria-label="Menu"
+            type="button"
           >
             <span></span>
             <span></span>
@@ -95,6 +135,7 @@ function App() {
                 key={m.id}
                 onClick={() => handleMenuClick(m.id)}
                 className={`pill ${telaAtual === m.id ? 'active' : ''}`}
+                type="button"
               >
                 {m.label}
               </button>
@@ -106,14 +147,15 @@ function App() {
             {/* Usuário e Logout */}
             <div className="user-chip">
               <div className="user-avatar">
-                {user.email[0].toUpperCase()}
+                {userInitial}
               </div>
               <span className="user-name">
-                {user.email.split('@')[0]}
+                {userName}
               </span>
               <button
                 className="logout"
-                onClick={() => supabase.auth.signOut().then(() => setUser(null))}
+                onClick={handleLogout}
+                type="button"
               >
                 Sair
               </button>
@@ -127,6 +169,7 @@ function App() {
         <div 
           className="menu-overlay"
           onClick={() => setMenuAberto(false)}
+          role="presentation"
         />
       )}
 
