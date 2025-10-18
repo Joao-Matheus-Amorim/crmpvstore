@@ -6,6 +6,7 @@ import Clientes from './Clientes.jsx'
 import Produtos from './Produtos.jsx'
 import Leads from './Leads.jsx'
 import Contratos from './Contratos.jsx'
+import Configuracoes from './Configuracoes.jsx' // ← ADICIONAR
 
 function App() {
   const [user, setUser] = useState(null)
@@ -59,11 +60,12 @@ function App() {
   }
 
   const menus = [
-    { id: 'dashboard', label: 'Dashboard' },
-    { id: 'leads', label: 'Leads' },
-    { id: 'clientes', label: 'Clientes' },
-    { id: 'produtos', label: 'Produtos' },
-    { id: 'contratos', label: 'Contratos' }
+    { id: 'dashboard', label: 'Dashboard', icon: '📊' },
+    { id: 'leads', label: 'Leads', icon: '🎯' },
+    { id: 'clientes', label: 'Clientes', icon: '👥' },
+    { id: 'produtos', label: 'Produtos', icon: '📱' },
+    { id: 'contratos', label: 'Contratos', icon: '📄' },
+    { id: 'configuracoes', label: 'Configurações', icon: '⚙️' } // ← ADICIONAR
   ]
 
   const handleMenuClick = (id) => {
@@ -121,7 +123,8 @@ function App() {
                 className={`nav-item ${telaAtual === m.id ? 'active' : ''}`}
                 type="button"
               >
-                {m.label}
+                <span className="nav-icon">{m.icon}</span>
+                <span className="nav-label">{m.label}</span>
               </button>
             ))}
           </div>
@@ -170,6 +173,7 @@ function App() {
               className={`drawer-item ${telaAtual === m.id ? 'active' : ''}`}
               type="button"
             >
+              <span className="drawer-icon">{m.icon}</span>
               <span className="drawer-label">{m.label}</span>
               {telaAtual === m.id && <span className="drawer-indicator"></span>}
             </button>
@@ -178,7 +182,7 @@ function App() {
 
         <div className="drawer-footer">
           <button className="btn-logout-drawer" onClick={handleLogout} type="button">
-            Encerrar Sessão
+            🚪 Encerrar Sessão
           </button>
         </div>
       </div>
@@ -199,8 +203,53 @@ function App() {
           {telaAtual === 'clientes' && <Clientes />}
           {telaAtual === 'produtos' && <Produtos />}
           {telaAtual === 'contratos' && <Contratos />}
+          {telaAtual === 'configuracoes' && <Configuracoes />} {/* ← ADICIONAR */}
         </div>
       </main>
+
+      {/* CSS adicional para ícones */}
+      <style>{`
+        .nav-item {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+        }
+
+        .nav-icon {
+          font-size: 18px;
+        }
+
+        .nav-label {
+          font-size: 14px;
+          font-weight: 600;
+        }
+
+        .drawer-item {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+        }
+
+        .drawer-icon {
+          font-size: 20px;
+          min-width: 24px;
+        }
+
+        .drawer-label {
+          flex: 1;
+          font-size: 15px;
+          font-weight: 600;
+        }
+
+        @media (max-width: 768px) {
+          .nav-icon {
+            font-size: 16px;
+          }
+          .nav-label {
+            display: none;
+          }
+        }
+      `}</style>
     </div>
   )
 }
