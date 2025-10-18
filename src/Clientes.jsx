@@ -48,7 +48,7 @@ export default function Clientes() {
         .from('clients')
         .select('*')
         .eq('owner_id', ownerId)
-        .order('nome', { ascending: true })
+        .order('nome_completo', { ascending: true })
 
       if (!error) setClientes(data || [])
     } catch (err) {
@@ -62,13 +62,34 @@ export default function Clientes() {
     e.preventDefault()
     
     try {
+      // Mapear formData para campos corretos do banco
+      const clienteData = {
+        tipo: 'pessoa_fisica',
+        nome_completo: formData.nome,
+        cpf: formData.cpf || null,
+        email: formData.email || null,
+        telefone: formData.telefone || null,
+        celular: formData.telefone || null,
+        endereco: formData.endereco || null,
+        numero: formData.numero || null,
+        bairro: formData.bairro || null,
+        cidade: formData.cidade || null,
+        uf: formData.estado || null,
+        cep: formData.cep || null,
+        observacoes: formData.observacoes || null
+      }
+
       if (editando) {
         const { error } = await supabase
           .from('clients')
-          .update(formData)
+          .update(clienteData)
           .eq('id', editando.id)
         
-        if (!error) {
+        if (error) {
+          console.error('Erro ao atualizar:', error)
+          alert('❌ Erro ao atualizar cliente:\n' + error.message)
+        } else {
+          alert('✅ Cliente atualizado com sucesso!')
           resetForm()
           carregarClientes()
         }
@@ -76,28 +97,34 @@ export default function Clientes() {
         const { error } = await supabase
           .from('clients')
           .insert({
-            ...formData,
+            ...clienteData,
             owner_id: ownerId
           })
         
-        if (!error) {
+        if (error) {
+          console.error('Erro ao criar:', error)
+          alert('❌ Erro ao criar cliente:\n' + error.message)
+        } else {
+          alert('✅ Cliente cadastrado com sucesso!')
           resetForm()
           carregarClientes()
         }
       }
     } catch (err) {
       console.error('Erro ao salvar cliente:', err)
-      alert('Erro ao salvar cliente. Tente novamente.')
+      alert('❌ Erro inesperado ao salvar cliente.')
     }
   }
 
   async function deletarCliente(id) {
-    if (window.confirm('Tem certeza que deseja excluir este cliente?')) {
+    if (window.confirm('⚠️ Tem certeza que deseja excluir este cliente?')) {
       try {
         await supabase.from('clients').delete().eq('id', id)
+        alert('✅ Cliente excluído com sucesso!')
         carregarClientes()
       } catch (err) {
         console.error('Erro ao deletar cliente:', err)
+        alert('❌ Erro ao excluir cliente.')
       }
     }
   }
@@ -105,16 +132,16 @@ export default function Clientes() {
   function editarCliente(cliente) {
     setEditando(cliente)
     setFormData({
-      nome: cliente.nome || '',
+      nome: cliente.nome_completo || '',
       cpf: cliente.cpf || '',
       email: cliente.email || '',
-      telefone: cliente.telefone || '',
-      tipo: cliente.tipo || 'comprador',
+      telefone: cliente.celular || cliente.telefone || '',
+      tipo: 'comprador',
       endereco: cliente.endereco || '',
       numero: cliente.numero || '',
       bairro: cliente.bairro || '',
       cidade: cliente.cidade || '',
-      estado: cliente.estado || '',
+      estado: cliente.uf || '',
       cep: cliente.cep || '',
       observacoes: cliente.observacoes || ''
     })
@@ -142,11 +169,18 @@ export default function Clientes() {
   }
 
   const clientesFiltrados = clientes.filter(cliente =>
-    cliente.nome?.toLowerCase().includes(filtro.toLowerCase()) ||
+    cliente.nome_completo?.toLowerCase().includes(filtro.toLowerCase()) ||
     cliente.email?.toLowerCase().includes(filtro.toLowerCase()) ||
     cliente.cpf?.includes(filtro) ||
-    cliente.telefone?.includes(filtro)
+    cliente.telefone?.includes(filtro) ||
+    cliente.celular?.includes(filtro)
   )
+
+  const statsClientes = {
+    total: clientes.length,
+    pessoaFisica: clientes.filter(c => c.tipo === 'pessoa_fisica').length,
+    pessoaJuridica: clientes.filter(c => c.tipo === 'pessoa_juridica').length
+  }
 
   if (carregando) {
     return (
@@ -168,6 +202,45 @@ export default function Clientes() {
           <button className="btn-primary" onClick={() => setMostrarForm(!mostrarForm)}>
             {mostrarForm ? 'Cancelar' : 'Novo Cliente'}
           </button>
+        </div>
+      </div>
+
+      {/* Stats dos Clientes */}
+      <div className="stats-grid" style={{ marginBottom: 'var(--spacing-xl)' }}>
+        <div className="stat-card-pro" style={{ animationDelay: '0s' }}>
+          <div className="stat-card-border" style={{ background: 'var(--gradient-blue)' }}></div>
+          <div className="stat-card-glow" style={{ background: 'var(--gradient-blue)' }}></div>
+          <div className="stat-card-content">
+            <div className="stat-header">
+              <h3 className="stat-title">Total Clientes</h3>
+            </div>
+            <p className="stat-value" style={{ color: '#0066CC' }}>{statsClientes.total}</p>
+            <p className="stat-description">Clientes cadastrados</p>
+          </div>
+        </div>
+
+        <div className="stat-card-pro" style={{ animationDelay: '0.1s' }}>
+          <div className="stat-card-border" style={{ background: 'linear-gradient(135deg, #10B981 0%, #059669 100%)' }}></div>
+          <div className="stat-card-glow" style={{ background: 'linear-gradient(135deg, #10B981 0%, #059669 100%)' }}></div>
+          <div className="stat-card-content">
+            <div className="stat-header">
+              <h3 className="stat-title">Pessoa Física</h3>
+            </div>
+            <p className="stat-value" style={{ color: '#10B981' }}>{statsClientes.pessoaFisica}</p>
+            <p className="stat-description">CPF cadastrados</p>
+          </div>
+        </div>
+
+        <div className="stat-card-pro" style={{ animationDelay: '0.2s' }}>
+          <div className="stat-card-border" style={{ background: 'var(--gradient-blue)' }}></div>
+          <div className="stat-card-glow" style={{ background: 'var(--gradient-blue)' }}></div>
+          <div className="stat-card-content">
+            <div className="stat-header">
+              <h3 className="stat-title">Pessoa Jurídica</h3>
+            </div>
+            <p className="stat-value" style={{ color: '#0066CC' }}>{statsClientes.pessoaJuridica}</p>
+            <p className="stat-description">CNPJ cadastrados</p>
+          </div>
         </div>
       </div>
 
@@ -356,7 +429,7 @@ export default function Clientes() {
         {clientesFiltrados.length === 0 ? (
           <div className="empty-state">
             <svg width="64" height="64" viewBox="0 0 64 64" fill="none" className="empty-icon">
-              <circle cx="32" cy="32" r="30" stroke="currentColor" strokeWidth="2" opacity="0.2"/>
+              ircle cx="32" cy="32" r="30" stroke="currentColor" strokeWidth="2" opacity="0.2.2"/)
               <path d="M32 20v24M20 32h24" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
             </svg>
             <h4 className="empty-title">Nenhum cliente encontrado</h4>
@@ -381,38 +454,45 @@ export default function Clientes() {
                 {clientesFiltrados.map(cliente => (
                   <tr key={cliente.id}>
                     <td>
-                      <div className="table-name">{cliente.nome}</div>
+                      <div className="table-name">{cliente.nome_completo}</div>
                     </td>
                     <td className="table-cpf">{cliente.cpf}</td>
                     <td>
                       <div className="table-contact">
                         <div>{cliente.email}</div>
-                        <div className="table-subtitle">{cliente.telefone}</div>
+                        <div className="table-subtitle">{cliente.celular || cliente.telefone}</div>
                       </div>
                     </td>
                     <td>
-                      <span className={`badge-tipo badge-${cliente.tipo}`}>
-                        {cliente.tipo}
+                      <span className={`badge-tipo badge-${cliente.tipo}`} style={{
+                        padding: '4px 12px',
+                        borderRadius: '6px',
+                        fontSize: '12px',
+                        fontWeight: '600',
+                        background: cliente.tipo === 'pessoa_fisica' ? '#E6F2FF' : '#FFE8EA',
+                        color: cliente.tipo === 'pessoa_fisica' ? '#0066CC' : '#E63946'
+                      }}>
+                        {cliente.tipo === 'pessoa_fisica' ? 'PF' : 'PJ'}
                       </span>
                     </td>
                     <td>
                       <div className="table-location">
-                        {cliente.cidade && cliente.estado ? (
-                          <>{cliente.cidade}/{cliente.estado}</>
+                        {cliente.cidade && cliente.uf ? (
+                          <>{cliente.cidade}/{cliente.uf}</>
                         ) : (
                           <span className="table-subtitle">Não informado</span>
                         )}
                       </div>
                     </td>
                     <td>
-                      <div className="table-actions">
+                      <div className="table-actions" style={{ display: 'flex', gap: '8px' }}>
                         <button
                           onClick={() => editarCliente(cliente)}
                           className="btn-icon btn-edit-icon"
                           title="Editar"
                         >
                           <svg width="18" height="18" viewBox="0 0 18 18" fill="currentColor">
-                            <path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z"/>
+                            <path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10z"/>
                           </svg>
                         </button>
                         <button
@@ -421,7 +501,7 @@ export default function Clientes() {
                           title="Excluir"
                         >
                           <svg width="18" height="18" viewBox="0 0 18 18" fill="currentColor">
-                            <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd"/>
+                            <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9z" clipRule="evenodd"/>
                           </svg>
                         </button>
                       </div>
