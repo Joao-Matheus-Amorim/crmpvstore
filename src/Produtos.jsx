@@ -47,6 +47,7 @@ export default function Produtos() {
         .from('products')
         .select('*')
         .eq('owner_id', ownerId)
+        .in('status', ['disponivel', 'vendido', 'reservado', 'manutencao']) // Não mostra deletados
         .order('created_at', { ascending: false })
 
       if (!error) setProdutos(data || [])
@@ -74,8 +75,11 @@ export default function Produtos() {
           .eq('id', editando.id)
         
         if (!error) {
+          alert('Produto atualizado com sucesso!')
           resetForm()
           carregarProdutos()
+        } else {
+          alert('Erro ao atualizar: ' + error.message)
         }
       } else {
         const { error } = await supabase
@@ -86,8 +90,11 @@ export default function Produtos() {
           })
         
         if (!error) {
+          alert('Produto cadastrado com sucesso!')
           resetForm()
           carregarProdutos()
+        } else {
+          alert('Erro ao cadastrar: ' + error.message)
         }
       }
     } catch (err) {
@@ -96,13 +103,24 @@ export default function Produtos() {
     }
   }
 
-  async function deletarProduto(id) {
-    if (window.confirm('Tem certeza que deseja excluir este produto?')) {
+  // EXCLUSÃO LÓGICA SEGURA
+  async function deletarProduto(id, nome) {
+    if (window.confirm(`Tem certeza que deseja excluir "${nome}"?\n\nO produto será removido do estoque mas mantido no histórico de vendas.`)) {
       try {
-        await supabase.from('products').delete().eq('id', id)
-        carregarProdutos()
+        const { error } = await supabase
+          .from('products')
+          .update({ status: 'deletado' })
+          .eq('id', id)
+        
+        if (!error) {
+          alert('Produto removido do estoque!')
+          carregarProdutos()
+        } else {
+          alert('Erro ao excluir: ' + error.message)
+        }
       } catch (err) {
         console.error('Erro ao deletar produto:', err)
+        alert('Erro ao excluir produto. Tente novamente.')
       }
     }
   }
@@ -530,7 +548,7 @@ export default function Produtos() {
                             </svg>
                           </button>
                           <button
-                            onClick={() => deletarProduto(produto.id)}
+                            onClick={() => deletarProduto(produto.id, produto.nome)}
                             className="btn-icon btn-danger-icon"
                             title="Excluir"
                           >
