@@ -45,24 +45,10 @@ function App() {
 
   if (loading) {
     return (
-      <div style={{
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        height: '100vh',
-        background: 'var(--bg-primary)',
-        padding: '1rem'
-      }}>
-        <div style={{ textAlign: 'center' }}>
-          <div className="spinner" style={{
-            width: '50px',
-            height: '50px',
-            borderWidth: '4px',
-            marginBottom: '20px'
-          }}></div>
-          <p style={{ color: 'var(--text-secondary)', fontWeight: 600 }}>
-            Carregando PV Store CRM...
-          </p>
+      <div className="loading-container">
+        <div className="loading-content">
+          <div className="spinner-professional"></div>
+          <p className="loading-text">Carregando PV Store CRM</p>
         </div>
       </div>
     )
@@ -73,11 +59,11 @@ function App() {
   }
 
   const menus = [
-    { id: 'dashboard', label: 'Dashboard', icon: '📊' },
-    { id: 'leads', label: 'Leads', icon: '🎯' },
-    { id: 'clientes', label: 'Clientes', icon: '👥' },
-    { id: 'produtos', label: 'Produtos', icon: '📱' },
-    { id: 'contratos', label: 'Contratos', icon: '📄' }
+    { id: 'dashboard', label: 'Dashboard' },
+    { id: 'leads', label: 'Leads' },
+    { id: 'clientes', label: 'Clientes' },
+    { id: 'produtos', label: 'Produtos' },
+    { id: 'contratos', label: 'Contratos' }
   ]
 
   const handleMenuClick = (id) => {
@@ -102,58 +88,58 @@ function App() {
   const userName = userEmail.split('@')[0]
 
   return (
-    <div style={{ minHeight: '100vh', background: 'var(--bg-primary)' }}>
-      {/* Header Responsivo */}
-      <nav className="header-3d">
-        <div className="header-rail">
-          {/* Logo e Marca */}
-          <div className="brand">
-            <div className="brand-badge">
-              <span style={{ fontSize: '24px' }}>🏪</span>
+    <div className="app-container">
+      {/* Header Profissional */}
+      <nav className="header-professional">
+        <div className="header-content">
+          {/* Logo Profissional com Imagem */}
+          <div className="brand-professional">
+            <div className="logo-professional">
+              <img 
+                src="/logo.png" 
+                alt="PV Store" 
+                style={{ 
+                  width: '100%', 
+                  height: '100%', 
+                  objectFit: 'contain',
+                  borderRadius: '8px'
+                }}
+              />
             </div>
-            <div className="brand-text">
-              <h1>PV Store CRM</h1>
-              <p className="brand-subtitle">Sistema de Gestão</p>
+            <div className="brand-info">
+              <h1 className="brand-title">PV Store CRM</h1>
+              <p className="brand-tagline">Sistema de Gestão</p>
             </div>
           </div>
 
           {/* Menu Desktop */}
-          <div className="nav-pills desktop-nav">
+          <div className="nav-professional desktop-nav">
             {menus.map(m => (
               <button
                 key={m.id}
                 onClick={() => handleMenuClick(m.id)}
-                className={`pill ${telaAtual === m.id ? 'active' : ''}`}
+                className={`nav-item ${telaAtual === m.id ? 'active' : ''}`}
                 type="button"
               >
-                <span className="pill-icon">{m.icon}</span>
-                <span className="pill-label">{m.label}</span>
+                {m.label}
               </button>
             ))}
           </div>
 
-          {/* User e Hamburger Container */}
-          <div className="header-actions">
-            {/* User Chip Desktop */}
-            <div className="user-chip desktop-user">
-              <div className="user-avatar">
-                {userInitial}
-              </div>
-              <span className="user-name">
-                {userName}
-              </span>
-              <button
-                className="logout"
-                onClick={handleLogout}
-                type="button"
-              >
+          {/* Actions */}
+          <div className="header-actions-pro">
+            {/* User Desktop */}
+            <div className="user-section desktop-user">
+              <div className="user-avatar-pro">{userInitial}</div>
+              <span className="user-name-pro">{userName}</span>
+              <button className="btn-logout-pro" onClick={handleLogout} type="button">
                 Sair
               </button>
             </div>
 
-            {/* Botão Hamburguer Mobile */}
+            {/* Hamburger Mobile */}
             <button 
-              className="hamburger-btn"
+              className="hamburger-professional"
               onClick={() => setMenuAberto(!menuAberto)}
               aria-label="Menu"
               type="button"
@@ -166,40 +152,33 @@ function App() {
         </div>
       </nav>
 
-      {/* Menu Mobile Lateral */}
-      <div className={`mobile-menu ${menuAberto ? 'open' : ''}`}>
-        <div className="mobile-menu-header">
-          <div className="user-avatar large">
-            {userInitial}
-          </div>
-          <div className="mobile-user-info">
-            <span className="mobile-user-name">{userName}</span>
-            <span className="mobile-user-email">{userEmail}</span>
+      {/* Menu Mobile */}
+      <div className={`mobile-drawer ${menuAberto ? 'open' : ''}`}>
+        <div className="drawer-header">
+          <div className="user-avatar-pro large">{userInitial}</div>
+          <div className="drawer-user-info">
+            <span className="drawer-user-name">{userName}</span>
+            <span className="drawer-user-email">{userEmail}</span>
           </div>
         </div>
 
-        <div className="mobile-menu-items">
+        <div className="drawer-menu">
           {menus.map(m => (
             <button
               key={m.id}
               onClick={() => handleMenuClick(m.id)}
-              className={`mobile-menu-item ${telaAtual === m.id ? 'active' : ''}`}
+              className={`drawer-item ${telaAtual === m.id ? 'active' : ''}`}
               type="button"
             >
-              <span className="mobile-item-icon">{m.icon}</span>
-              <span className="mobile-item-label">{m.label}</span>
-              {telaAtual === m.id && <span className="mobile-item-indicator">●</span>}
+              <span className="drawer-label">{m.label}</span>
+              {telaAtual === m.id && <span className="drawer-indicator"></span>}
             </button>
           ))}
         </div>
 
-        <div className="mobile-menu-footer">
-          <button
-            className="mobile-logout"
-            onClick={handleLogout}
-            type="button"
-          >
-            🚪 Sair da Conta
+        <div className="drawer-footer">
+          <button className="btn-logout-drawer" onClick={handleLogout} type="button">
+            Encerrar Sessão
           </button>
         </div>
       </div>
@@ -207,20 +186,14 @@ function App() {
       {/* Overlay */}
       {menuAberto && (
         <div 
-          className="menu-overlay active"
+          className="overlay-professional"
           onClick={() => setMenuAberto(false)}
-          role="presentation"
         />
       )}
 
-      {/* Conteúdo Principal */}
-      <main style={{ 
-        maxWidth: '1600px', 
-        margin: '0 auto',
-        padding: '0 20px',
-        paddingTop: '20px'
-      }}>
-        <div className="animate-fade-in">
+      {/* Content */}
+      <main className="main-content-pro">
+        <div className="content-wrapper">
           {telaAtual === 'dashboard' && <Dashboard />}
           {telaAtual === 'leads' && <Leads />}
           {telaAtual === 'clientes' && <Clientes />}

@@ -3,20 +3,17 @@ import { supabase } from './supabaseClient.js'
 
 export default function Leads() {
   const [leads, setLeads] = useState([])
-  const [clientes, setClientes] = useState([])
-  const [mostrarForm, setMostrarForm] = useState(false)
   const [ownerId, setOwnerId] = useState(null)
   const [carregando, setCarregando] = useState(true)
-  const [editando, setEditando] = useState(null)
-  const [filtroStatus, setFiltroStatus] = useState('todos')
+  const [mostrarForm, setMostrarForm] = useState(false)
+  const [filtro, setFiltro] = useState('')
   
-  const [form, setForm] = useState({
-    cliente_nome: '',
-    cliente_id: '',
-    produto_interesse: '',
-    valor_estimado_centavos: '',
-    status: 'novo',
+  const [formData, setFormData] = useState({
+    nome: '',
+    email: '',
+    telefone: '',
     origem: '',
+    interesse: '',
     observacoes: ''
   })
 
@@ -25,429 +22,283 @@ export default function Leads() {
   }, [])
 
   useEffect(() => {
-    if (ownerId) {
-      carregarLeads()
-      carregarClientes()
-    }
+    if (ownerId) carregarLeads()
   }, [ownerId])
 
   async function buscarOwnerId() {
     const { data: { user } } = await supabase.auth.getUser()
     const { data } = await supabase.from('owners').select('id').eq('user_id', user.id).single()
     setOwnerId(data?.id)
-    setCarregando(false)
   }
 
   async function carregarLeads() {
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from('leads')
       .select('*')
       .eq('owner_id', ownerId)
       .order('created_at', { ascending: false })
-    setLeads(data || [])
-  }
 
-  async function carregarClientes() {
-    const { data } = await supabase
-      .from('clients')
-      .select('id, nome, cpf')
-      .eq('owner_id', ownerId)
-    setClientes(data || [])
+    if (!error) setLeads(data || [])
+    setCarregando(false)
   }
 
   async function salvarLead(e) {
     e.preventDefault()
     
-    const payload = {
-      ...form,
-      valor_estimado_centavos: form.valor_estimado_centavos ? parseFloat(form.valor_estimado_centavos) * 100 : null,
-      cliente_id: form.cliente_id || null,
-      owner_id: ownerId
-    }
-    
-    if (editando) {
-      const { error } = await supabase
-        .from('leads')
-        .update(payload)
-        .eq('id', editando)
-      
-      if (!error) {
-        alert('Lead atualizado!')
-        resetarForm()
-        carregarLeads()
-      } else {
-        alert('Erro: ' + error.message)
-      }
-    } else {
-      const { error } = await supabase.from('leads').insert(payload)
-      
-      if (!error) {
-        alert('Lead cadastrado!')
-        resetarForm()
-        carregarLeads()
-      } else {
-        alert('Erro: ' + error.message)
-      }
-    }
-  }
-
-  async function excluirLead(id, nome) {
-    if (confirm(`Tem certeza que deseja excluir o lead de ${nome}?`)) {
-      const { error } = await supabase.from('leads').delete().eq('id', id)
-      if (!error) {
-        alert('Lead excluído!')
-        carregarLeads()
-      }
-    }
-  }
-
-  function editarLead(lead) {
-    setForm({
-      ...lead,
-      valor_estimado_centavos: lead.valor_estimado_centavos ? (lead.valor_estimado_centavos / 100).toFixed(2) : ''
+    const { error } = await supabase.from('leads').insert({
+      ...formData,
+      owner_id: ownerId,
+      status: 'novo'
     })
-    setEditando(lead.id)
-    setMostrarForm(true)
-  }
 
-  function resetarForm() {
-    setForm({
-      cliente_nome: '',
-      cliente_id: '',
-      produto_interesse: '',
-      valor_estimado_centavos: '',
-      status: 'novo',
-      origem: '',
-      observacoes: ''
-    })
-    setEditando(null)
-    setMostrarForm(false)
-  }
-
-  async function mudarStatus(id, novoStatus) {
-    const { error } = await supabase
-      .from('leads')
-      .update({ status: novoStatus })
-      .eq('id', id)
-    
     if (!error) {
+      setFormData({
+        nome: '',
+        email: '',
+        telefone: '',
+        origem: '',
+        interesse: '',
+        observacoes: ''
+      })
+      setMostrarForm(false)
       carregarLeads()
     }
   }
 
-  const leadsFiltrados = leads.filter(l => 
-    filtroStatus === 'todos' || l.status === filtroStatus
-  )
-
-  const statusConfig = {
-    novo: { label: '🆕 Novo', color: '#dbeafe', textColor: '#1e40af' },
-    contatado: { label: '📞 Contatado', color: '#fef3c7', textColor: '#92400e' },
-    em_negociacao: { label: '💬 Em Negociação', color: '#e0e7ff', textColor: '#3730a3' },
-    fechado: { label: '✅ Fechado', color: '#dcfce7', textColor: '#15803d' },
-    perdido: { label: '❌ Perdido', color: '#fee2e2', textColor: '#991b1b' }
+  async function atualizarStatus(id, novoStatus) {
+    await supabase.from('leads').update({ status: novoStatus }).eq('id', id)
+    carregarLeads()
   }
 
+  async function deletarLead(id) {
+    if (window.confirm('Tem certeza que deseja excluir este lead?')) {
+      await supabase.from('leads').delete().eq('id', id)
+      carregarLeads()
+    }
+  }
+
+  const leadsFiltrados = leads.filter(lead =>
+    lead.nome?.toLowerCase().includes(filtro.toLowerCase()) ||
+    lead.email?.toLowerCase().includes(filtro.toLowerCase()) ||
+    lead.telefone?.includes(filtro)
+  )
+
+  const statusOptions = [
+    { value: 'novo', label: 'Novo', color: '#0066CC' },
+    { value: 'contatado', label: 'Contatado', color: '#10B981' },
+    { value: 'qualificado', label: 'Qualificado', color: '#F59E0B' },
+    { value: 'convertido', label: 'Convertido', color: '#059669' },
+    { value: 'perdido', label: 'Perdido', color: '#E63946' }
+  ]
+
   if (carregando) {
-    return <div style={{ padding: '40px', textAlign: 'center' }}>Carregando...</div>
+    return (
+      <div className="loading-container">
+        <div className="spinner-professional"></div>
+        <p className="loading-text">Carregando leads...</p>
+      </div>
+    )
   }
 
   return (
-    <div style={{ padding: '30px', background: '#f9fafb', minHeight: 'calc(100vh - 60px)' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+    <div className="dashboard-professional">
+      <div className="dashboard-header-pro">
         <div>
-          <h1 style={{ margin: 0 }}>📊 Leads</h1>
-          <p style={{ color: '#666', margin: '5px 0 0 0' }}>Gerenciar oportunidades de venda</p>
+          <h1 className="page-title">Gestão de Leads</h1>
+          <p className="page-subtitle">Gerencie seus contatos e oportunidades de vendas</p>
         </div>
-        <button 
-          onClick={() => mostrarForm ? resetarForm() : setMostrarForm(true)} 
-          style={{ 
-            background: mostrarForm ? '#ef4444' : '#0070f3', 
-            color: 'white', 
-            border: 'none', 
-            padding: '12px 24px', 
-            borderRadius: '6px', 
-            cursor: 'pointer',
-            fontSize: '14px',
-            fontWeight: 'bold'
-          }}
-        >
-          {mostrarForm ? '✕ Cancelar' : '+ Novo Lead'}
-        </button>
+        <div className="header-actions">
+          <button className="btn-primary" onClick={() => setMostrarForm(!mostrarForm)}>
+            {mostrarForm ? 'Cancelar' : 'Novo Lead'}
+          </button>
+        </div>
       </div>
 
-      {/* FORMULÁRIO */}
       {mostrarForm && (
-        <form onSubmit={salvarLead} style={{ 
-          background: 'white', 
-          padding: '30px', 
-          borderRadius: '10px', 
-          marginBottom: '30px',
-          border: '1px solid #e5e7eb'
-        }}>
-          <h3 style={{ marginTop: 0 }}>
-            {editando ? '✏️ Editar Lead' : '➕ Cadastrar Novo Lead'}
+        <div className="stat-card-pro" style={{ marginBottom: 'var(--spacing-xl)' }}>
+          <div className="stat-card-border" style={{ background: 'var(--gradient-blue)' }}></div>
+          
+          <h3 className="section-title" style={{ marginBottom: 'var(--spacing-lg)' }}>
+            Cadastrar Novo Lead
           </h3>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '15px', marginBottom: '20px' }}>
-            <div>
-              <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>Nome do Cliente*:</label>
-              <input 
-                type="text" 
-                value={form.cliente_nome} 
-                onChange={(e) => setForm({...form, cliente_nome: e.target.value})} 
-                required 
-                placeholder="Ex: João Silva"
-                style={{ width: '100%', padding: '10px', border: '1px solid #ddd', borderRadius: '5px', fontSize: '14px' }} 
+          <form onSubmit={salvarLead} className="form-professional">
+            <div className="form-row">
+              <div className="form-group">
+                <label className="form-label">Nome Completo</label>
+                <input
+                  type="text"
+                  value={formData.nome}
+                  onChange={(e) => setFormData({...formData, nome: e.target.value})}
+                  placeholder="Digite o nome completo"
+                  required
+                />
+              </div>
+
+              <div className="form-group">
+                <label className="form-label">Email</label>
+                <input
+                  type="email"
+                  value={formData.email}
+                  onChange={(e) => setFormData({...formData, email: e.target.value})}
+                  placeholder="email@exemplo.com"
+                  required
+                />
+              </div>
+            </div>
+
+            <div className="form-row">
+              <div className="form-group">
+                <label className="form-label">Telefone</label>
+                <input
+                  type="tel"
+                  value={formData.telefone}
+                  onChange={(e) => setFormData({...formData, telefone: e.target.value})}
+                  placeholder="(00) 00000-0000"
+                  required
+                />
+              </div>
+
+              <div className="form-group">
+                <label className="form-label">Origem do Lead</label>
+                <select
+                  value={formData.origem}
+                  onChange={(e) => setFormData({...formData, origem: e.target.value})}
+                  required
+                >
+                  <option value="">Selecione...</option>
+                  <option value="site">Site</option>
+                  <option value="instagram">Instagram</option>
+                  <option value="facebook">Facebook</option>
+                  <option value="indicacao">Indicação</option>
+                  <option value="whatsapp">WhatsApp</option>
+                  <option value="outros">Outros</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="form-group">
+              <label className="form-label">Interesse</label>
+              <input
+                type="text"
+                value={formData.interesse}
+                onChange={(e) => setFormData({...formData, interesse: e.target.value})}
+                placeholder="Ex: iPhone 15 Pro, Samsung Galaxy S24"
               />
             </div>
-            <div>
-              <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>Status*:</label>
-              <select 
-                value={form.status} 
-                onChange={(e) => setForm({...form, status: e.target.value})} 
-                required
-                style={{ width: '100%', padding: '10px', border: '1px solid #ddd', borderRadius: '5px', fontSize: '14px' }}
-              >
-                <option value="novo">🆕 Novo</option>
-                <option value="contatado">📞 Contatado</option>
-                <option value="em_negociacao">💬 Em Negociação</option>
-                <option value="fechado">✅ Fechado</option>
-                <option value="perdido">❌ Perdido</option>
-              </select>
+
+            <div className="form-group">
+              <label className="form-label">Observações</label>
+              <textarea
+                value={formData.observacoes}
+                onChange={(e) => setFormData({...formData, observacoes: e.target.value})}
+                placeholder="Informações adicionais sobre o lead..."
+                rows="3"
+              ></textarea>
             </div>
-          </div>
 
-          <div style={{ marginBottom: '20px' }}>
-            <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>Vincular a Cliente Existente (opcional):</label>
-            <select 
-              value={form.cliente_id} 
-              onChange={(e) => setForm({...form, cliente_id: e.target.value})}
-              style={{ width: '100%', padding: '10px', border: '1px solid #ddd', borderRadius: '5px', fontSize: '14px' }}
-            >
-              <option value="">Sem vínculo</option>
-              {clientes.map(c => (
-                <option key={c.id} value={c.id}>{c.nome} - {c.cpf}</option>
-              ))}
-            </select>
-          </div>
-
-          <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '15px', marginBottom: '20px' }}>
-            <div>
-              <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>Produto de Interesse:</label>
-              <input 
-                type="text" 
-                value={form.produto_interesse} 
-                onChange={(e) => setForm({...form, produto_interesse: e.target.value})} 
-                placeholder="Ex: iPhone 13 Pro"
-                style={{ width: '100%', padding: '10px', border: '1px solid #ddd', borderRadius: '5px', fontSize: '14px' }} 
-              />
+            <div className="form-actions">
+              <button type="submit" className="btn-primary">
+                Salvar Lead
+              </button>
+              <button type="button" className="btn-secondary" onClick={() => setMostrarForm(false)}>
+                Cancelar
+              </button>
             </div>
-            <div>
-              <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>Valor Estimado (R$):</label>
-              <input 
-                type="number" 
-                step="0.01"
-                value={form.valor_estimado_centavos} 
-                onChange={(e) => setForm({...form, valor_estimado_centavos: e.target.value})} 
-                placeholder="3500.00"
-                style={{ width: '100%', padding: '10px', border: '1px solid #ddd', borderRadius: '5px', fontSize: '14px' }} 
-              />
-            </div>
-          </div>
-
-          <div style={{ marginBottom: '20px' }}>
-            <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>Origem do Lead:</label>
-            <select 
-              value={form.origem} 
-              onChange={(e) => setForm({...form, origem: e.target.value})}
-              style={{ width: '100%', padding: '10px', border: '1px solid #ddd', borderRadius: '5px', fontSize: '14px' }}
-            >
-              <option value="">Selecione...</option>
-              <option value="whatsapp">WhatsApp</option>
-              <option value="instagram">Instagram</option>
-              <option value="facebook">Facebook</option>
-              <option value="indicacao">Indicação</option>
-              <option value="loja_fisica">Loja Física</option>
-              <option value="site">Site</option>
-              <option value="outro">Outro</option>
-            </select>
-          </div>
-
-          <div style={{ marginBottom: '20px' }}>
-            <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>Observações:</label>
-            <textarea 
-              value={form.observacoes} 
-              onChange={(e) => setForm({...form, observacoes: e.target.value})} 
-              rows="4"
-              placeholder="Anotações sobre o lead, necessidades, histórico de contato..."
-              style={{ width: '100%', padding: '10px', border: '1px solid #ddd', borderRadius: '5px', fontSize: '14px', fontFamily: 'inherit' }} 
-            />
-          </div>
-
-          <div style={{ display: 'flex', gap: '10px' }}>
-            <button 
-              type="submit" 
-              style={{ 
-                flex: 1,
-                background: '#10b981', 
-                color: 'white', 
-                border: 'none', 
-                padding: '14px', 
-                borderRadius: '6px', 
-                cursor: 'pointer', 
-                fontSize: '16px',
-                fontWeight: 'bold'
-              }}
-            >
-              {editando ? '💾 Salvar Alterações' : '✅ Cadastrar Lead'}
-            </button>
-            <button 
-              type="button"
-              onClick={resetarForm}
-              style={{ 
-                background: '#6b7280', 
-                color: 'white', 
-                border: 'none', 
-                padding: '14px 24px', 
-                borderRadius: '6px', 
-                cursor: 'pointer', 
-                fontSize: '16px',
-                fontWeight: 'bold'
-              }}
-            >
-              Cancelar
-            </button>
-          </div>
-        </form>
+          </form>
+        </div>
       )}
 
-      {/* FILTROS E LISTA */}
-      <div style={{ background: 'white', padding: '25px', borderRadius: '10px', border: '1px solid #e5e7eb' }}>
-        <div style={{ marginBottom: '20px' }}>
-          <label style={{ display: 'block', marginBottom: '10px', fontWeight: '500' }}>Filtrar por status:</label>
-          <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
-            <button 
-              onClick={() => setFiltroStatus('todos')}
-              style={{ 
-                background: filtroStatus === 'todos' ? '#3b82f6' : '#f3f4f6',
-                color: filtroStatus === 'todos' ? 'white' : '#374151',
-                border: 'none',
-                padding: '8px 16px',
-                borderRadius: '6px',
-                cursor: 'pointer',
-                fontSize: '14px',
-                fontWeight: '500'
-              }}
-            >
-              Todos ({leads.length})
-            </button>
-            {Object.entries(statusConfig).map(([key, config]) => (
-              <button 
-                key={key}
-                onClick={() => setFiltroStatus(key)}
-                style={{ 
-                  background: filtroStatus === key ? '#3b82f6' : '#f3f4f6',
-                  color: filtroStatus === key ? 'white' : '#374151',
-                  border: 'none',
-                  padding: '8px 16px',
-                  borderRadius: '6px',
-                  cursor: 'pointer',
-                  fontSize: '14px',
-                  fontWeight: '500'
-                }}
-              >
-                {config.label} ({leads.filter(l => l.status === key).length})
-              </button>
-            ))}
+      <div className="stat-card-pro">
+        <div className="search-header">
+          <h3 className="section-title">Lista de Leads ({leadsFiltrados.length})</h3>
+          <div className="search-box">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+              <path fillRule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clipRule="evenodd"/>
+            </svg>
+            <input
+              type="text"
+              placeholder="Buscar por nome, email ou telefone..."
+              value={filtro}
+              onChange={(e) => setFiltro(e.target.value)}
+              className="search-input-pro"
+            />
           </div>
         </div>
 
-        <h3 style={{ marginTop: 0, marginBottom: '15px' }}>
-          Lista de Leads ({leadsFiltrados.length})
-        </h3>
-        
         {leadsFiltrados.length === 0 ? (
-          <p style={{ textAlign: 'center', color: '#666', padding: '40px' }}>
-            Nenhum lead neste status.
-          </p>
+          <div className="empty-state">
+            <svg width="64" height="64" viewBox="0 0 64 64" fill="none" className="empty-icon">
+              <circle cx="32" cy="32" r="30" stroke="currentColor" strokeWidth="2" opacity="0.2"/>
+              <path d="M32 20v24M20 32h24" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+            </svg>
+            <h4 className="empty-title">Nenhum lead encontrado</h4>
+            <p className="empty-description">
+              {filtro ? 'Tente ajustar sua busca' : 'Comece cadastrando seu primeiro lead'}
+            </p>
+          </div>
         ) : (
-          <div style={{ overflowX: 'auto' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+          <div className="table-container">
+            <table className="table-professional">
               <thead>
-                <tr style={{ background: '#f9fafb', borderBottom: '2px solid #e5e7eb' }}>
-                  <th style={{ padding: '12px', textAlign: 'left', fontSize: '14px', fontWeight: '600' }}>Cliente</th>
-                  <th style={{ padding: '12px', textAlign: 'left', fontSize: '14px', fontWeight: '600' }}>Produto</th>
-                  <th style={{ padding: '12px', textAlign: 'left', fontSize: '14px', fontWeight: '600' }}>Valor</th>
-                  <th style={{ padding: '12px', textAlign: 'left', fontSize: '14px', fontWeight: '600' }}>Origem</th>
-                  <th style={{ padding: '12px', textAlign: 'left', fontSize: '14px', fontWeight: '600' }}>Status</th>
-                  <th style={{ padding: '12px', textAlign: 'left', fontSize: '14px', fontWeight: '600' }}>Data</th>
-                  <th style={{ padding: '12px', textAlign: 'center', fontSize: '14px', fontWeight: '600' }}>Ações</th>
+                <tr>
+                  <th>Nome</th>
+                  <th>Contato</th>
+                  <th>Origem</th>
+                  <th>Status</th>
+                  <th>Data</th>
+                  <th>Ações</th>
                 </tr>
               </thead>
               <tbody>
-                {leadsFiltrados.map((l) => (
-                  <tr key={l.id} style={{ borderBottom: '1px solid #e5e7eb' }}>
-                    <td style={{ padding: '12px', fontWeight: '500' }}>{l.cliente_nome}</td>
-                    <td style={{ padding: '12px', color: '#666' }}>{l.produto_interesse || '-'}</td>
-                    <td style={{ padding: '12px', color: '#666' }}>
-                      {l.valor_estimado_centavos ? `R$ ${(l.valor_estimado_centavos / 100).toFixed(2)}` : '-'}
+                {leadsFiltrados.map(lead => (
+                  <tr key={lead.id}>
+                    <td>
+                      <div className="table-name">{lead.nome}</div>
+                      {lead.interesse && (
+                        <div className="table-subtitle">{lead.interesse}</div>
+                      )}
                     </td>
-                    <td style={{ padding: '12px', color: '#666' }}>{l.origem || '-'}</td>
-                    <td style={{ padding: '12px' }}>
-                      <select 
-                        value={l.status}
-                        onChange={(e) => mudarStatus(l.id, e.target.value)}
+                    <td>
+                      <div className="table-contact">
+                        <div>{lead.email}</div>
+                        <div className="table-subtitle">{lead.telefone}</div>
+                      </div>
+                    </td>
+                    <td>
+                      <span className="badge-origin">{lead.origem || 'N/A'}</span>
+                    </td>
+                    <td>
+                      <select
+                        value={lead.status}
+                        onChange={(e) => atualizarStatus(lead.id, e.target.value)}
+                        className="status-select"
                         style={{
-                          background: statusConfig[l.status]?.color || '#f3f4f6',
-                          color: statusConfig[l.status]?.textColor || '#374151',
-                          border: 'none',
-                          padding: '6px 12px',
-                          borderRadius: '6px',
-                          fontSize: '13px',
-                          fontWeight: '600',
-                          cursor: 'pointer'
+                          borderColor: statusOptions.find(s => s.value === lead.status)?.color
                         }}
                       >
-                        <option value="novo">🆕 Novo</option>
-                        <option value="contatado">📞 Contatado</option>
-                        <option value="em_negociacao">💬 Em Negociação</option>
-                        <option value="fechado">✅ Fechado</option>
-                        <option value="perdido">❌ Perdido</option>
+                        {statusOptions.map(opt => (
+                          <option key={opt.value} value={opt.value}>
+                            {opt.label}
+                          </option>
+                        ))}
                       </select>
                     </td>
-                    <td style={{ padding: '12px', color: '#666', fontSize: '13px' }}>
-                      {new Date(l.created_at).toLocaleDateString('pt-BR')}
+                    <td className="table-date">
+                      {new Date(lead.created_at).toLocaleDateString('pt-BR')}
                     </td>
-                    <td style={{ padding: '12px', textAlign: 'center' }}>
-                      <button 
-                        onClick={() => editarLead(l)}
-                        style={{ 
-                          background: '#3b82f6', 
-                          color: 'white', 
-                          border: 'none', 
-                          padding: '6px 12px', 
-                          borderRadius: '4px', 
-                          cursor: 'pointer',
-                          fontSize: '12px',
-                          marginRight: '5px'
-                        }}
-                      >
-                        ✏️ Editar
-                      </button>
-                      <button 
-                        onClick={() => excluirLead(l.id, l.cliente_nome)}
-                        style={{ 
-                          background: '#ef4444', 
-                          color: 'white', 
-                          border: 'none', 
-                          padding: '6px 12px', 
-                          borderRadius: '4px', 
-                          cursor: 'pointer',
-                          fontSize: '12px'
-                        }}
-                      >
-                        🗑️
-                      </button>
+                    <td>
+                      <div className="table-actions">
+                        <button
+                          onClick={() => deletarLead(lead.id)}
+                          className="btn-icon btn-danger-icon"
+                          title="Excluir"
+                        >
+                          <svg width="18" height="18" viewBox="0 0 18 18" fill="currentColor">
+                            <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd"/>
+                          </svg>
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}

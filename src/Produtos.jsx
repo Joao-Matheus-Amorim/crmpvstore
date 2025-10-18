@@ -3,26 +3,24 @@ import { supabase } from './supabaseClient.js'
 
 export default function Produtos() {
   const [produtos, setProdutos] = useState([])
-  const [mostrarForm, setMostrarForm] = useState(false)
   const [ownerId, setOwnerId] = useState(null)
   const [carregando, setCarregando] = useState(true)
+  const [mostrarForm, setMostrarForm] = useState(false)
   const [editando, setEditando] = useState(null)
-  const [busca, setBusca] = useState('')
+  const [filtro, setFiltro] = useState('')
   
-  const [form, setForm] = useState({
-    modelo: '',
+  const [formData, setFormData] = useState({
+    nome: '',
     marca: '',
+    modelo: '',
     cor: '',
-    capacidade: '',
+    armazenamento: '',
+    estado_conservacao: 'excelente',
+    preco_compra_centavos: '',
+    preco_venda_centavos: '',
     imei: '',
-    estado: 'usado',
-    preco_compra_centavos: 0,
-    data_compra: '',
-    aparelho_desbloqueado: false,
-    fone: false,
-    carregador: false,
-    pelicula: false,
-    outros_acessorios: ''
+    observacoes: '',
+    status: 'disponivel'
   })
 
   useEffect(() => {
@@ -34,429 +32,517 @@ export default function Produtos() {
   }, [ownerId])
 
   async function buscarOwnerId() {
-    const { data: { user } } = await supabase.auth.getUser()
-    const { data } = await supabase.from('owners').select('id').eq('user_id', user.id).single()
-    setOwnerId(data?.id)
-    setCarregando(false)
+    try {
+      const { data: { user } } = await supabase.auth.getUser()
+      const { data } = await supabase.from('owners').select('id').eq('user_id', user.id).single()
+      setOwnerId(data?.id)
+    } catch (err) {
+      console.error('Erro ao buscar owner:', err)
+    }
   }
 
   async function carregarProdutos() {
-    const { data } = await supabase
-      .from('products')
-      .select('*')
-      .eq('owner_id', ownerId)
-      .order('created_at', { ascending: false })
-    setProdutos(data || [])
+    try {
+      const { data, error } = await supabase
+        .from('products')
+        .select('*')
+        .eq('owner_id', ownerId)
+        .order('created_at', { ascending: false })
+
+      if (!error) setProdutos(data || [])
+    } catch (err) {
+      console.error('Erro ao carregar produtos:', err)
+    } finally {
+      setCarregando(false)
+    }
   }
 
   async function salvarProduto(e) {
     e.preventDefault()
     
-    const dadosProduto = {
-      modelo: form.modelo,
-      marca: form.marca,
-      cor: form.cor || null,
-      capacidade: form.capacidade || null,
-      imei: form.imei || null,
-      estado: form.estado,
-      preco_compra_centavos: parseInt(form.preco_compra_centavos) || 0,
-      data_compra: form.data_compra || null,
-      aparelho_desbloqueado: form.aparelho_desbloqueado,
-      fone: form.fone,
-      carregador: form.carregador,
-      pelicula: form.pelicula,
-      outros_acessorios: form.outros_acessorios || null
-    }
+    try {
+      const produtoData = {
+        ...formData,
+        preco_compra_centavos: parseInt(formData.preco_compra_centavos) || 0,
+        preco_venda_centavos: parseInt(formData.preco_venda_centavos) || 0
+      }
 
-    if (editando) {
-      const { error } = await supabase
-        .from('products')
-        .update(dadosProduto)
-        .eq('id', editando)
-      
-      if (!error) {
-        alert('Produto atualizado com sucesso!')
-        resetarForm()
-        carregarProdutos()
+      if (editando) {
+        const { error } = await supabase
+          .from('products')
+          .update(produtoData)
+          .eq('id', editando.id)
+        
+        if (!error) {
+          resetForm()
+          carregarProdutos()
+        }
       } else {
-        alert('Erro ao atualizar: ' + error.message)
+        const { error } = await supabase
+          .from('products')
+          .insert({
+            ...produtoData,
+            owner_id: ownerId
+          })
+        
+        if (!error) {
+          resetForm()
+          carregarProdutos()
+        }
       }
-    } else {
-      const { error } = await supabase.from('products').insert({
-        ...dadosProduto,
-        owner_id: ownerId
-      })
-      
-      if (!error) {
-        alert('Produto cadastrado com sucesso!')
-        resetarForm()
-        carregarProdutos()
-      } else {
-        alert('Erro ao salvar: ' + error.message)
-      }
+    } catch (err) {
+      console.error('Erro ao salvar produto:', err)
+      alert('Erro ao salvar produto. Tente novamente.')
     }
   }
 
-  async function excluirProduto(id, modelo) {
-    if (confirm(`Tem certeza que deseja excluir ${modelo}?`)) {
-      const { error } = await supabase.from('products').delete().eq('id', id)
-      if (!error) {
-        alert('Produto excluído!')
+  async function deletarProduto(id) {
+    if (window.confirm('Tem certeza que deseja excluir este produto?')) {
+      try {
+        await supabase.from('products').delete().eq('id', id)
         carregarProdutos()
+      } catch (err) {
+        console.error('Erro ao deletar produto:', err)
       }
     }
   }
 
   function editarProduto(produto) {
-    setForm({
-      modelo: produto.modelo || '',
+    setEditando(produto)
+    setFormData({
+      nome: produto.nome || '',
       marca: produto.marca || '',
+      modelo: produto.modelo || '',
       cor: produto.cor || '',
-      capacidade: produto.capacidade || '',
+      armazenamento: produto.armazenamento || '',
+      estado_conservacao: produto.estado_conservacao || 'excelente',
+      preco_compra_centavos: produto.preco_compra_centavos || '',
+      preco_venda_centavos: produto.preco_venda_centavos || '',
       imei: produto.imei || '',
-      estado: produto.estado || 'usado',
-      preco_compra_centavos: produto.preco_compra_centavos || 0,
-      data_compra: produto.data_compra || '',
-      aparelho_desbloqueado: produto.aparelho_desbloqueado || false,
-      fone: produto.fone || false,
-      carregador: produto.carregador || false,
-      pelicula: produto.pelicula || false,
-      outros_acessorios: produto.outros_acessorios || ''
+      observacoes: produto.observacoes || '',
+      status: produto.status || 'disponivel'
     })
-    setEditando(produto.id)
     setMostrarForm(true)
+    window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
-  function resetarForm() {
-    setForm({
-      modelo: '',
+  function resetForm() {
+    setFormData({
+      nome: '',
       marca: '',
+      modelo: '',
       cor: '',
-      capacidade: '',
+      armazenamento: '',
+      estado_conservacao: 'excelente',
+      preco_compra_centavos: '',
+      preco_venda_centavos: '',
       imei: '',
-      estado: 'usado',
-      preco_compra_centavos: 0,
-      data_compra: '',
-      aparelho_desbloqueado: false,
-      fone: false,
-      carregador: false,
-      pelicula: false,
-      outros_acessorios: ''
+      observacoes: '',
+      status: 'disponivel'
     })
     setEditando(null)
     setMostrarForm(false)
   }
 
-  const produtosFiltrados = produtos.filter(p => 
-    (p.modelo || '').toLowerCase().includes(busca.toLowerCase()) ||
-    (p.marca || '').toLowerCase().includes(busca.toLowerCase()) ||
-    (p.imei || '').includes(busca)
+  function formatarMoeda(centavos) {
+    return (centavos / 100).toLocaleString('pt-BR', { 
+      style: 'currency', 
+      currency: 'BRL' 
+    })
+  }
+
+  const produtosFiltrados = produtos.filter(produto =>
+    produto.nome?.toLowerCase().includes(filtro.toLowerCase()) ||
+    produto.marca?.toLowerCase().includes(filtro.toLowerCase()) ||
+    produto.modelo?.toLowerCase().includes(filtro.toLowerCase()) ||
+    produto.imei?.includes(filtro)
   )
+
+  const statsEstoque = {
+    total: produtos.length,
+    disponiveis: produtos.filter(p => p.status === 'disponivel').length,
+    vendidos: produtos.filter(p => p.status === 'vendido').length,
+    valorTotal: produtos.reduce((sum, p) => sum + (p.preco_venda_centavos || 0), 0)
+  }
 
   if (carregando) {
     return (
-      <div style={{ 
-        display: 'flex', 
-        justifyContent: 'center', 
-        alignItems: 'center', 
-        height: '80vh' 
-      }}>
-        <div className="spinner" style={{ width: '50px', height: '50px' }}></div>
+      <div className="loading-container">
+        <div className="spinner-professional"></div>
+        <p className="loading-text">Carregando produtos...</p>
       </div>
     )
   }
 
   return (
-    <div style={{ padding: '40px 0', minHeight: 'calc(100vh - 90px)' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
+    <div className="dashboard-professional">
+      <div className="dashboard-header-pro">
         <div>
-          <h1 style={{ margin: 0, fontSize: '32px', fontWeight: '900', color: 'var(--text-primary)', letterSpacing: '-0.5px' }}>
-            Produtos
-          </h1>
-          <p style={{ color: 'var(--text-secondary)', margin: '8px 0 0 0', fontSize: '16px', fontWeight: 500 }}>
-            Gerenciar celulares e estoque
-          </p>
+          <h1 className="page-title">Gestão de Produtos</h1>
+          <p className="page-subtitle">Controle completo do seu estoque de celulares</p>
         </div>
-        <button 
-          onClick={() => mostrarForm ? resetarForm() : setMostrarForm(true)} 
-          className={mostrarForm ? 'btn-secondary' : 'btn-primary'}
-          style={{ 
-            background: mostrarForm ? 'var(--gradient-secondary)' : undefined,
-            color: mostrarForm ? 'white' : undefined,
-            padding: '14px 28px',
-            fontSize: '15px'
-          }}
-        >
-          {mostrarForm ? 'Cancelar' : 'Novo Produto'}
-        </button>
+        <div className="header-actions">
+          <button className="btn-primary" onClick={() => setMostrarForm(!mostrarForm)}>
+            {mostrarForm ? 'Cancelar' : 'Novo Produto'}
+          </button>
+        </div>
+      </div>
+
+      {/* Stats do Estoque */}
+      <div className="stats-grid" style={{ marginBottom: 'var(--spacing-xl)' }}>
+        <div className="stat-card-pro" style={{ animationDelay: '0s' }}>
+          <div className="stat-card-border" style={{ background: 'var(--gradient-blue)' }}></div>
+          <div className="stat-card-glow" style={{ background: 'var(--gradient-blue)' }}></div>
+          <div className="stat-card-content">
+            <div className="stat-header">
+              <h3 className="stat-title">Total Estoque</h3>
+            </div>
+            <p className="stat-value" style={{ color: '#0066CC' }}>{statsEstoque.total}</p>
+            <p className="stat-description">Produtos cadastrados</p>
+          </div>
+        </div>
+
+        <div className="stat-card-pro" style={{ animationDelay: '0.1s' }}>
+          <div className="stat-card-border" style={{ background: 'linear-gradient(135deg, #10B981 0%, #059669 100%)' }}></div>
+          <div className="stat-card-glow" style={{ background: 'linear-gradient(135deg, #10B981 0%, #059669 100%)' }}></div>
+          <div className="stat-card-content">
+            <div className="stat-header">
+              <h3 className="stat-title">Disponíveis</h3>
+            </div>
+            <p className="stat-value" style={{ color: '#10B981' }}>{statsEstoque.disponiveis}</p>
+            <p className="stat-description">Prontos para venda</p>
+          </div>
+        </div>
+
+        <div className="stat-card-pro" style={{ animationDelay: '0.2s' }}>
+          <div className="stat-card-border" style={{ background: 'var(--gradient-red)' }}></div>
+          <div className="stat-card-glow" style={{ background: 'var(--gradient-red)' }}></div>
+          <div className="stat-card-content">
+            <div className="stat-header">
+              <h3 className="stat-title">Vendidos</h3>
+            </div>
+            <p className="stat-value" style={{ color: '#E63946' }}>{statsEstoque.vendidos}</p>
+            <p className="stat-description">Produtos comercializados</p>
+          </div>
+        </div>
+
+        <div className="stat-card-pro" style={{ animationDelay: '0.3s' }}>
+          <div className="stat-card-border" style={{ background: 'var(--gradient-blue)' }}></div>
+          <div className="stat-card-glow" style={{ background: 'var(--gradient-blue)' }}></div>
+          <div className="stat-card-content">
+            <div className="stat-header">
+              <h3 className="stat-title">Valor Total</h3>
+            </div>
+            <p className="stat-value" style={{ color: '#0066CC' }}>
+              {formatarMoeda(statsEstoque.valorTotal)}
+            </p>
+            <p className="stat-description">Valor do estoque</p>
+          </div>
+        </div>
       </div>
 
       {mostrarForm && (
-        <form onSubmit={salvarProduto} className="stat-card" style={{ marginBottom: '40px', padding: '32px' }}>
-          <h3 style={{ marginTop: 0, fontSize: '20px', fontWeight: '800', color: 'var(--text-primary)', marginBottom: '24px' }}>
+        <div className="stat-card-pro" style={{ marginBottom: 'var(--spacing-xl)' }}>
+          <div className="stat-card-border" style={{ background: 'var(--gradient-blue)' }}></div>
+          
+          <h3 className="section-title" style={{ marginBottom: 'var(--spacing-lg)' }}>
             {editando ? 'Editar Produto' : 'Cadastrar Novo Produto'}
           </h3>
-          
-          <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '20px', marginBottom: '20px' }}>
-            <div>
-              <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: 'var(--text-primary)', fontSize: '14px' }}>
-                Modelo*
-              </label>
-              <input 
-                type="text" 
-                value={form.modelo} 
-                onChange={(e) => setForm({...form, modelo: e.target.value})} 
-                required 
-                placeholder="Ex: iPhone 13 Pro Max"
-              />
-            </div>
-            <div>
-              <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: 'var(--text-primary)', fontSize: '14px' }}>
-                Marca*
-              </label>
-              <input 
-                type="text" 
-                value={form.marca} 
-                onChange={(e) => setForm({...form, marca: e.target.value})} 
-                required 
-                placeholder="Ex: Apple"
-              />
-            </div>
-          </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '20px', marginBottom: '20px' }}>
-            <div>
-              <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: 'var(--text-primary)', fontSize: '14px' }}>
-                Cor
-              </label>
-              <input 
-                type="text" 
-                value={form.cor} 
-                onChange={(e) => setForm({...form, cor: e.target.value})} 
-                placeholder="Ex: Preto"
-              />
-            </div>
-            <div>
-              <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: 'var(--text-primary)', fontSize: '14px' }}>
-                Capacidade
-              </label>
-              <input 
-                type="text" 
-                value={form.capacidade} 
-                onChange={(e) => setForm({...form, capacidade: e.target.value})} 
-                placeholder="Ex: 256GB"
-              />
-            </div>
-            <div>
-              <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: 'var(--text-primary)', fontSize: '14px' }}>
-                Estado*
-              </label>
-              <select 
-                value={form.estado} 
-                onChange={(e) => setForm({...form, estado: e.target.value})}
-                required
-              >
-                <option value="novo">Novo</option>
-                <option value="usado">Usado</option>
-              </select>
-            </div>
-          </div>
+          <form onSubmit={salvarProduto} className="form-professional">
+            <div className="form-section">
+              <h4 className="form-section-title">Informações do Produto</h4>
+              
+              <div className="form-row">
+                <div className="form-group">
+                  <label className="form-label">Nome do Produto *</label>
+                  <input
+                    type="text"
+                    value={formData.nome}
+                    onChange={(e) => setFormData({...formData, nome: e.target.value})}
+                    placeholder="Ex: iPhone 15 Pro Max"
+                    required
+                  />
+                </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr', gap: '20px', marginBottom: '20px' }}>
-            <div>
-              <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: 'var(--text-primary)', fontSize: '14px' }}>
-                IMEI
-              </label>
-              <input 
-                type="text" 
-                value={form.imei} 
-                onChange={(e) => setForm({...form, imei: e.target.value})} 
-                placeholder="Ex: 123456789012345"
-                maxLength="15"
-              />
+                <div className="form-group">
+                  <label className="form-label">Marca *</label>
+                  <select
+                    value={formData.marca}
+                    onChange={(e) => setFormData({...formData, marca: e.target.value})}
+                    required
+                  >
+                    <option value="">Selecione...</option>
+                    <option value="Apple">Apple</option>
+                    <option value="Samsung">Samsung</option>
+                    <option value="Motorola">Motorola</option>
+                    <option value="Xiaomi">Xiaomi</option>
+                    <option value="LG">LG</option>
+                    <option value="Outros">Outros</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="form-row">
+                <div className="form-group">
+                  <label className="form-label">Modelo</label>
+                  <input
+                    type="text"
+                    value={formData.modelo}
+                    onChange={(e) => setFormData({...formData, modelo: e.target.value})}
+                    placeholder="Ex: A54, Galaxy S24"
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label className="form-label">Cor</label>
+                  <input
+                    type="text"
+                    value={formData.cor}
+                    onChange={(e) => setFormData({...formData, cor: e.target.value})}
+                    placeholder="Ex: Preto, Azul"
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label className="form-label">Armazenamento</label>
+                  <select
+                    value={formData.armazenamento}
+                    onChange={(e) => setFormData({...formData, armazenamento: e.target.value})}
+                  >
+                    <option value="">Selecione...</option>
+                    <option value="32GB">32GB</option>
+                    <option value="64GB">64GB</option>
+                    <option value="128GB">128GB</option>
+                    <option value="256GB">256GB</option>
+                    <option value="512GB">512GB</option>
+                    <option value="1TB">1TB</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="form-row">
+                <div className="form-group">
+                  <label className="form-label">Estado de Conservação *</label>
+                  <select
+                    value={formData.estado_conservacao}
+                    onChange={(e) => setFormData({...formData, estado_conservacao: e.target.value})}
+                    required
+                  >
+                    <option value="excelente">Excelente</option>
+                    <option value="bom">Bom</option>
+                    <option value="regular">Regular</option>
+                    <option value="ruim">Ruim</option>
+                  </select>
+                </div>
+
+                <div className="form-group">
+                  <label className="form-label">Status *</label>
+                  <select
+                    value={formData.status}
+                    onChange={(e) => setFormData({...formData, status: e.target.value})}
+                    required
+                  >
+                    <option value="disponivel">Disponível</option>
+                    <option value="vendido">Vendido</option>
+                    <option value="reservado">Reservado</option>
+                    <option value="manutencao">Em Manutenção</option>
+                  </select>
+                </div>
+
+                <div className="form-group">
+                  <label className="form-label">IMEI</label>
+                  <input
+                    type="text"
+                    value={formData.imei}
+                    onChange={(e) => setFormData({...formData, imei: e.target.value})}
+                    placeholder="000000000000000"
+                  />
+                </div>
+              </div>
             </div>
-            <div>
-              <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: 'var(--text-primary)', fontSize: '14px' }}>
-                Preço Compra (R$)
-              </label>
-              <input 
-                type="number" 
-                step="0.01"
-                value={form.preco_compra_centavos / 100} 
-                onChange={(e) => setForm({...form, preco_compra_centavos: Math.round(parseFloat(e.target.value || 0) * 100)})} 
-                placeholder="0.00"
-              />
+
+            <div className="form-section">
+              <h4 className="form-section-title">Valores (em centavos)</h4>
+              
+              <div className="form-row">
+                <div className="form-group">
+                  <label className="form-label">Preço de Compra (centavos) *</label>
+                  <input
+                    type="number"
+                    value={formData.preco_compra_centavos}
+                    onChange={(e) => setFormData({...formData, preco_compra_centavos: e.target.value})}
+                    placeholder="Ex: 150000 (R$ 1.500,00)"
+                    required
+                    min="0"
+                  />
+                  {formData.preco_compra_centavos && (
+                    <small style={{ color: 'var(--text-tertiary)', fontSize: '12px', marginTop: '4px' }}>
+                      = {formatarMoeda(parseInt(formData.preco_compra_centavos))}
+                    </small>
+                  )}
+                </div>
+
+                <div className="form-group">
+                  <label className="form-label">Preço de Venda (centavos) *</label>
+                  <input
+                    type="number"
+                    value={formData.preco_venda_centavos}
+                    onChange={(e) => setFormData({...formData, preco_venda_centavos: e.target.value})}
+                    placeholder="Ex: 200000 (R$ 2.000,00)"
+                    required
+                    min="0"
+                  />
+                  {formData.preco_venda_centavos && (
+                    <small style={{ color: 'var(--text-tertiary)', fontSize: '12px', marginTop: '4px' }}>
+                      = {formatarMoeda(parseInt(formData.preco_venda_centavos))}
+                    </small>
+                  )}
+                </div>
+              </div>
+
+              {formData.preco_compra_centavos && formData.preco_venda_centavos && (
+                <div className="profit-indicator">
+                  <span>Lucro estimado:</span>
+                  <strong style={{ 
+                    color: parseInt(formData.preco_venda_centavos) > parseInt(formData.preco_compra_centavos) 
+                      ? '#10B981' 
+                      : '#E63946'
+                  }}>
+                    {formatarMoeda(
+                      parseInt(formData.preco_venda_centavos) - parseInt(formData.preco_compra_centavos)
+                    )}
+                  </strong>
+                </div>
+              )}
             </div>
-            <div>
-              <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: 'var(--text-primary)', fontSize: '14px' }}>
-                Data da Compra
-              </label>
-              <input 
-                type="date" 
-                value={form.data_compra} 
-                onChange={(e) => setForm({...form, data_compra: e.target.value})} 
-              />
+
+            <div className="form-group">
+              <label className="form-label">Observações</label>
+              <textarea
+                value={formData.observacoes}
+                onChange={(e) => setFormData({...formData, observacoes: e.target.value})}
+                placeholder="Informações adicionais sobre o produto..."
+                rows="3"
+              ></textarea>
             </div>
-          </div>
 
-          <h4 style={{ marginTop: '30px', marginBottom: '16px', color: 'var(--text-secondary)', fontSize: '16px', fontWeight: '700' }}>
-            Acessórios
-          </h4>
-
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px', marginBottom: '20px' }}>
-            <label style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', fontSize: '14px', fontWeight: 600, padding: '12px', background: 'var(--bg-secondary)', borderRadius: 'var(--radius-md)', border: '2px solid var(--pv-gray-200)' }}>
-              <input 
-                type="checkbox" 
-                checked={form.aparelho_desbloqueado} 
-                onChange={(e) => setForm({...form, aparelho_desbloqueado: e.target.checked})}
-                style={{ width: '18px', height: '18px', cursor: 'pointer', accentColor: 'var(--pv-blue)' }}
-              />
-              Desbloqueado
-            </label>
-            <label style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', fontSize: '14px', fontWeight: 600, padding: '12px', background: 'var(--bg-secondary)', borderRadius: 'var(--radius-md)', border: '2px solid var(--pv-gray-200)' }}>
-              <input 
-                type="checkbox" 
-                checked={form.fone} 
-                onChange={(e) => setForm({...form, fone: e.target.checked})}
-                style={{ width: '18px', height: '18px', cursor: 'pointer', accentColor: 'var(--pv-blue)' }}
-              />
-              Fone
-            </label>
-            <label style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', fontSize: '14px', fontWeight: 600, padding: '12px', background: 'var(--bg-secondary)', borderRadius: 'var(--radius-md)', border: '2px solid var(--pv-gray-200)' }}>
-              <input 
-                type="checkbox" 
-                checked={form.carregador} 
-                onChange={(e) => setForm({...form, carregador: e.target.checked})}
-                style={{ width: '18px', height: '18px', cursor: 'pointer', accentColor: 'var(--pv-blue)' }}
-              />
-              Carregador
-            </label>
-            <label style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', fontSize: '14px', fontWeight: 600, padding: '12px', background: 'var(--bg-secondary)', borderRadius: 'var(--radius-md)', border: '2px solid var(--pv-gray-200)' }}>
-              <input 
-                type="checkbox" 
-                checked={form.pelicula} 
-                onChange={(e) => setForm({...form, pelicula: e.target.checked})}
-                style={{ width: '18px', height: '18px', cursor: 'pointer', accentColor: 'var(--pv-blue)' }}
-              />
-              Película
-            </label>
-          </div>
-
-          <div style={{ marginBottom: '20px' }}>
-            <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: 'var(--text-primary)', fontSize: '14px' }}>
-              Outros Acessórios
-            </label>
-            <textarea 
-              value={form.outros_acessorios} 
-              onChange={(e) => setForm({...form, outros_acessorios: e.target.value})} 
-              placeholder="Caixa, nota fiscal, capa, etc."
-              rows="3"
-            />
-          </div>
-
-          <div style={{ display: 'flex', gap: '12px', marginTop: '30px' }}>
-            <button 
-              type="submit" 
-              className="btn-primary"
-              style={{ flex: 1, padding: '14px' }}
-            >
-              {editando ? 'Salvar Alterações' : 'Cadastrar Produto'}
-            </button>
-            <button 
-              type="button"
-              onClick={resetarForm}
-              className="btn-secondary"
-              style={{ padding: '14px 28px' }}
-            >
-              Cancelar
-            </button>
-          </div>
-        </form>
+            <div className="form-actions">
+              <button type="submit" className="btn-primary">
+                {editando ? 'Atualizar Produto' : 'Salvar Produto'}
+              </button>
+              <button type="button" className="btn-secondary" onClick={resetForm}>
+                Cancelar
+              </button>
+            </div>
+          </form>
+        </div>
       )}
 
-      <div className="stat-card" style={{ padding: '28px' }}>
-        <div style={{ marginBottom: '24px' }}>
-          <input 
-            type="text"
-            placeholder="Buscar por modelo, marca ou IMEI..."
-            value={busca}
-            onChange={(e) => setBusca(e.target.value)}
-          />
+      <div className="stat-card-pro">
+        <div className="search-header">
+          <h3 className="section-title">Estoque de Produtos ({produtosFiltrados.length})</h3>
+          <div className="search-box">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+              <path fillRule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clipRule="evenodd"/>
+            </svg>
+            <input
+              type="text"
+              placeholder="Buscar por nome, marca, modelo ou IMEI..."
+              value={filtro}
+              onChange={(e) => setFiltro(e.target.value)}
+              className="search-input-pro"
+            />
+          </div>
         </div>
 
-        <h3 style={{ marginTop: 0, marginBottom: '20px', fontSize: '18px', fontWeight: '800', color: 'var(--text-primary)' }}>
-          Lista de Produtos ({produtosFiltrados.length})
-        </h3>
-        
         {produtosFiltrados.length === 0 ? (
-          <p style={{ textAlign: 'center', color: 'var(--text-secondary)', padding: '60px 20px', fontSize: '15px', fontWeight: 500 }}>
-            {busca ? 'Nenhum produto encontrado.' : 'Nenhum produto cadastrado ainda.'}
-          </p>
+          <div className="empty-state">
+            <svg width="64" height="64" viewBox="0 0 64 64" fill="none" className="empty-icon">
+              <circle cx="32" cy="32" r="30" stroke="currentColor" strokeWidth="2" opacity="0.2"/>
+              <path d="M32 20v24M20 32h24" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+            </svg>
+            <h4 className="empty-title">Nenhum produto encontrado</h4>
+            <p className="empty-description">
+              {filtro ? 'Tente ajustar sua busca' : 'Comece cadastrando seu primeiro produto'}
+            </p>
+          </div>
         ) : (
-          <div style={{ overflowX: 'auto' }}>
-            <table className="table-modern">
+          <div className="table-container">
+            <table className="table-professional">
               <thead>
                 <tr>
-                  <th>Modelo</th>
-                  <th>Marca</th>
-                  <th>Cor</th>
-                  <th>Capacidade</th>
-                  <th>Estado</th>
-                  <th>Acessórios</th>
-                  <th>Preço Compra</th>
-                  <th style={{ textAlign: 'center' }}>Ações</th>
+                  <th>Produto</th>
+                  <th>Especificações</th>
+                  <th>Preços</th>
+                  <th>Lucro</th>
+                  <th>Status</th>
+                  <th>Ações</th>
                 </tr>
               </thead>
               <tbody>
-                {produtosFiltrados.map((p) => (
-                  <tr key={p.id}>
-                    <td style={{ fontWeight: '700', color: 'var(--text-primary)' }}>{p.modelo || '—'}</td>
-                    <td>{p.marca || '—'}</td>
-                    <td>{p.cor || '—'}</td>
-                    <td>{p.capacidade || '—'}</td>
-                    <td>
-                      <span className={p.estado === 'novo' ? 'badge-success' : 'badge-info'}>
-                        {p.estado === 'novo' ? 'Novo' : 'Usado'}
-                      </span>
-                    </td>
-                    <td style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
-                      {[
-                        p.aparelho_desbloqueado && 'Desb.',
-                        p.fone && 'Fone',
-                        p.carregador && 'Carr.',
-                        p.pelicula && 'Pelíc.'
-                      ].filter(Boolean).join(', ') || '—'}
-                    </td>
-                    <td style={{ fontWeight: '700', color: 'var(--pv-blue)' }}>
-                      R$ {((p.preco_compra_centavos || 0) / 100).toFixed(2)}
-                    </td>
-                    <td style={{ textAlign: 'center' }}>
-                      <button 
-                        onClick={() => editarProduto(p)}
-                        className="btn-secondary"
-                        style={{ padding: '8px 14px', fontSize: '13px', marginRight: '8px' }}
-                      >
-                        Editar
-                      </button>
-                      <button 
-                        onClick={() => excluirProduto(p.id, p.modelo)}
-                        style={{ 
-                          background: 'var(--gradient-secondary)', 
-                          color: 'white', 
-                          border: 'none', 
-                          padding: '8px 14px', 
-                          borderRadius: 'var(--radius-md)', 
-                          cursor: 'pointer',
-                          fontSize: '13px',
-                          fontWeight: 700,
-                          boxShadow: '0 4px 12px rgba(230, 57, 70, 0.25)'
-                        }}
-                      >
-                        Excluir
-                      </button>
-                    </td>
-                  </tr>
-                ))}
+                {produtosFiltrados.map(produto => {
+                  const lucro = (produto.preco_venda_centavos || 0) - (produto.preco_compra_centavos || 0)
+                  return (
+                    <tr key={produto.id}>
+                      <td>
+                        <div className="table-name">{produto.nome}</div>
+                        <div className="table-subtitle">{produto.marca} {produto.modelo}</div>
+                      </td>
+                      <td>
+                        <div className="product-specs">
+                          {produto.cor && <span className="spec-badge">{produto.cor}</span>}
+                          {produto.armazenamento && <span className="spec-badge">{produto.armazenamento}</span>}
+                          <span className={`spec-badge estado-${produto.estado_conservacao}`}>
+                            {produto.estado_conservacao}
+                          </span>
+                        </div>
+                      </td>
+                      <td>
+                        <div className="price-info">
+                          <div>
+                            <small>Compra:</small> {formatarMoeda(produto.preco_compra_centavos)}
+                          </div>
+                          <div>
+                            <small>Venda:</small> <strong>{formatarMoeda(produto.preco_venda_centavos)}</strong>
+                          </div>
+                        </div>
+                      </td>
+                      <td>
+                        <span className={`profit-value ${lucro > 0 ? 'positive' : 'negative'}`}>
+                          {formatarMoeda(lucro)}
+                        </span>
+                      </td>
+                      <td>
+                        <span className={`badge-status status-${produto.status}`}>
+                          {produto.status}
+                        </span>
+                      </td>
+                      <td>
+                        <div className="table-actions">
+                          <button
+                            onClick={() => editarProduto(produto)}
+                            className="btn-icon btn-edit-icon"
+                            title="Editar"
+                          >
+                            <svg width="18" height="18" viewBox="0 0 18 18" fill="currentColor">
+                              <path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10z"/>
+                            </svg>
+                          </button>
+                          <button
+                            onClick={() => deletarProduto(produto.id)}
+                            className="btn-icon btn-danger-icon"
+                            title="Excluir"
+                          >
+                            <svg width="18" height="18" viewBox="0 0 18 18" fill="currentColor">
+                              <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9z" clipRule="evenodd"/>
+                            </svg>
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  )
+                })}
               </tbody>
             </table>
           </div>
