@@ -93,6 +93,7 @@ export default function Dashboard() {
       titulo: 'Novos Leads',
       valor: stats.novosLeads,
       descricao: 'Aguardando contato',
+      icon: '📊',
       color: '#0066CC',
       bgGradient: 'linear-gradient(135deg, #0066CC 0%, #004C99 100%)'
     },
@@ -100,6 +101,7 @@ export default function Dashboard() {
       titulo: 'Contratos Ativos',
       valor: stats.contratosAtivos,
       descricao: 'Em andamento',
+      icon: '📄',
       color: '#E63946',
       bgGradient: 'linear-gradient(135deg, #E63946 0%, #C72938 100%)'
     },
@@ -107,6 +109,7 @@ export default function Dashboard() {
       titulo: 'Vendas do Mês',
       valor: `R$ ${stats.vendasMes}`,
       descricao: 'Faturamento mensal',
+      icon: '💰',
       color: '#10B981',
       bgGradient: 'linear-gradient(135deg, #10B981 0%, #059669 100%)'
     },
@@ -114,6 +117,7 @@ export default function Dashboard() {
       titulo: 'Total de Clientes',
       valor: stats.totalClientes,
       descricao: 'Compradores e vendedores',
+      icon: '👥',
       color: '#0066CC',
       bgGradient: 'linear-gradient(135deg, #0066CC 0%, #004C99 100%)'
     },
@@ -121,106 +125,63 @@ export default function Dashboard() {
       titulo: 'Produtos Cadastrados',
       valor: stats.totalProdutos,
       descricao: 'Celulares em estoque',
+      icon: '📱',
       color: '#E63946',
       bgGradient: 'linear-gradient(135deg, #E63946 0%, #C72938 100%)'
     }
   ]
 
   return (
-    <div style={{ padding: '40px 0', minHeight: 'calc(100vh - 90px)' }}>
+    <div className="dashboard-container">
       {/* Header */}
-      <div style={{ marginBottom: '40px' }}>
-        <h1 style={{
-          margin: 0,
-          fontSize: '32px',
-          fontWeight: '900',
-          color: 'var(--text-primary)',
-          letterSpacing: '-0.5px',
-          marginBottom: '8px'
-        }}>
+      <div className="dashboard-header">
+        <h1 className="dashboard-title">
           Bem-vindo ao Dashboard
         </h1>
-        <p style={{ 
-          color: 'var(--text-secondary)', 
-          fontSize: '16px', 
-          margin: 0,
-          fontWeight: 500
-        }}>
+        <p className="dashboard-subtitle">
           Visão geral do seu negócio em tempo real
         </p>
       </div>
 
       {/* Grid de Cards */}
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-        gap: '24px',
-        marginBottom: '40px'
-      }}>
+      <div className="dashboard-grid">
         {cards.map((card, index) => (
           <div
             key={index}
-            className="stat-card"
+            className="dashboard-card stat-card"
             style={{
-              padding: '32px',
-              position: 'relative',
-              overflow: 'hidden',
-              animation: `fadeIn 0.5s ease-out ${index * 0.1}s both`
+              animationDelay: `${index * 0.1}s`
             }}
           >
             {/* Borda colorida no topo */}
-            <div style={{
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              right: 0,
-              height: '4px',
-              background: card.bgGradient
-            }} />
+            <div 
+              className="card-border-top"
+              style={{ background: card.bgGradient }}
+            />
 
             {/* Fundo decorativo */}
-            <div style={{
-              position: 'absolute',
-              top: '-40%',
-              right: '-20%',
-              width: '180px',
-              height: '180px',
-              background: card.bgGradient,
-              opacity: 0.05,
-              borderRadius: '50%',
-              filter: 'blur(40px)'
-            }} />
+            <div 
+              className="card-bg-decoration"
+              style={{ background: card.bgGradient }}
+            />
+
+            {/* Ícone */}
+            <div className="card-icon">{card.icon}</div>
 
             {/* Conteúdo */}
-            <div style={{ position: 'relative', zIndex: 1 }}>
-              <h3 style={{
-                margin: '0 0 12px 0',
-                fontSize: '13px',
-                fontWeight: '700',
-                color: 'var(--text-secondary)',
-                textTransform: 'uppercase',
-                letterSpacing: '1px'
-              }}>
+            <div className="card-content">
+              <h3 className="card-title">
                 {card.titulo}
               </h3>
 
-              <p style={{
-                margin: '0 0 8px 0',
-                fontSize: '40px',
-                fontWeight: '900',
-                color: card.color,
-                lineHeight: 1,
-                letterSpacing: '-1px'
-              }}>
+              <p 
+                className="card-value"
+                style={{ color: card.color }}
+              >
                 {card.valor}
               </p>
 
-              <p style={{
-                margin: 0,
-                fontSize: '14px',
-                color: 'var(--text-muted)',
-                fontWeight: 500
-              }}>
+              <p className="card-description">
                 {card.descricao}
               </p>
             </div>
@@ -229,31 +190,22 @@ export default function Dashboard() {
       </div>
 
       {/* Ações Rápidas */}
-      <div className="stat-card" style={{ padding: '32px' }}>
-        <h2 style={{ 
-          margin: '0 0 24px 0', 
-          fontSize: '20px', 
-          fontWeight: '800',
-          color: 'var(--text-primary)'
-        }}>
+      <div className="stat-card acoes-rapidas">
+        <h2 className="acoes-title">
           Ações Rápidas
         </h2>
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-          gap: '16px'
-        }}>
-          <button className="btn-primary" style={{ padding: '14px 20px' }}>
-            Novo Lead
+        <div className="acoes-grid">
+          <button className="btn-primary btn-acao">
+            📊 Novo Lead
           </button>
-          <button className="btn-primary" style={{ padding: '14px 20px' }}>
-            Novo Cliente
+          <button className="btn-primary btn-acao">
+            👥 Novo Cliente
           </button>
-          <button className="btn-primary" style={{ padding: '14px 20px' }}>
-            Novo Produto
+          <button className="btn-primary btn-acao">
+            📱 Novo Produto
           </button>
-          <button className="btn-primary" style={{ padding: '14px 20px' }}>
-            Novo Contrato
+          <button className="btn-primary btn-acao">
+            📄 Novo Contrato
           </button>
         </div>
       </div>

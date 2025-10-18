@@ -11,6 +11,7 @@ function App() {
   const [user, setUser] = useState(null)
   const [loading, setLoading] = useState(true)
   const [telaAtual, setTelaAtual] = useState('dashboard')
+  const [menuAberto, setMenuAberto] = useState(false)
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -26,7 +27,8 @@ function App() {
         justifyContent: 'center',
         alignItems: 'center',
         height: '100vh',
-        background: 'var(--bg-primary)'
+        background: 'var(--bg-primary)',
+        padding: '1rem'
       }}>
         <div style={{ textAlign: 'center' }}>
           <div className="spinner" style={{
@@ -55,6 +57,11 @@ function App() {
     { id: 'contratos', label: 'Contratos' }
   ]
 
+  const handleMenuClick = (id) => {
+    setTelaAtual(id)
+    setMenuAberto(false)
+  }
+
   return (
     <div style={{ minHeight: '100vh', background: 'var(--bg-primary)' }}>
       <nav className="header-3d">
@@ -70,12 +77,23 @@ function App() {
             </div>
           </div>
 
+          {/* Botão Hamburguer Mobile */}
+          <button 
+            className="hamburger-btn"
+            onClick={() => setMenuAberto(!menuAberto)}
+            aria-label="Menu"
+          >
+            <span></span>
+            <span></span>
+            <span></span>
+          </button>
+
           {/* Menu de Navegação */}
-          <div className="nav-pills">
+          <div className={`nav-pills ${menuAberto ? 'mobile-open' : ''}`}>
             {menus.map(m => (
               <button
                 key={m.id}
-                onClick={() => setTelaAtual(m.id)}
+                onClick={() => handleMenuClick(m.id)}
                 className={`pill ${telaAtual === m.id ? 'active' : ''}`}
               >
                 {m.label}
@@ -83,23 +101,14 @@ function App() {
             ))}
 
             {/* Separador */}
-            <div style={{ 
-              width: 1, 
-              height: 32, 
-              background: 'var(--pv-gray-200)', 
-              margin: '0 8px' 
-            }} />
+            <div className="nav-separator" />
 
             {/* Usuário e Logout */}
             <div className="user-chip">
               <div className="user-avatar">
                 {user.email[0].toUpperCase()}
               </div>
-              <span style={{ 
-                color: 'var(--text-secondary)', 
-                fontSize: 13, 
-                fontWeight: 600 
-              }}>
+              <span className="user-name">
                 {user.email.split('@')[0]}
               </span>
               <button
@@ -112,6 +121,14 @@ function App() {
           </div>
         </div>
       </nav>
+
+      {/* Overlay para fechar menu mobile */}
+      {menuAberto && (
+        <div 
+          className="menu-overlay"
+          onClick={() => setMenuAberto(false)}
+        />
+      )}
 
       {/* Conteúdo Principal */}
       <main style={{ 

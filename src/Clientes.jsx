@@ -30,7 +30,6 @@ export default function Clientes() {
     agencia: ''
   })
 
-  // Utilitário para obter nome com fallback
   const getNome = (c) => (c?.nome || c?.name || c?.nome_completo || '').trim()
 
   useEffect(() => {
@@ -101,6 +100,7 @@ export default function Clientes() {
     setForm(cliente)
     setEditando(cliente.id)
     setMostrarForm(true)
+    window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
   function resetarForm() {
@@ -151,11 +151,11 @@ export default function Clientes() {
   }
 
   return (
-    <div style={{ padding: '30px', minHeight: 'calc(100vh - 60px)' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+    <div className="clientes-container">
+      <div className="clientes-header">
         <div>
-          <h1 style={{ margin: 0, fontSize: '28px', fontWeight: '800' }}>👥 Clientes</h1>
-          <p style={{ color: 'var(--text-secondary)', margin: '8px 0 0 0', fontSize: '14px' }}>
+          <h1 className="clientes-title">👥 Clientes</h1>
+          <p className="clientes-subtitle">
             Gerenciar compradores e vendedores
           </p>
         </div>
@@ -172,13 +172,13 @@ export default function Clientes() {
       </div>
 
       {mostrarForm && (
-        <form onSubmit={salvarCliente} className="stat-card" style={{ marginBottom: '30px', padding: '30px' }}>
-          <h3 style={{ marginTop: 0, fontSize: '20px', fontWeight: '700' }}>
+        <form onSubmit={salvarCliente} className="stat-card clientes-form">
+          <h3 className="form-title">
             {editando ? '✏️ Editar Cliente' : '➕ Cadastrar Novo Cliente'}
           </h3>
           
-          <div style={{ marginBottom: '20px' }}>
-            <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: 'var(--text-primary)' }}>
+          <div className="form-group">
+            <label className="form-label">
               Tipo de Cliente*
             </label>
             <select 
@@ -191,8 +191,8 @@ export default function Clientes() {
             </select>
           </div>
 
-          <div style={{ marginBottom: '20px' }}>
-            <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: 'var(--text-primary)' }}>
+          <div className="form-group">
+            <label className="form-label">
               Nome Completo*
             </label>
             <input 
@@ -204,11 +204,9 @@ export default function Clientes() {
             />
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '20px' }}>
-            <div>
-              <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: 'var(--text-primary)' }}>
-                CPF*
-              </label>
+          <div className="form-row">
+            <div className="form-group">
+              <label className="form-label">CPF*</label>
               <input 
                 type="text" 
                 value={form.cpf} 
@@ -217,10 +215,8 @@ export default function Clientes() {
                 placeholder="000.000.000-00"
               />
             </div>
-            <div>
-              <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: 'var(--text-primary)' }}>
-                RG
-              </label>
+            <div className="form-group">
+              <label className="form-label">RG</label>
               <input 
                 type="text" 
                 value={form.rg} 
@@ -230,11 +226,9 @@ export default function Clientes() {
             </div>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '20px' }}>
-            <div>
-              <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: 'var(--text-primary)' }}>
-                Email
-              </label>
+          <div className="form-row">
+            <div className="form-group">
+              <label className="form-label">Email</label>
               <input 
                 type="email" 
                 value={form.email} 
@@ -242,10 +236,8 @@ export default function Clientes() {
                 placeholder="exemplo@email.com"
               />
             </div>
-            <div>
-              <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: 'var(--text-primary)' }}>
-                Celular
-              </label>
+            <div className="form-group">
+              <label className="form-label">Celular</label>
               <input 
                 type="tel" 
                 value={form.celular} 
@@ -255,11 +247,9 @@ export default function Clientes() {
             </div>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '16px', marginBottom: '20px' }}>
-            <div>
-              <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: 'var(--text-primary)' }}>
-                Estado Civil
-              </label>
+          <div className="form-row form-row-3">
+            <div className="form-group">
+              <label className="form-label">Estado Civil</label>
               <select 
                 value={form.estado_civil} 
                 onChange={(e) => setForm({...form, estado_civil: e.target.value})}
@@ -271,10 +261,8 @@ export default function Clientes() {
                 <option value="Viúvo(a)">Viúvo(a)</option>
               </select>
             </div>
-            <div>
-              <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: 'var(--text-primary)' }}>
-                Profissão
-              </label>
+            <div className="form-group">
+              <label className="form-label">Profissão</label>
               <input 
                 type="text" 
                 value={form.profissao} 
@@ -282,10 +270,8 @@ export default function Clientes() {
                 placeholder="Ex: Vendedor"
               />
             </div>
-            <div>
-              <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: 'var(--text-primary)' }}>
-                Nacionalidade
-              </label>
+            <div className="form-group">
+              <label className="form-label">Nacionalidade</label>
               <input 
                 type="text" 
                 value={form.nacionalidade} 
@@ -294,15 +280,11 @@ export default function Clientes() {
             </div>
           </div>
 
-          <h4 style={{ marginTop: '30px', marginBottom: '16px', color: 'var(--text-secondary)', fontSize: '16px', fontWeight: '700' }}>
-            📍 Endereço
-          </h4>
+          <h4 className="form-section-title">📍 Endereço</h4>
           
-          <div style={{ display: 'grid', gridTemplateColumns: '3fr 1fr', gap: '16px', marginBottom: '16px' }}>
-            <div>
-              <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: 'var(--text-primary)' }}>
-                Rua/Avenida
-              </label>
+          <div className="form-row form-row-endereco">
+            <div className="form-group form-group-rua">
+              <label className="form-label">Rua/Avenida</label>
               <input 
                 type="text" 
                 value={form.endereco_rua} 
@@ -310,10 +292,8 @@ export default function Clientes() {
                 placeholder="Ex: Rua das Flores"
               />
             </div>
-            <div>
-              <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: 'var(--text-primary)' }}>
-                Número
-              </label>
+            <div className="form-group form-group-numero">
+              <label className="form-label">Número</label>
               <input 
                 type="text" 
                 value={form.endereco_numero} 
@@ -323,11 +303,9 @@ export default function Clientes() {
             </div>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }}>
-            <div>
-              <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: 'var(--text-primary)' }}>
-                Complemento
-              </label>
+          <div className="form-row">
+            <div className="form-group">
+              <label className="form-label">Complemento</label>
               <input 
                 type="text" 
                 value={form.endereco_complemento} 
@@ -335,10 +313,8 @@ export default function Clientes() {
                 placeholder="Apto 101, Bloco A"
               />
             </div>
-            <div>
-              <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: 'var(--text-primary)' }}>
-                Bairro
-              </label>
+            <div className="form-group">
+              <label className="form-label">Bairro</label>
               <input 
                 type="text" 
                 value={form.bairro} 
@@ -348,11 +324,9 @@ export default function Clientes() {
             </div>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr 1fr', gap: '16px', marginBottom: '20px' }}>
-            <div>
-              <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: 'var(--text-primary)' }}>
-                CEP
-              </label>
+          <div className="form-row form-row-3">
+            <div className="form-group">
+              <label className="form-label">CEP</label>
               <input 
                 type="text" 
                 value={form.cep} 
@@ -360,10 +334,8 @@ export default function Clientes() {
                 placeholder="00000-000"
               />
             </div>
-            <div>
-              <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: 'var(--text-primary)' }}>
-                Cidade
-              </label>
+            <div className="form-group">
+              <label className="form-label">Cidade</label>
               <input 
                 type="text" 
                 value={form.cidade} 
@@ -371,10 +343,8 @@ export default function Clientes() {
                 placeholder="São Paulo"
               />
             </div>
-            <div>
-              <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: 'var(--text-primary)' }}>
-                UF
-              </label>
+            <div className="form-group">
+              <label className="form-label">UF</label>
               <input 
                 type="text" 
                 value={form.uf} 
@@ -387,14 +357,10 @@ export default function Clientes() {
 
           {form.tipo === 'vendedor' && (
             <>
-              <h4 style={{ marginTop: '30px', marginBottom: '16px', color: 'var(--text-secondary)', fontSize: '16px', fontWeight: '700' }}>
-                🏦 Dados Bancários
-              </h4>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '20px' }}>
-                <div>
-                  <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: 'var(--text-primary)' }}>
-                    Banco
-                  </label>
+              <h4 className="form-section-title">🏦 Dados Bancários</h4>
+              <div className="form-row">
+                <div className="form-group">
+                  <label className="form-label">Banco</label>
                   <input 
                     type="text" 
                     value={form.banco} 
@@ -402,10 +368,8 @@ export default function Clientes() {
                     placeholder="Ex: Banco do Brasil"
                   />
                 </div>
-                <div>
-                  <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: 'var(--text-primary)' }}>
-                    Agência
-                  </label>
+                <div className="form-group">
+                  <label className="form-label">Agência</label>
                   <input 
                     type="text" 
                     value={form.agencia} 
@@ -417,11 +381,10 @@ export default function Clientes() {
             </>
           )}
 
-          <div style={{ display: 'flex', gap: '12px', marginTop: '30px' }}>
+          <div className="form-actions">
             <button 
               type="submit" 
               className="btn-primary"
-              style={{ flex: 1, padding: '14px' }}
             >
               {editando ? '💾 Salvar Alterações' : '✅ Cadastrar Cliente'}
             </button>
@@ -429,7 +392,6 @@ export default function Clientes() {
               type="button"
               onClick={resetarForm}
               className="btn-secondary"
-              style={{ padding: '14px 24px' }}
             >
               Cancelar
             </button>
@@ -437,78 +399,114 @@ export default function Clientes() {
         </form>
       )}
 
-      <div className="stat-card" style={{ padding: '25px' }}>
-        <div style={{ marginBottom: '20px' }}>
+      <div className="stat-card">
+        <div className="search-container">
           <input 
             type="text"
             placeholder="🔍 Buscar por nome, CPF ou email..."
             value={busca}
             onChange={(e) => setBusca(e.target.value)}
-            style={{ width: '100%' }}
+            className="search-input"
           />
         </div>
 
-        <h3 style={{ marginTop: 0, marginBottom: '16px', fontSize: '18px', fontWeight: '700' }}>
+        <h3 className="list-title">
           Lista de Clientes ({clientesFiltrados.length})
         </h3>
         
         {clientesFiltrados.length === 0 ? (
-          <p style={{ textAlign: 'center', color: 'var(--text-secondary)', padding: '40px' }}>
+          <p className="empty-message">
             {busca ? 'Nenhum cliente encontrado com essa busca.' : 'Nenhum cliente cadastrado ainda.'}
           </p>
         ) : (
-          <div style={{ overflowX: 'auto' }}>
-            <table className="table-modern">
-              <thead>
-                <tr>
-                  <th>Tipo</th>
-                  <th>Nome</th>
-                  <th>CPF</th>
-                  <th>Celular</th>
-                  <th>Cidade</th>
-                  <th style={{ textAlign: 'center' }}>Ações</th>
-                </tr>
-              </thead>
-              <tbody>
-                {clientesFiltrados.map((c) => (
-                  <tr key={c.id}>
-                    <td>
-                      <span className={c.tipo === 'comprador' ? 'badge-info' : 'badge-warning'} style={{ fontSize: '12px' }}>
-                        {c.tipo === 'comprador' ? '🛒 Comprador' : '💼 Vendedor'}
-                      </span>
-                    </td>
-                    <td style={{ fontWeight: '600' }}>{getNome(c) || '—'}</td>
-                    <td style={{ color: 'var(--text-secondary)' }}>{c.cpf || '—'}</td>
-                    <td style={{ color: 'var(--text-secondary)' }}>{c.celular || '—'}</td>
-                    <td style={{ color: 'var(--text-secondary)' }}>{c.cidade || '—'}</td>
-                    <td style={{ textAlign: 'center' }}>
-                      <button 
-                        onClick={() => editarCliente(c)}
-                        className="btn-secondary"
-                        style={{ padding: '6px 12px', fontSize: '12px', marginRight: '6px' }}
-                      >
-                        ✏️ Editar
-                      </button>
-                      <button 
-                        onClick={() => excluirCliente(c.id, getNome(c))}
-                        style={{ 
-                          background: 'linear-gradient(135deg, #EF4444, #DC2626)', 
-                          color: 'white', 
-                          border: 'none', 
-                          padding: '6px 12px', 
-                          borderRadius: 'var(--radius-md)', 
-                          cursor: 'pointer',
-                          fontSize: '12px'
-                        }}
-                      >
-                        🗑️
-                      </button>
-                    </td>
+          <>
+            {/* Visualização Desktop - Tabela */}
+            <div className="table-wrapper desktop-only">
+              <table className="table-modern">
+                <thead>
+                  <tr>
+                    <th>Tipo</th>
+                    <th>Nome</th>
+                    <th>CPF</th>
+                    <th>Celular</th>
+                    <th>Cidade</th>
+                    <th style={{ textAlign: 'center' }}>Ações</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody>
+                  {clientesFiltrados.map((c) => (
+                    <tr key={c.id}>
+                      <td>
+                        <span className={c.tipo === 'comprador' ? 'badge-info' : 'badge-warning'}>
+                          {c.tipo === 'comprador' ? '🛒 Comprador' : '💼 Vendedor'}
+                        </span>
+                      </td>
+                      <td style={{ fontWeight: '600' }}>{getNome(c) || '—'}</td>
+                      <td style={{ color: 'var(--text-secondary)' }}>{c.cpf || '—'}</td>
+                      <td style={{ color: 'var(--text-secondary)' }}>{c.celular || '—'}</td>
+                      <td style={{ color: 'var(--text-secondary)' }}>{c.cidade || '—'}</td>
+                      <td style={{ textAlign: 'center' }}>
+                        <button 
+                          onClick={() => editarCliente(c)}
+                          className="btn-secondary btn-sm"
+                        >
+                          ✏️ Editar
+                        </button>
+                        <button 
+                          onClick={() => excluirCliente(c.id, getNome(c))}
+                          className="btn-danger btn-sm"
+                        >
+                          🗑️
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Visualização Mobile - Cards */}
+            <div className="cards-mobile mobile-only">
+              {clientesFiltrados.map((c) => (
+                <div key={c.id} className="cliente-card">
+                  <div className="cliente-card-header">
+                    <span className={c.tipo === 'comprador' ? 'badge-info' : 'badge-warning'}>
+                      {c.tipo === 'comprador' ? '🛒 Comprador' : '💼 Vendedor'}
+                    </span>
+                    <h4 className="cliente-card-nome">{getNome(c) || '—'}</h4>
+                  </div>
+                  <div className="cliente-card-info">
+                    <div className="cliente-info-item">
+                      <span className="info-label">CPF:</span>
+                      <span className="info-value">{c.cpf || '—'}</span>
+                    </div>
+                    <div className="cliente-info-item">
+                      <span className="info-label">Celular:</span>
+                      <span className="info-value">{c.celular || '—'}</span>
+                    </div>
+                    <div className="cliente-info-item">
+                      <span className="info-label">Cidade:</span>
+                      <span className="info-value">{c.cidade || '—'}</span>
+                    </div>
+                  </div>
+                  <div className="cliente-card-actions">
+                    <button 
+                      onClick={() => editarCliente(c)}
+                      className="btn-secondary btn-sm"
+                    >
+                      ✏️ Editar
+                    </button>
+                    <button 
+                      onClick={() => excluirCliente(c.id, getNome(c))}
+                      className="btn-danger btn-sm"
+                    >
+                      🗑️ Excluir
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </>
         )}
       </div>
     </div>
