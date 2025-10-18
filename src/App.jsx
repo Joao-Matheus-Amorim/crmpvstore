@@ -34,7 +34,6 @@ function App() {
 
     fetchSession()
 
-    // Listener para mudanças de autenticação
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null)
     })
@@ -74,16 +73,17 @@ function App() {
   }
 
   const menus = [
-    { id: 'dashboard', label: 'Dashboard' },
-    { id: 'leads', label: 'Leads' },
-    { id: 'clientes', label: 'Clientes' },
-    { id: 'produtos', label: 'Produtos' },
-    { id: 'contratos', label: 'Contratos' }
+    { id: 'dashboard', label: 'Dashboard', icon: '📊' },
+    { id: 'leads', label: 'Leads', icon: '🎯' },
+    { id: 'clientes', label: 'Clientes', icon: '👥' },
+    { id: 'produtos', label: 'Produtos', icon: '📱' },
+    { id: 'contratos', label: 'Contratos', icon: '📄' }
   ]
 
   const handleMenuClick = (id) => {
     setTelaAtual(id)
     setMenuAberto(false)
+    window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
   const handleLogout = async () => {
@@ -91,45 +91,34 @@ function App() {
       await supabase.auth.signOut()
       setUser(null)
       setTelaAtual('dashboard')
+      setMenuAberto(false)
     } catch (error) {
       console.error('Erro ao fazer logout:', error)
     }
   }
 
-  // Verificação de segurança para email
   const userEmail = user?.email || 'usuário'
   const userInitial = userEmail.charAt(0).toUpperCase()
   const userName = userEmail.split('@')[0]
 
   return (
     <div style={{ minHeight: '100vh', background: 'var(--bg-primary)' }}>
+      {/* Header Responsivo */}
       <nav className="header-3d">
         <div className="header-rail">
           {/* Logo e Marca */}
           <div className="brand">
             <div className="brand-badge">
-              <img src="/logo.png" alt="PV Store" />
+              <span style={{ fontSize: '24px' }}>🏪</span>
             </div>
             <div className="brand-text">
               <h1>PV Store CRM</h1>
-              <p>Sistema de Gestão</p>
+              <p className="brand-subtitle">Sistema de Gestão</p>
             </div>
           </div>
 
-          {/* Botão Hamburguer Mobile */}
-          <button 
-            className="hamburger-btn"
-            onClick={() => setMenuAberto(!menuAberto)}
-            aria-label="Menu"
-            type="button"
-          >
-            <span></span>
-            <span></span>
-            <span></span>
-          </button>
-
-          {/* Menu de Navegação */}
-          <div className={`nav-pills ${menuAberto ? 'mobile-open' : ''}`}>
+          {/* Menu Desktop */}
+          <div className="nav-pills desktop-nav">
             {menus.map(m => (
               <button
                 key={m.id}
@@ -137,15 +126,16 @@ function App() {
                 className={`pill ${telaAtual === m.id ? 'active' : ''}`}
                 type="button"
               >
-                {m.label}
+                <span className="pill-icon">{m.icon}</span>
+                <span className="pill-label">{m.label}</span>
               </button>
             ))}
+          </div>
 
-            {/* Separador */}
-            <div className="nav-separator" />
-
-            {/* Usuário e Logout */}
-            <div className="user-chip">
+          {/* User e Hamburger Container */}
+          <div className="header-actions">
+            {/* User Chip Desktop */}
+            <div className="user-chip desktop-user">
               <div className="user-avatar">
                 {userInitial}
               </div>
@@ -160,14 +150,64 @@ function App() {
                 Sair
               </button>
             </div>
+
+            {/* Botão Hamburguer Mobile */}
+            <button 
+              className="hamburger-btn"
+              onClick={() => setMenuAberto(!menuAberto)}
+              aria-label="Menu"
+              type="button"
+            >
+              <span className={menuAberto ? 'active' : ''}></span>
+              <span className={menuAberto ? 'active' : ''}></span>
+              <span className={menuAberto ? 'active' : ''}></span>
+            </button>
           </div>
         </div>
       </nav>
 
-      {/* Overlay para fechar menu mobile */}
+      {/* Menu Mobile Lateral */}
+      <div className={`mobile-menu ${menuAberto ? 'open' : ''}`}>
+        <div className="mobile-menu-header">
+          <div className="user-avatar large">
+            {userInitial}
+          </div>
+          <div className="mobile-user-info">
+            <span className="mobile-user-name">{userName}</span>
+            <span className="mobile-user-email">{userEmail}</span>
+          </div>
+        </div>
+
+        <div className="mobile-menu-items">
+          {menus.map(m => (
+            <button
+              key={m.id}
+              onClick={() => handleMenuClick(m.id)}
+              className={`mobile-menu-item ${telaAtual === m.id ? 'active' : ''}`}
+              type="button"
+            >
+              <span className="mobile-item-icon">{m.icon}</span>
+              <span className="mobile-item-label">{m.label}</span>
+              {telaAtual === m.id && <span className="mobile-item-indicator">●</span>}
+            </button>
+          ))}
+        </div>
+
+        <div className="mobile-menu-footer">
+          <button
+            className="mobile-logout"
+            onClick={handleLogout}
+            type="button"
+          >
+            🚪 Sair da Conta
+          </button>
+        </div>
+      </div>
+
+      {/* Overlay */}
       {menuAberto && (
         <div 
-          className="menu-overlay"
+          className="menu-overlay active"
           onClick={() => setMenuAberto(false)}
           role="presentation"
         />
@@ -177,7 +217,8 @@ function App() {
       <main style={{ 
         maxWidth: '1600px', 
         margin: '0 auto',
-        padding: '0 20px'
+        padding: '0 20px',
+        paddingTop: '20px'
       }}>
         <div className="animate-fade-in">
           {telaAtual === 'dashboard' && <Dashboard />}
