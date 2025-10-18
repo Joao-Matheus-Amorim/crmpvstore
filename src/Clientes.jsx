@@ -20,8 +20,7 @@ export default function Clientes() {
     bairro: '',
     cidade: '',
     estado: '',
-    cep: '',
-    observacoes: ''
+    cep: ''
   })
 
   useEffect(() => {
@@ -48,7 +47,7 @@ export default function Clientes() {
         .from('clients')
         .select('*')
         .eq('owner_id', ownerId)
-        .order('nome_completo', { ascending: true })
+        .order('nome', { ascending: true })
 
       if (!error) setClientes(data || [])
     } catch (err) {
@@ -62,21 +61,18 @@ export default function Clientes() {
     e.preventDefault()
     
     try {
-      // Mapear formData para campos corretos do banco
       const clienteData = {
         tipo: 'pessoa_fisica',
-        nome_completo: formData.nome,
+        nome: formData.nome,
         cpf: formData.cpf || null,
         email: formData.email || null,
-        telefone: formData.telefone || null,
         celular: formData.telefone || null,
-        endereco: formData.endereco || null,
-        numero: formData.numero || null,
+        endereco_rua: formData.endereco || null,
+        endereco_numero: formData.numero || null,
         bairro: formData.bairro || null,
         cidade: formData.cidade || null,
         uf: formData.estado || null,
-        cep: formData.cep || null,
-        observacoes: formData.observacoes || null
+        cep: formData.cep || null
       }
 
       if (editando) {
@@ -132,18 +128,17 @@ export default function Clientes() {
   function editarCliente(cliente) {
     setEditando(cliente)
     setFormData({
-      nome: cliente.nome_completo || '',
+      nome: cliente.nome || '',
       cpf: cliente.cpf || '',
       email: cliente.email || '',
-      telefone: cliente.celular || cliente.telefone || '',
+      telefone: cliente.celular || '',
       tipo: 'comprador',
-      endereco: cliente.endereco || '',
-      numero: cliente.numero || '',
+      endereco: cliente.endereco_rua || '',
+      numero: cliente.endereco_numero || '',
       bairro: cliente.bairro || '',
       cidade: cliente.cidade || '',
       estado: cliente.uf || '',
-      cep: cliente.cep || '',
-      observacoes: cliente.observacoes || ''
+      cep: cliente.cep || ''
     })
     setMostrarForm(true)
     window.scrollTo({ top: 0, behavior: 'smooth' })
@@ -161,18 +156,16 @@ export default function Clientes() {
       bairro: '',
       cidade: '',
       estado: '',
-      cep: '',
-      observacoes: ''
+      cep: ''
     })
     setEditando(null)
     setMostrarForm(false)
   }
 
   const clientesFiltrados = clientes.filter(cliente =>
-    cliente.nome_completo?.toLowerCase().includes(filtro.toLowerCase()) ||
+    cliente.nome?.toLowerCase().includes(filtro.toLowerCase()) ||
     cliente.email?.toLowerCase().includes(filtro.toLowerCase()) ||
     cliente.cpf?.includes(filtro) ||
-    cliente.telefone?.includes(filtro) ||
     cliente.celular?.includes(filtro)
   )
 
@@ -387,16 +380,6 @@ export default function Clientes() {
               </div>
             </div>
 
-            <div className="form-group">
-              <label className="form-label">Observações</label>
-              <textarea
-                value={formData.observacoes}
-                onChange={(e) => setFormData({...formData, observacoes: e.target.value})}
-                placeholder="Informações adicionais sobre o cliente..."
-                rows="3"
-              ></textarea>
-            </div>
-
             <div className="form-actions">
               <button type="submit" className="btn-primary">
                 {editando ? 'Atualizar Cliente' : 'Salvar Cliente'}
@@ -429,7 +412,7 @@ export default function Clientes() {
         {clientesFiltrados.length === 0 ? (
           <div className="empty-state">
             <svg width="64" height="64" viewBox="0 0 64 64" fill="none" className="empty-icon">
-              ircle cx="32" cy="32" r="30" stroke="currentColor" strokeWidth="2" opacity="0.2.2"/)
+              <circle cx="32" cy="32" r="30" stroke="currentColor" strokeWidth="2" opacity="0.2"/>
               <path d="M32 20v24M20 32h24" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
             </svg>
             <h4 className="empty-title">Nenhum cliente encontrado</h4>
@@ -454,13 +437,13 @@ export default function Clientes() {
                 {clientesFiltrados.map(cliente => (
                   <tr key={cliente.id}>
                     <td>
-                      <div className="table-name">{cliente.nome_completo}</div>
+                      <div className="table-name">{cliente.nome}</div>
                     </td>
                     <td className="table-cpf">{cliente.cpf}</td>
                     <td>
                       <div className="table-contact">
                         <div>{cliente.email}</div>
-                        <div className="table-subtitle">{cliente.celular || cliente.telefone}</div>
+                        <div className="table-subtitle">{cliente.celular}</div>
                       </div>
                     </td>
                     <td>
