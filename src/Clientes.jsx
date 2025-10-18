@@ -60,20 +60,38 @@ export default function Clientes() {
   async function salvarCliente(e) {
     e.preventDefault()
     
+    // ========== VALIDAÇÃO RIGOROSA ==========
+    if (!formData.nome || formData.nome.trim().length < 3) {
+      alert('❌ Nome deve ter no mínimo 3 caracteres!')
+      return
+    }
+
+    if (!formData.cpf || formData.cpf.trim().length < 11) {
+      alert('❌ CPF é obrigatório! Digite no mínimo 11 dígitos.')
+      return
+    }
+
+    if (!formData.telefone || formData.telefone.trim().length < 10) {
+      alert('❌ Telefone é obrigatório! Digite no mínimo 10 dígitos.')
+      return
+    }
+
     try {
       const clienteData = {
         tipo: 'pessoa_fisica',
-        nome: formData.nome,
-        cpf: formData.cpf || null,
-        email: formData.email || null,
-        celular: formData.telefone || null,
-        endereco_rua: formData.endereco || null,
-        endereco_numero: formData.numero || null,
-        bairro: formData.bairro || null,
-        cidade: formData.cidade || null,
-        uf: formData.estado || null,
-        cep: formData.cep || null
+        nome: formData.nome.trim(),
+        cpf: formData.cpf.trim(),
+        email: formData.email?.trim() || null,
+        celular: formData.telefone?.trim() || null,
+        endereco_rua: formData.endereco?.trim() || null,
+        endereco_numero: formData.numero?.trim() || null,
+        bairro: formData.bairro?.trim() || null,
+        cidade: formData.cidade?.trim() || null,
+        uf: formData.estado?.trim() || null,
+        cep: formData.cep?.trim() || null
       }
+
+      console.log('📤 Enviando dados:', clienteData)
 
       if (editando) {
         const { error } = await supabase
@@ -82,7 +100,7 @@ export default function Clientes() {
           .eq('id', editando.id)
         
         if (error) {
-          console.error('Erro ao atualizar:', error)
+          console.error('❌ Erro ao atualizar:', error)
           alert('❌ Erro ao atualizar cliente:\n' + error.message)
         } else {
           alert('✅ Cliente atualizado com sucesso!')
@@ -98,8 +116,8 @@ export default function Clientes() {
           })
         
         if (error) {
-          console.error('Erro ao criar:', error)
-          alert('❌ Erro ao criar cliente:\n' + error.message)
+          console.error('❌ Erro ao criar:', error)
+          alert('❌ Erro ao criar cliente:\n' + JSON.stringify(error, null, 2))
         } else {
           alert('✅ Cliente cadastrado com sucesso!')
           resetForm()
@@ -107,7 +125,7 @@ export default function Clientes() {
         }
       }
     } catch (err) {
-      console.error('Erro ao salvar cliente:', err)
+      console.error('❌ Erro inesperado:', err)
       alert('❌ Erro inesperado ao salvar cliente.')
     }
   }
@@ -258,6 +276,7 @@ export default function Clientes() {
                     onChange={(e) => setFormData({...formData, nome: e.target.value})}
                     placeholder="Digite o nome completo"
                     required
+                    minLength="3"
                   />
                 </div>
 
@@ -269,19 +288,19 @@ export default function Clientes() {
                     onChange={(e) => setFormData({...formData, cpf: e.target.value})}
                     placeholder="000.000.000-00"
                     required
+                    minLength="11"
                   />
                 </div>
               </div>
 
               <div className="form-row">
                 <div className="form-group">
-                  <label className="form-label">Email *</label>
+                  <label className="form-label">Email</label>
                   <input
                     type="email"
                     value={formData.email}
                     onChange={(e) => setFormData({...formData, email: e.target.value})}
                     placeholder="email@exemplo.com"
-                    required
                   />
                 </div>
 
@@ -293,6 +312,7 @@ export default function Clientes() {
                     onChange={(e) => setFormData({...formData, telefone: e.target.value})}
                     placeholder="(00) 00000-0000"
                     required
+                    minLength="10"
                   />
                 </div>
               </div>
@@ -381,7 +401,7 @@ export default function Clientes() {
             </div>
 
             <div className="form-actions">
-              <button type="submit" className="btn-primary">
+              <button type="submit" className="btn-primary" disabled={!ownerId}>
                 {editando ? 'Atualizar Cliente' : 'Salvar Cliente'}
               </button>
               <button type="button" className="btn-secondary" onClick={resetForm}>
