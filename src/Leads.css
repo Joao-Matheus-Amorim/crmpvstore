@@ -1,0 +1,453 @@
+/* =================================
+   LEADS - ESTILO 3D FUTURISTA
+   Cores: Branco, Vermelho (#DC2626), Azul (#2563EB)
+   ================================= */
+
+.dashboard-3d {
+  padding: 2rem;
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  min-height: 100vh;
+}
+
+.dashboard-header-3d {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  padding: 1.5rem 2rem;
+  background: linear-gradient(135deg, #ffffff 0%, #f1f5f9 100%);
+  border-radius: 20px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08), 
+              0 2px 8px rgba(0, 0, 0, 0.04),
+              inset 0 -2px 4px rgba(255, 255, 255, 0.8);
+  transform: translateZ(0);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.dashboard-header-3d:hover {
+  box-shadow: 0 15px 50px rgba(0, 0, 0, 0.12), 
+              0 4px 12px rgba(0, 0, 0, 0.06),
+              inset 0 -2px 6px rgba(255, 255, 255, 0.9);
+  transform: translateY(-2px) translateZ(0);
+}
+
+.page-title-3d {
+  font-size: 2rem;
+  font-weight: 800;
+  background: linear-gradient(135deg, #2563EB 0%, #DC2626 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin: 0 0 0.5rem 0;
+  text-shadow: 0 2px 4px rgba(37, 99, 235, 0.1);
+}
+
+.page-subtitle-3d {
+  font-size: 1rem;
+  color: #64748b;
+  margin: 0;
+}
+
+/* BOTÕES 3D */
+.btn-3d {
+  padding: 0.875rem 2rem;
+  border: none;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1),
+              0 2px 4px rgba(0, 0, 0, 0.06),
+              inset 0 -2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.btn-3d::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+  transition: left 0.5s;
+}
+
+.btn-3d:hover::before {
+  left: 100%;
+}
+
+.btn-primary-3d {
+  background: linear-gradient(135deg, #2563EB 0%, #1d4ed8 100%);
+  color: white;
+}
+
+.btn-primary-3d:hover {
+  background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%);
+  box-shadow: 0 6px 20px rgba(37, 99, 235, 0.4),
+              0 3px 6px rgba(37, 99, 235, 0.2),
+              inset 0 -3px 6px rgba(0, 0, 0, 0.15);
+  transform: translateY(-2px);
+}
+
+.btn-secondary-3d {
+  background: linear-gradient(135deg, #ffffff 0%, #e2e8f0 100%);
+  color: #334155;
+}
+
+.btn-secondary-3d:hover {
+  background: linear-gradient(135deg, #f1f5f9 0%, #cbd5e1 100%);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+  transform: translateY(-2px);
+}
+
+/* STATS GRID */
+.stats-grid-3d {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.stat-card-3d {
+  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+  border-radius: 16px;
+  padding: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08),
+              0 2px 8px rgba(0, 0, 0, 0.04),
+              inset 0 -2px 6px rgba(255, 255, 255, 0.8),
+              inset 0 2px 4px rgba(0, 0, 0, 0.02);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.stat-card-3d:hover {
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12),
+              0 4px 12px rgba(0, 0, 0, 0.06),
+              inset 0 -3px 8px rgba(255, 255, 255, 0.9);
+  transform: translateY(-4px);
+}
+
+.stat-icon-3d {
+  width: 56px;
+  height: 56px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15),
+              inset 0 -2px 4px rgba(0, 0, 0, 0.2),
+              inset 0 2px 4px rgba(255, 255, 255, 0.3);
+}
+
+.stat-content-3d {
+  flex: 1;
+}
+
+.stat-title-3d {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #64748b;
+  margin: 0 0 0.5rem 0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.stat-value-3d {
+  font-size: 2rem;
+  font-weight: 800;
+  color: #1e293b;
+  margin: 0;
+  line-height: 1;
+}
+
+/* CARDS 3D */
+.card-3d {
+  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+  border-radius: 20px;
+  padding: 2rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08),
+              0 2px 8px rgba(0, 0, 0, 0.04),
+              inset 0 -2px 6px rgba(255, 255, 255, 0.8),
+              inset 0 2px 4px rgba(0, 0, 0, 0.02);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.card-3d:hover {
+  box-shadow: 0 15px 50px rgba(0, 0, 0, 0.12),
+              0 4px 12px rgba(0, 0, 0, 0.06),
+              inset 0 -3px 8px rgba(255, 255, 255, 0.9);
+  transform: translateY(-4px);
+}
+
+/* FORMULÁRIO */
+.form-row-3d {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.form-group-3d {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-label-3d {
+  font-weight: 600;
+  color: #334155;
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.form-input-3d {
+  padding: 0.875rem 1.25rem;
+  border: 2px solid #e2e8f0;
+  border-radius: 12px;
+  font-size: 1rem;
+  transition: all 0.3s;
+  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.03),
+              0 1px 2px rgba(0, 0, 0, 0.02);
+}
+
+.form-input-3d:focus {
+  outline: none;
+  border-color: #2563EB;
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1),
+              inset 0 2px 4px rgba(0, 0, 0, 0.03);
+  background: #ffffff;
+}
+
+.form-actions-3d {
+  display: flex;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+/* TABELA 3D */
+.search-header-3d {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.section-title-3d {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.search-input-3d {
+  padding: 0.875rem 1.5rem;
+  border: 2px solid #e2e8f0;
+  border-radius: 12px;
+  font-size: 1rem;
+  min-width: 300px;
+  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.03),
+              0 1px 2px rgba(0, 0, 0, 0.02);
+  transition: all 0.3s;
+}
+
+.search-input-3d:focus {
+  outline: none;
+  border-color: #2563EB;
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+  background: #ffffff;
+}
+
+.table-container-3d {
+  overflow-x: auto;
+  border-radius: 16px;
+  box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.table-3d {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.table-3d thead {
+  background: linear-gradient(135deg, #2563EB 0%, #1d4ed8 100%);
+  color: white;
+}
+
+.table-3d th {
+  padding: 1.25rem 1.5rem;
+  text-align: left;
+  font-weight: 700;
+  font-size: 0.85rem;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  box-shadow: inset 0 -2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.table-3d th:first-child {
+  border-top-left-radius: 16px;
+}
+
+.table-3d th:last-child {
+  border-top-right-radius: 16px;
+}
+
+.table-3d tbody tr {
+  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+  transition: all 0.3s;
+}
+
+.table-3d tbody tr:hover {
+  background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  transform: translateX(4px);
+}
+
+.table-3d td {
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.text-primary-3d {
+  font-weight: 600;
+  color: #1e293b;
+  margin-bottom: 4px;
+}
+
+.text-secondary-3d {
+  font-size: 0.875rem;
+  color: #64748b;
+}
+
+/* BADGES DE STATUS */
+.badge-status-3d {
+  display: inline-block;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.875rem;
+  color: white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15),
+              inset 0 -1px 2px rgba(0, 0, 0, 0.2),
+              inset 0 1px 2px rgba(255, 255, 255, 0.3);
+  text-transform: capitalize;
+}
+
+.badge-status-novo {
+  background: linear-gradient(135deg, #2563EB 0%, #1d4ed8 100%);
+}
+
+.badge-status-em_contato {
+  background: linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%);
+}
+
+.badge-status-qualificado {
+  background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
+}
+
+.badge-status-em_negociacao {
+  background: linear-gradient(135deg, #EC4899 0%, #DB2777 100%);
+}
+
+.badge-status-convertido {
+  background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+}
+
+.badge-status-perdido {
+  background: linear-gradient(135deg, #DC2626 0%, #b91c1c 100%);
+}
+
+/* BOTÕES DE AÇÃO */
+.table-actions-3d {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.btn-icon-3d {
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1),
+              inset 0 -1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.btn-edit-3d {
+  background: linear-gradient(135deg, #2563EB 0%, #1d4ed8 100%);
+  color: white;
+}
+
+.btn-edit-3d:hover {
+  background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%);
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+  transform: translateY(-2px);
+}
+
+.btn-delete-3d {
+  background: linear-gradient(135deg, #DC2626 0%, #b91c1c 100%);
+  color: white;
+}
+
+.btn-delete-3d:hover {
+  background: linear-gradient(135deg, #b91c1c 0%, #991b1b 100%);
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+  transform: translateY(-2px);
+}
+
+.btn-convert-3d {
+  background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+  color: white;
+}
+
+.btn-convert-3d:hover {
+  background: linear-gradient(135deg, #059669 0%, #047857 100%);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+  transform: translateY(-2px);
+}
+
+/* LOADING 3D */
+.loading-container-3d {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+}
+
+.spinner-3d {
+  width: 60px;
+  height: 60px;
+  border: 5px solid #e2e8f0;
+  border-top: 5px solid #2563EB;
+  border-radius: 50%;
+  animation: spin 1s cubic-bezier(0.68, -0.55, 0.27, 1.55) infinite;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3),
+              inset 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.empty-state-3d {
+  text-align: center;
+  padding: 4rem 2rem;
+  color: #64748b;
+  font-size: 1.1rem;
+}
