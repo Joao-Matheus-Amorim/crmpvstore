@@ -1690,3 +1690,33 @@ body {
 /* ============================================
    FIM DO TEMA COLORIDO
    ============================================ */
+/* ============================================
+   FIX: LOGO COLORIDA NO HEADER (OVERRIDE FINAL)
+   ============================================ */
+.logo-premium {
+  width: 48px !important;
+  height: 48px !important;
+  border-radius: var(--border-radius-md) !important;
+  background: white !important;  /* ← FUNDO BRANCO */
+  border: 2px solid var(--pv-blue-primary) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  box-shadow: var(--shadow-md) !important;
+  transition: var(--transition-normal) !important;
+  padding: 4px !important;  /* ← ADICIONA PADDING */
+  overflow: visible !important;
+}
+
+.logo-premium:hover {
+  transform: scale(1.05) !important;
+  box-shadow: var(--shadow-lg) !important;
+}
+
+.logo-img-premium {
+  width: 100% !important;  /* ← OCUPA TODO O ESPAÇO */
+  height: 100% !important;
+  object-fit: contain !important;  /* ← MANTÉM PROPORÇÃO */
+  filter: none !important;  /* ← REMOVE QUALQUER FILTRO */
+  display: block !important;
+}

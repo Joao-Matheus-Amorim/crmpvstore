@@ -11,7 +11,7 @@ import Estoque from './Estoque.jsx'
 
 function App() {
   // Logos da pasta public/
-  const logoHeader = '/logo.png'  // ✅ LOGO COLORIDA PARA O HEADER
+  const logoHeader = '/logo.jpg'// ✅ LOGO COLORIDA PARA O HEADER
   const logoBackground = '/logo.jpg'  // ✅ LOGO PARA O BACKGROUND ANIMADO
   
   const [user, setUser] = useState(null)
