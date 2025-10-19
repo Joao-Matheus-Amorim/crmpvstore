@@ -1720,3 +1720,753 @@ body {
   filter: none !important;  /* ← REMOVE QUALQUER FILTRO */
   display: block !important;
 }
+/* ============================================
+   DASHBOARD 3D PREMIUM - BRANCO/AZUL/VERMELHO
+   ============================================ */
+
+/* Container do Dashboard com efeito de profundidade */
+.dashboard-container-professional {
+  perspective: 1500px !important;
+  animation: fadeInDashboard 0.8s ease-out !important;
+}
+
+@keyframes fadeInDashboard {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Cards 3D com Glassmorphism */
+.stat-card-pro {
+  background: linear-gradient(135deg, 
+    rgba(255, 255, 255, 0.95) 0%, 
+    rgba(255, 255, 255, 0.85) 100%) !important;
+  backdrop-filter: blur(20px) !important;
+  -webkit-backdrop-filter: blur(20px) !important;
+  border: 2px solid rgba(255, 255, 255, 0.3) !important;
+  border-radius: 24px !important;
+  padding: 2rem !important;
+  box-shadow: 
+    0 8px 32px rgba(0, 102, 204, 0.12),
+    0 2px 8px rgba(0, 0, 0, 0.05),
+    inset 0 1px 1px rgba(255, 255, 255, 0.8) !important;
+  transform: translateZ(0) !important;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  position: relative !important;
+  overflow: hidden !important;
+}
+
+/* Reflexo de vidro no card */
+.stat-card-pro::before {
+  content: '' !important;
+  position: absolute !important;
+  top: 0 !important;
+  left: -100% !important;
+  width: 100% !important;
+  height: 100% !important;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.4),
+    transparent
+  ) !important;
+  transition: left 0.6s ease !important;
+}
+
+.stat-card-pro:hover::before {
+  left: 100% !important;
+}
+
+/* Hover 3D nos Cards */
+.stat-card-pro:hover {
+  transform: translateY(-12px) translateZ(30px) rotateX(2deg) !important;
+  box-shadow: 
+    0 20px 60px rgba(0, 102, 204, 0.25),
+    0 8px 16px rgba(0, 0, 0, 0.1),
+    inset 0 1px 1px rgba(255, 255, 255, 1) !important;
+  border-color: rgba(0, 102, 204, 0.4) !important;
+}
+
+/* Borda superior colorida nos cards (sem emoji) */
+.stat-card-pro::after {
+  content: '' !important;
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  height: 4px !important;
+  border-radius: 24px 24px 0 0 !important;
+  background: var(--gradient-blue) !important;
+  box-shadow: 0 4px 12px rgba(0, 102, 204, 0.4) !important;
+}
+
+/* Cores alternadas nas bordas superiores */
+.stat-card-pro:nth-child(1)::after {
+  background: var(--gradient-blue) !important;
+}
+
+.stat-card-pro:nth-child(2)::after {
+  background: var(--gradient-red) !important;
+}
+
+.stat-card-pro:nth-child(3)::after {
+  background: linear-gradient(135deg, #06D6A0 0%, #06A680 100%) !important;
+}
+
+.stat-card-pro:nth-child(4)::after {
+  background: var(--gradient-blue) !important;
+}
+
+.stat-card-pro:nth-child(5)::after {
+  background: var(--gradient-red) !important;
+}
+
+/* Header do Dashboard 3D */
+.page-header-professional {
+  background: linear-gradient(135deg, 
+    rgba(0, 102, 204, 0.08) 0%, 
+    rgba(230, 57, 70, 0.08) 100%) !important;
+  backdrop-filter: blur(10px) !important;
+  -webkit-backdrop-filter: blur(10px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.5) !important;
+  border-radius: 20px !important;
+  padding: 2rem !important;
+  margin-bottom: 2rem !important;
+  box-shadow: 
+    0 4px 24px rgba(0, 102, 204, 0.08),
+    inset 0 1px 1px rgba(255, 255, 255, 0.9) !important;
+  transform: translateZ(0) !important;
+  animation: slideInHeader 0.6s ease-out !important;
+}
+
+@keyframes slideInHeader {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Título do Dashboard com gradiente */
+.page-title-professional {
+  background: var(--gradient-blue) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  background-clip: text !important;
+  font-size: 2.5rem !important;
+  font-weight: 900 !important;
+  letter-spacing: -1px !important;
+  text-shadow: 0 2px 4px rgba(0, 102, 204, 0.1) !important;
+}
+
+/* Valores dos Cards com efeito 3D */
+.stat-value {
+  font-size: 3rem !important;
+  font-weight: 900 !important;
+  background: var(--gradient-blue) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  background-clip: text !important;
+  text-shadow: 0 4px 8px rgba(0, 102, 204, 0.2) !important;
+  transform: translateZ(20px) !important;
+  transition: all 0.3s ease !important;
+}
+
+.stat-card-pro:hover .stat-value {
+  transform: translateZ(30px) scale(1.05) !important;
+}
+
+/* Cores alternadas nos valores */
+.stat-card-pro:nth-child(even) .stat-value {
+  background: var(--gradient-red) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  background-clip: text !important;
+}
+
+/* Labels dos Cards */
+.stat-label {
+  color: var(--pv-blue-dark) !important;
+  font-weight: 600 !important;
+  font-size: 0.95rem !important;
+  letter-spacing: 0.5px !important;
+  text-transform: uppercase !important;
+  margin-bottom: 1rem !important;
+  opacity: 0.85 !important;
+}
+
+/* Badge de Mudança Percentual 3D */
+.stat-change {
+  background: linear-gradient(135deg, 
+    rgba(6, 214, 160, 0.15) 0%, 
+    rgba(6, 214, 160, 0.25) 100%) !important;
+  color: #06A680 !important;
+  padding: 0.4rem 0.9rem !important;
+  border-radius: 12px !important;
+  font-weight: 700 !important;
+  font-size: 0.85rem !important;
+  border: 1px solid rgba(6, 214, 160, 0.3) !important;
+  box-shadow: 0 2px 8px rgba(6, 214, 160, 0.2) !important;
+  transform: translateZ(10px) !important;
+  transition: all 0.3s ease !important;
+}
+
+.stat-card-pro:hover .stat-change {
+  transform: translateZ(20px) scale(1.05) !important;
+  box-shadow: 0 4px 12px rgba(6, 214, 160, 0.3) !important;
+}
+
+/* Descrição dos Cards */
+.stat-description {
+  color: var(--text-secondary) !important;
+  font-size: 0.9rem !important;
+  margin-top: 0.75rem !important;
+  font-weight: 500 !important;
+}
+
+/* Grid dos Cards com espaçamento fluido */
+.stats-grid-professional {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)) !important;
+  gap: 2rem !important;
+  margin-bottom: 2rem !important;
+  animation: fadeInGrid 0.8s ease-out 0.2s both !important;
+}
+
+@keyframes fadeInGrid {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Botões de Ação 3D */
+.action-buttons-professional {
+  display: flex !important;
+  gap: 1rem !important;
+  flex-wrap: wrap !important;
+}
+
+.btn-action-professional {
+  background: var(--gradient-blue) !important;
+  color: white !important;
+  padding: 0.9rem 1.8rem !important;
+  border-radius: 14px !important;
+  font-weight: 700 !important;
+  border: none !important;
+  box-shadow: 
+    0 4px 16px rgba(0, 102, 204, 0.3),
+    inset 0 1px 1px rgba(255, 255, 255, 0.3) !important;
+  transform: translateZ(0) !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  cursor: pointer !important;
+}
+
+.btn-action-professional:hover {
+  transform: translateY(-4px) translateZ(10px) !important;
+  box-shadow: 
+    0 8px 24px rgba(0, 102, 204, 0.4),
+    inset 0 1px 1px rgba(255, 255, 255, 0.4) !important;
+}
+
+.btn-action-professional:active {
+  transform: translateY(-1px) translateZ(5px) !important;
+}
+
+/* Botão Secundário (Vermelho) */
+.btn-action-professional.secondary {
+  background: var(--gradient-red) !important;
+  box-shadow: 
+    0 4px 16px rgba(230, 57, 70, 0.3),
+    inset 0 1px 1px rgba(255, 255, 255, 0.3) !important;
+}
+
+.btn-action-professional.secondary:hover {
+  box-shadow: 
+    0 8px 24px rgba(230, 57, 70, 0.4),
+    inset 0 1px 1px rgba(255, 255, 255, 0.4) !important;
+}
+
+/* Animação de Entrada Escalonada para Cards */
+.stat-card-pro {
+  animation: cardEntrance 0.6s ease-out backwards !important;
+}
+
+.stat-card-pro:nth-child(1) { animation-delay: 0.1s !important; }
+.stat-card-pro:nth-child(2) { animation-delay: 0.2s !important; }
+.stat-card-pro:nth-child(3) { animation-delay: 0.3s !important; }
+.stat-card-pro:nth-child(4) { animation-delay: 0.4s !important; }
+.stat-card-pro:nth-child(5) { animation-delay: 0.5s !important; }
+
+@keyframes cardEntrance {
+  from {
+    opacity: 0;
+    transform: translateY(40px) translateZ(-50px) rotateX(-10deg);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) translateZ(0) rotateX(0);
+  }
+}
+
+/* ============================================
+   FIM DO DASHBOARD 3D PREMIUM
+   ============================================ */
+/* ============================================
+   LOGIN 3D PREMIUM - GLASSMORPHISM
+   ============================================ */
+
+/* Container Principal do Login */
+.login-container-premium {
+  min-height: 100vh !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  background: linear-gradient(135deg, 
+    #0066CC 0%, 
+    #0052A3 25%,
+    #E63946 75%,
+    #CC2936 100%) !important;
+  position: relative !important;
+  overflow: hidden !important;
+  perspective: 1500px !important;
+  padding: 2rem !important;
+}
+
+/* Background Animado com Logos */
+.login-container-premium::before {
+  content: '' !important;
+  position: absolute !important;
+  top: -50% !important;
+  left: -50% !important;
+  width: 200% !important;
+  height: 200% !important;
+  background-image: var(--background-logo-url) !important;
+  background-size: 400px !important;
+  background-repeat: repeat !important;
+  opacity: 0.03 !important;
+  animation: loginBackgroundFloat 60s linear infinite !important;
+  z-index: 0 !important;
+}
+
+@keyframes loginBackgroundFloat {
+  0% {
+    transform: translate(0, 0) rotate(0deg);
+  }
+  100% {
+    transform: translate(-50px, -50px) rotate(360deg);
+  }
+}
+
+/* Partículas Flutuantes */
+.login-container-premium::after {
+  content: '' !important;
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  background: radial-gradient(circle at 20% 30%, rgba(255, 255, 255, 0.08) 0%, transparent 50%),
+              radial-gradient(circle at 80% 70%, rgba(230, 57, 70, 0.08) 0%, transparent 50%) !important;
+  animation: loginParticles 15s ease-in-out infinite alternate !important;
+  z-index: 0 !important;
+}
+
+@keyframes loginParticles {
+  0% {
+    transform: translateY(0) scale(1);
+  }
+  100% {
+    transform: translateY(-30px) scale(1.05);
+  }
+}
+
+/* Card de Login Glassmorphism 3D */
+.login-card-premium {
+  background: linear-gradient(135deg,
+    rgba(255, 255, 255, 0.95) 0%,
+    rgba(255, 255, 255, 0.90) 100%) !important;
+  backdrop-filter: blur(30px) !important;
+  -webkit-backdrop-filter: blur(30px) !important;
+  border: 2px solid rgba(255, 255, 255, 0.4) !important;
+  border-radius: 32px !important;
+  padding: 3rem 2.5rem !important;
+  box-shadow: 
+    0 25px 80px rgba(0, 102, 204, 0.25),
+    0 10px 30px rgba(0, 0, 0, 0.15),
+    inset 0 2px 4px rgba(255, 255, 255, 0.9) !important;
+  max-width: 460px !important;
+  width: 100% !important;
+  position: relative !important;
+  z-index: 10 !important;
+  transform: translateZ(0) rotateX(0deg) !important;
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  animation: loginCardEntrance 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+}
+
+@keyframes loginCardEntrance {
+  0% {
+    opacity: 0;
+    transform: translateY(50px) translateZ(-100px) rotateX(-15deg) scale(0.9);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) translateZ(0) rotateX(0deg) scale(1);
+  }
+}
+
+.login-card-premium:hover {
+  transform: translateY(-5px) translateZ(20px) !important;
+  box-shadow: 
+    0 35px 100px rgba(0, 102, 204, 0.35),
+    0 15px 40px rgba(0, 0, 0, 0.2),
+    inset 0 2px 4px rgba(255, 255, 255, 1) !important;
+  border-color: rgba(0, 102, 204, 0.5) !important;
+}
+
+/* Borda Superior do Card (Accent) */
+.login-card-premium::before {
+  content: '' !important;
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  height: 5px !important;
+  background: var(--gradient-blue) !important;
+  border-radius: 32px 32px 0 0 !important;
+  box-shadow: 0 5px 15px rgba(0, 102, 204, 0.5) !important;
+}
+
+/* Logo Container 3D */
+.login-logo-container {
+  width: 100px !important;
+  height: 100px !important;
+  margin: 0 auto 2rem !important;
+  background: linear-gradient(135deg,
+    rgba(0, 102, 204, 0.1) 0%,
+    rgba(230, 57, 70, 0.1) 100%) !important;
+  border-radius: 50% !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border: 3px solid rgba(0, 102, 204, 0.3) !important;
+  box-shadow: 
+    0 10px 30px rgba(0, 102, 204, 0.2),
+    inset 0 2px 4px rgba(255, 255, 255, 0.8) !important;
+  animation: logoFloat 3s ease-in-out infinite !important;
+  transform-style: preserve-3d !important;
+}
+
+@keyframes logoFloat {
+  0%, 100% {
+    transform: translateY(0) rotateY(0deg);
+  }
+  50% {
+    transform: translateY(-10px) rotateY(180deg);
+  }
+}
+
+.login-logo-container img {
+  width: 70px !important;
+  height: 70px !important;
+  object-fit: contain !important;
+  filter: drop-shadow(0 4px 8px rgba(0, 102, 204, 0.3)) !important;
+}
+
+/* Título do Login com Gradiente */
+.login-title-premium {
+  font-size: 2.5rem !important;
+  font-weight: 900 !important;
+  text-align: center !important;
+  margin-bottom: 0.5rem !important;
+  background: var(--gradient-blue) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  background-clip: text !important;
+  letter-spacing: -1px !important;
+  animation: titleShine 3s ease-in-out infinite !important;
+}
+
+@keyframes titleShine {
+  0%, 100% {
+    filter: brightness(1);
+  }
+  50% {
+    filter: brightness(1.2);
+  }
+}
+
+/* Subtítulo */
+.login-subtitle-premium {
+  text-align: center !important;
+  color: var(--text-secondary) !important;
+  font-size: 1rem !important;
+  margin-bottom: 2.5rem !important;
+  font-weight: 500 !important;
+  letter-spacing: 0.3px !important;
+}
+
+/* Form Container */
+.login-form-premium {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 1.5rem !important;
+}
+
+/* Input Groups 3D */
+.login-input-group {
+  position: relative !important;
+  animation: inputSlideIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) backwards !important;
+}
+
+.login-input-group:nth-child(1) { animation-delay: 0.2s !important; }
+.login-input-group:nth-child(2) { animation-delay: 0.3s !important; }
+
+@keyframes inputSlideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Labels Flutuantes */
+.login-label-premium {
+  display: block !important;
+  margin-bottom: 0.6rem !important;
+  font-weight: 700 !important;
+  font-size: 0.9rem !important;
+  color: var(--pv-blue-dark) !important;
+  letter-spacing: 0.5px !important;
+  text-transform: uppercase !important;
+  transition: all 0.3s ease !important;
+}
+
+/* Inputs 3D com Glassmorphism */
+.login-input-premium {
+  width: 100% !important;
+  padding: 1rem 1.25rem !important;
+  border: 2px solid rgba(0, 102, 204, 0.2) !important;
+  border-radius: 16px !important;
+  font-size: 1rem !important;
+  font-weight: 500 !important;
+  background: linear-gradient(135deg,
+    rgba(255, 255, 255, 0.9) 0%,
+    rgba(255, 255, 255, 0.7) 100%) !important;
+  backdrop-filter: blur(10px) !important;
+  -webkit-backdrop-filter: blur(10px) !important;
+  color: var(--pv-blue-dark) !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  box-shadow: 
+    0 4px 12px rgba(0, 102, 204, 0.08),
+    inset 0 1px 2px rgba(255, 255, 255, 0.8) !important;
+}
+
+.login-input-premium:focus {
+  outline: none !important;
+  border-color: var(--pv-blue-primary) !important;
+  background: rgba(255, 255, 255, 0.95) !important;
+  box-shadow: 
+    0 8px 24px rgba(0, 102, 204, 0.2),
+    0 0 0 4px rgba(0, 102, 204, 0.1),
+    inset 0 1px 2px rgba(255, 255, 255, 1) !important;
+  transform: translateY(-2px) !important;
+}
+
+.login-input-premium::placeholder {
+  color: rgba(0, 51, 102, 0.4) !important;
+  font-weight: 500 !important;
+}
+
+/* Botão de Login 3D Premium */
+.login-button-premium {
+  width: 100% !important;
+  padding: 1.1rem 2rem !important;
+  background: var(--gradient-blue) !important;
+  color: white !important;
+  font-weight: 800 !important;
+  font-size: 1.1rem !important;
+  letter-spacing: 1px !important;
+  text-transform: uppercase !important;
+  border: none !important;
+  border-radius: 16px !important;
+  cursor: pointer !important;
+  box-shadow: 
+    0 8px 24px rgba(0, 102, 204, 0.4),
+    inset 0 2px 4px rgba(255, 255, 255, 0.3) !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  position: relative !important;
+  overflow: hidden !important;
+  animation: buttonPulse 2s ease-in-out infinite !important;
+}
+
+@keyframes buttonPulse {
+  0%, 100% {
+    box-shadow: 
+      0 8px 24px rgba(0, 102, 204, 0.4),
+      inset 0 2px 4px rgba(255, 255, 255, 0.3);
+  }
+  50% {
+    box-shadow: 
+      0 10px 30px rgba(0, 102, 204, 0.5),
+      inset 0 2px 4px rgba(255, 255, 255, 0.4);
+  }
+}
+
+/* Efeito de Shimmer no Botão */
+.login-button-premium::before {
+  content: '' !important;
+  position: absolute !important;
+  top: 0 !important;
+  left: -100% !important;
+  width: 100% !important;
+  height: 100% !important;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.4),
+    transparent
+  ) !important;
+  transition: left 0.5s ease !important;
+}
+
+.login-button-premium:hover::before {
+  left: 100% !important;
+}
+
+.login-button-premium:hover {
+  transform: translateY(-4px) scale(1.02) !important;
+  box-shadow: 
+    0 12px 36px rgba(0, 102, 204, 0.5),
+    inset 0 2px 4px rgba(255, 255, 255, 0.4) !important;
+}
+
+.login-button-premium:active {
+  transform: translateY(-1px) scale(0.98) !important;
+}
+
+/* Estado de Loading */
+.login-button-premium:disabled {
+  opacity: 0.7 !important;
+  cursor: not-allowed !important;
+  animation: loadingPulse 1.5s ease-in-out infinite !important;
+}
+
+@keyframes loadingPulse {
+  0%, 100% {
+    opacity: 0.7;
+  }
+  50% {
+    opacity: 0.9;
+  }
+}
+
+/* Mensagem de Erro */
+.login-error-premium {
+  background: linear-gradient(135deg,
+    rgba(230, 57, 70, 0.15) 0%,
+    rgba(230, 57, 70, 0.10) 100%) !important;
+  color: var(--pv-red-dark) !important;
+  padding: 1rem !important;
+  border-radius: 14px !important;
+  border: 2px solid rgba(230, 57, 70, 0.3) !important;
+  font-weight: 600 !important;
+  text-align: center !important;
+  box-shadow: 0 4px 12px rgba(230, 57, 70, 0.2) !important;
+  animation: errorShake 0.5s ease !important;
+}
+
+@keyframes errorShake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-10px); }
+  75% { transform: translateX(10px); }
+}
+
+/* Footer do Login */
+.login-footer-premium {
+  text-align: center !important;
+  margin-top: 2rem !important;
+  padding-top: 1.5rem !important;
+  border-top: 1px solid rgba(0, 102, 204, 0.15) !important;
+  color: var(--text-secondary) !important;
+  font-size: 0.9rem !important;
+  font-weight: 500 !important;
+}
+
+/* ============================================
+   RESPONSIVIDADE DO LOGIN
+   ============================================ */
+
+@media (max-width: 768px) {
+  .login-container-premium {
+    padding: 1rem !important;
+  }
+
+  .login-card-premium {
+    padding: 2rem 1.5rem !important;
+    border-radius: 24px !important;
+  }
+
+  .login-title-premium {
+    font-size: 2rem !important;
+  }
+
+  .login-logo-container {
+    width: 80px !important;
+    height: 80px !important;
+  }
+
+  .login-logo-container img {
+    width: 55px !important;
+    height: 55px !important;
+  }
+
+  .login-button-premium {
+    padding: 1rem 1.5rem !important;
+    font-size: 1rem !important;
+  }
+
+  /* Simplifica animações em mobile */
+  .login-card-premium:hover {
+    transform: none !important;
+  }
+
+  .login-container-premium::before,
+  .login-container-premium::after {
+    animation: none !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .login-card-premium {
+    padding: 1.5rem 1.25rem !important;
+  }
+
+  .login-title-premium {
+    font-size: 1.75rem !important;
+  }
+
+  .login-input-premium {
+    padding: 0.9rem 1rem !important;
+    font-size: 0.95rem !important;
+  }
+}
+
+/* ============================================
+   FIM DO LOGIN 3D PREMIUM
+   ============================================ */

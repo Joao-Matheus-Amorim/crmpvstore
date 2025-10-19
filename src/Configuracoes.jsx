@@ -1,11 +1,14 @@
 import { useState, useEffect } from 'react'
 import { supabase } from './supabaseClient.js'
+import './Configuracoes.css'
+import './Dashboard.css'
 
 export default function Configuracoes() {
   const [ownerId, setOwnerId] = useState(null)
   const [carregando, setCarregando] = useState(true)
   const [salvando, setSalvando] = useState(false)
   const [abaAtiva, setAbaAtiva] = useState('loja')
+  const [mensagem, setMensagem] = useState(null)
 
   // Estado da configuração da loja
   const [config, setConfig] = useState({
@@ -25,7 +28,7 @@ export default function Configuracoes() {
     email: '',
     site: '',
     logo_url: '',
-    cor_primaria: '#1976D2',
+    cor_primaria: '#0066CC',
     cor_secundaria: '#E63946',
     prazo_garantia_meses: 12,
     observacoes_garantia: ''
@@ -70,6 +73,7 @@ export default function Configuracoes() {
   async function salvarConfiguracoes(e) {
     e.preventDefault()
     setSalvando(true)
+    setMensagem(null)
 
     try {
       const { error } = await supabase
@@ -83,13 +87,14 @@ export default function Configuracoes() {
         })
 
       if (!error) {
-        alert('✅ Configurações salvas com sucesso!')
+        setMensagem({ tipo: 'sucesso', texto: 'Configurações salvas com sucesso!' })
+        setTimeout(() => setMensagem(null), 3000)
       } else {
-        alert('❌ Erro ao salvar: ' + error.message)
+        setMensagem({ tipo: 'erro', texto: 'Erro ao salvar: ' + error.message })
       }
     } catch (err) {
       console.error('Erro ao salvar:', err)
-      alert('❌ Erro ao salvar configurações')
+      setMensagem({ tipo: 'erro', texto: 'Erro ao salvar configurações' })
     } finally {
       setSalvando(false)
     }
@@ -139,8 +144,36 @@ export default function Configuracoes() {
         </div>
       </div>
 
-      {/* Abas de navegação - SEM EMOJIS */}
-      <div className="tabs-container" style={{ marginBottom: 'var(--spacing-xl)' }}>
+      {/* Mensagem de Feedback */}
+      {mensagem && (
+        <div style={{
+          padding: '1rem 1.5rem',
+          marginBottom: '1.5rem',
+          borderRadius: '12px',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '0.75rem',
+          background: mensagem.tipo === 'sucesso' 
+            ? 'linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(16, 185, 129, 0.15) 100%)'
+            : 'linear-gradient(135deg, rgba(230, 57, 70, 0.1) 0%, rgba(230, 57, 70, 0.15) 100%)',
+          color: mensagem.tipo === 'sucesso' ? '#10B981' : '#E63946',
+          border: `1px solid ${mensagem.tipo === 'sucesso' ? 'rgba(16, 185, 129, 0.3)' : 'rgba(230, 57, 70, 0.3)'}`,
+          fontWeight: 600,
+          fontSize: '0.95rem'
+        }}>
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+            {mensagem.tipo === 'sucesso' ? (
+              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd"/>
+            ) : (
+              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd"/>
+            )}
+          </svg>
+          {mensagem.texto}
+        </div>
+      )}
+
+      {/* Abas de navegação */}
+      <div className="tabs-container">
         <button
           className={`tab-button ${abaAtiva === 'loja' ? 'active' : ''}`}
           onClick={() => setAbaAtiva('loja')}
@@ -178,16 +211,23 @@ export default function Configuracoes() {
       <form onSubmit={salvarConfiguracoes}>
         {/* ABA: DADOS DA LOJA */}
         {abaAtiva === 'loja' && (
-          <div className="stat-card-pro" style={{ marginBottom: 'var(--spacing-xl)' }}>
-            <div className="stat-card-border" style={{ background: 'var(--gradient-blue)' }}></div>
+          <div className="stat-card-pro" style={{ marginBottom: '2rem' }}>
+            <div className="stat-card-border" style={{ background: 'linear-gradient(135deg, #0066CC 0%, #0052A3 100%)' }}></div>
             
-            <h3 className="section-title" style={{ marginBottom: 'var(--spacing-lg)' }}>
+            <h3 className="section-title" style={{ marginBottom: '1.5rem' }}>
               Informações da Empresa
             </h3>
 
             <div className="form-professional">
+              {/* Identificação */}
               <div className="form-section">
-                <h4 className="form-section-title">Identificação</h4>
+                <h4 className="form-section-title">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                    <circle cx="12" cy="7" r="4"/>
+                  </svg>
+                  Identificação
+                </h4>
                 
                 <div className="form-row">
                   <div className="form-group">
@@ -199,9 +239,7 @@ export default function Configuracoes() {
                       placeholder="Ex: PV Store"
                       required
                     />
-                    <small style={{ color: 'var(--text-tertiary)', fontSize: '12px' }}>
-                      Nome comercial que aparecerá nos documentos
-                    </small>
+                    <small>Nome comercial que aparecerá nos documentos</small>
                   </div>
 
                   <div className="form-group">
@@ -239,8 +277,15 @@ export default function Configuracoes() {
                 </div>
               </div>
 
+              {/* Endereço */}
               <div className="form-section">
-                <h4 className="form-section-title">Endereço</h4>
+                <h4 className="form-section-title">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+                    <circle cx="12" cy="10" r="3"/>
+                  </svg>
+                  Endereço
+                </h4>
                 
                 <div className="form-row">
                   <div className="form-group" style={{ flex: 3 }}>
@@ -304,33 +349,9 @@ export default function Configuracoes() {
                       onChange={(e) => setConfig({...config, uf: e.target.value})}
                     >
                       <option value="">-</option>
-                      <option value="AC">AC</option>
-                      <option value="AL">AL</option>
-                      <option value="AP">AP</option>
-                      <option value="AM">AM</option>
-                      <option value="BA">BA</option>
-                      <option value="CE">CE</option>
-                      <option value="DF">DF</option>
-                      <option value="ES">ES</option>
-                      <option value="GO">GO</option>
-                      <option value="MA">MA</option>
-                      <option value="MT">MT</option>
-                      <option value="MS">MS</option>
-                      <option value="MG">MG</option>
-                      <option value="PA">PA</option>
-                      <option value="PB">PB</option>
-                      <option value="PR">PR</option>
-                      <option value="PE">PE</option>
-                      <option value="PI">PI</option>
-                      <option value="RJ">RJ</option>
-                      <option value="RN">RN</option>
-                      <option value="RS">RS</option>
-                      <option value="RO">RO</option>
-                      <option value="RR">RR</option>
-                      <option value="SC">SC</option>
-                      <option value="SP">SP</option>
-                      <option value="SE">SE</option>
-                      <option value="TO">TO</option>
+                      {['AC', 'AL', 'AP', 'AM', 'BA', 'CE', 'DF', 'ES', 'GO', 'MA', 'MT', 'MS', 'MG', 'PA', 'PB', 'PR', 'PE', 'PI', 'RJ', 'RN', 'RS', 'RO', 'RR', 'SC', 'SP', 'SE', 'TO'].map(uf => (
+                        <option key={uf} value={uf}>{uf}</option>
+                      ))}
                     </select>
                   </div>
 
@@ -347,8 +368,14 @@ export default function Configuracoes() {
                 </div>
               </div>
 
+              {/* Contato */}
               <div className="form-section">
-                <h4 className="form-section-title">Contato</h4>
+                <h4 className="form-section-title">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+                  </svg>
+                  Contato
+                </h4>
                 
                 <div className="form-row">
                   <div className="form-group">
@@ -400,16 +427,23 @@ export default function Configuracoes() {
 
         {/* ABA: APARÊNCIA */}
         {abaAtiva === 'visual' && (
-          <div className="stat-card-pro" style={{ marginBottom: 'var(--spacing-xl)' }}>
-            <div className="stat-card-border" style={{ background: 'var(--gradient-blue)' }}></div>
+          <div className="stat-card-pro" style={{ marginBottom: '2rem' }}>
+            <div className="stat-card-border" style={{ background: 'linear-gradient(135deg, #0066CC 0%, #E63946 100%)' }}></div>
             
-            <h3 className="section-title" style={{ marginBottom: 'var(--spacing-lg)' }}>
+            <h3 className="section-title" style={{ marginBottom: '1.5rem' }}>
               Personalização Visual
             </h3>
 
             <div className="form-professional">
               <div className="form-section">
-                <h4 className="form-section-title">Logotipo</h4>
+                <h4 className="form-section-title">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                    <circle cx="8.5" cy="8.5" r="1.5"/>
+                    <polyline points="21 15 16 10 5 21"/>
+                  </svg>
+                  Logotipo
+                </h4>
                 
                 <div className="form-group">
                   <label className="form-label">URL do Logo</label>
@@ -419,18 +453,15 @@ export default function Configuracoes() {
                     onChange={(e) => setConfig({...config, logo_url: e.target.value})}
                     placeholder="https://exemplo.com/logo.png"
                   />
-                  <small style={{ color: 'var(--text-tertiary)', fontSize: '12px' }}>
-                    Cole o link direto da imagem (PNG, JPG) ou faça upload no Imgur/ImgBB
-                  </small>
+                  <small>Cole o link direto da imagem (PNG, JPG) ou faça upload no Imgur/ImgBB</small>
                 </div>
 
                 {config.logo_url && (
-                  <div style={{ marginTop: '16px', padding: '20px', background: '#f5f5f5', borderRadius: '8px', textAlign: 'center' }}>
-                    <p style={{ fontSize: '12px', color: '#666', marginBottom: '12px' }}>Pré-visualização:</p>
+                  <div className="logo-preview">
+                    <p>Pré-visualização:</p>
                     <img 
                       src={config.logo_url} 
                       alt="Logo" 
-                      style={{ maxWidth: '200px', maxHeight: '100px', objectFit: 'contain' }}
                       onError={(e) => e.target.style.display = 'none'}
                     />
                   </div>
@@ -438,7 +469,15 @@ export default function Configuracoes() {
               </div>
 
               <div className="form-section">
-                <h4 className="form-section-title">Cores dos Documentos</h4>
+                <h4 className="form-section-title">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <circle cx="12" cy="12" r="10"/>
+                    <path d="M8 14s1.5 2 4 2 4-2 4-2"/>
+                    <line x1="9" y1="9" x2="9.01" y2="9"/>
+                    <line x1="15" y1="9" x2="15.01" y2="9"/>
+                  </svg>
+                  Cores dos Documentos
+                </h4>
                 
                 <div className="form-row">
                   <div className="form-group">
@@ -448,19 +487,17 @@ export default function Configuracoes() {
                         type="color"
                         value={config.cor_primaria}
                         onChange={(e) => setConfig({...config, cor_primaria: e.target.value})}
-                        style={{ width: '80px', height: '45px', border: '2px solid #ddd', borderRadius: '8px', cursor: 'pointer' }}
+                        style={{ width: '80px', height: '45px' }}
                       />
                       <input
                         type="text"
                         value={config.cor_primaria}
                         onChange={(e) => setConfig({...config, cor_primaria: e.target.value})}
-                        placeholder="#1976D2"
+                        placeholder="#0066CC"
                         style={{ flex: 1 }}
                       />
                     </div>
-                    <small style={{ color: 'var(--text-tertiary)', fontSize: '12px' }}>
-                      Usada no cabeçalho do recibo de venda
-                    </small>
+                    <small>Usada no cabeçalho do recibo de venda</small>
                   </div>
 
                   <div className="form-group">
@@ -470,7 +507,7 @@ export default function Configuracoes() {
                         type="color"
                         value={config.cor_secundaria}
                         onChange={(e) => setConfig({...config, cor_secundaria: e.target.value})}
-                        style={{ width: '80px', height: '45px', border: '2px solid #ddd', borderRadius: '8px', cursor: 'pointer' }}
+                        style={{ width: '80px', height: '45px' }}
                       />
                       <input
                         type="text"
@@ -480,9 +517,7 @@ export default function Configuracoes() {
                         style={{ flex: 1 }}
                       />
                     </div>
-                    <small style={{ color: 'var(--text-tertiary)', fontSize: '12px' }}>
-                      Usada no termo de garantia
-                    </small>
+                    <small>Usada no termo de garantia</small>
                   </div>
                 </div>
               </div>
@@ -492,16 +527,21 @@ export default function Configuracoes() {
 
         {/* ABA: GARANTIA */}
         {abaAtiva === 'garantia' && (
-          <div className="stat-card-pro" style={{ marginBottom: 'var(--spacing-xl)' }}>
-            <div className="stat-card-border" style={{ background: 'var(--gradient-blue)' }}></div>
+          <div className="stat-card-pro" style={{ marginBottom: '2rem' }}>
+            <div className="stat-card-border" style={{ background: 'linear-gradient(135deg, #10B981 0%, #059669 100%)' }}></div>
             
-            <h3 className="section-title" style={{ marginBottom: 'var(--spacing-lg)' }}>
+            <h3 className="section-title" style={{ marginBottom: '1.5rem' }}>
               Configuração de Garantia
             </h3>
 
             <div className="form-professional">
               <div className="form-section">
-                <h4 className="form-section-title">Prazo e Condições</h4>
+                <h4 className="form-section-title">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                  </svg>
+                  Prazo e Condições
+                </h4>
                 
                 <div className="form-group">
                   <label className="form-label">Prazo da Garantia (meses)</label>
@@ -513,9 +553,7 @@ export default function Configuracoes() {
                     max="36"
                     style={{ maxWidth: '200px' }}
                   />
-                  <small style={{ color: 'var(--text-tertiary)', fontSize: '12px' }}>
-                    Período padrão: 12 meses (1 ano)
-                  </small>
+                  <small>Período padrão: 12 meses (1 ano)</small>
                 </div>
 
                 <div className="form-group">
@@ -526,23 +564,15 @@ export default function Configuracoes() {
                     placeholder="Ex: Garantia válida mediante apresentação deste documento original..."
                     rows="4"
                   ></textarea>
-                  <small style={{ color: 'var(--text-tertiary)', fontSize: '12px' }}>
-                    Texto adicional que aparecerá no termo de garantia
-                  </small>
+                  <small>Texto adicional que aparecerá no termo de garantia</small>
                 </div>
               </div>
             </div>
           </div>
         )}
 
-        {/* Botão de salvar fixo */}
-        <div style={{ 
-          position: 'sticky', 
-          bottom: '20px', 
-          display: 'flex', 
-          justifyContent: 'flex-end',
-          gap: '12px'
-        }}>
+        {/* Botões de ação fixos */}
+        <div className="action-buttons-fixed">
           <button
             type="button"
             className="btn-secondary"
@@ -553,13 +583,12 @@ export default function Configuracoes() {
               <polyline points="1 4 1 10 7 10"/>
               <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/>
             </svg>
-            <span>Descartar Alterações</span>
+            <span>Descartar</span>
           </button>
           <button
             type="submit"
             className="btn-primary"
             disabled={salvando}
-            style={{ minWidth: '200px' }}
           >
             {salvando ? (
               <>
@@ -580,73 +609,6 @@ export default function Configuracoes() {
           </button>
         </div>
       </form>
-
-      {/* CSS das abas - SEM EMOJIS */}
-      <style>{`
-        .tabs-container {
-          display: flex;
-          gap: 8px;
-          border-bottom: 2px solid var(--pv-gray-200);
-          padding-bottom: 0;
-        }
-
-        .tab-button {
-          display: flex;
-          align-items: center;
-          gap: 10px;
-          padding: 12px 24px;
-          background: transparent;
-          border: none;
-          border-bottom: 3px solid transparent;
-          color: var(--text-secondary);
-          font-size: 14px;
-          font-weight: 600;
-          cursor: pointer;
-          transition: all 0.2s ease;
-          position: relative;
-          bottom: -2px;
-        }
-
-        .tab-button svg {
-          transition: transform 0.2s ease;
-        }
-
-        .tab-button:hover {
-          color: var(--text-primary);
-          background: var(--pv-gray-100);
-          border-radius: 8px 8px 0 0;
-        }
-
-        .tab-button:hover svg {
-          transform: scale(1.1);
-        }
-
-        .tab-button.active {
-          color: #1976D2;
-          border-bottom-color: #1976D2;
-          background: var(--pv-gray-50);
-          border-radius: 8px 8px 0 0;
-        }
-
-        .tab-button span {
-          letter-spacing: 0.3px;
-        }
-
-        .btn-secondary, .btn-primary {
-          display: flex;
-          align-items: center;
-          gap: 8px;
-        }
-
-        .spinning {
-          animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-          from { transform: rotate(0deg); }
-          to { transform: rotate(360deg); }
-        }
-      `}</style>
     </div>
   )
 }

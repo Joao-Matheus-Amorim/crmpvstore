@@ -8,11 +8,15 @@ import Leads from './Leads.jsx'
 import Contratos from './Contratos.jsx'
 import Configuracoes from './Configuracoes.jsx'
 import Estoque from './Estoque.jsx'
+import './Dashboard.css'  // ← ADICIONE ESTA LINHA
+
+
 
 function App() {
   // Logos da pasta public/
-  const logoHeader = '/logo.jpg'// ✅ LOGO COLORIDA PARA O HEADER
-  const logoBackground = '/logo.jpg'  // ✅ LOGO PARA O BACKGROUND ANIMADO
+ const logoHeader = '/logo.png'  // ✅ LOGO PNG PARA O HEADER
+const logoBackground = '/logo.png'  // ✅ LOGO PNG PARA O BACKGROUND
+
   
   const [user, setUser] = useState(null)
   const [loading, setLoading] = useState(true)
