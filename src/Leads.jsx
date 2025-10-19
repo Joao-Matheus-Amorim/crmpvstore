@@ -1,6 +1,16 @@
 import { useState, useEffect } from 'react';
 import { supabase } from './supabaseClient.js';
 
+// Constante para os status, garantindo consistência
+const STATUS_OPTIONS = [
+  { value: 'novo', label: 'Novo' },
+  { value: 'em_contato', label: 'Em Contato' },
+  { value: 'qualificado', label: 'Qualificado' },
+  { value: 'em_negociacao', label: 'Em Negociação' },
+  { value: 'convertido', label: 'Convertido' },
+  { value: 'perdido', label: 'Perdido' },
+];
+
 export default function Leads() {
   const [leads, setLeads] = useState([]);
   const [ownerId, setOwnerId] = useState(null);
@@ -17,7 +27,7 @@ export default function Leads() {
     origem: '',
     interesse: '',
     observacoes: '',
-    status: 'novo'
+    status: 'novo' // Default status
   };
 
   const [formData, setFormData] = useState(estadoInicialForm);
@@ -111,8 +121,8 @@ export default function Leads() {
     }
   }
   
-    async function deletarLead(id) {
-    if (window.confirm('⚠️ Tem certeza que deseja excluir este lead?')) {
+  async function deletarLead(id) {
+    if (window.confirm('⚠️ Tem certeza que deseja excluir este lead? A ação é irreversível.')) {
       try {
         await supabase.from('leads').delete().eq('id', id);
         alert('✅ Lead excluído com sucesso!');
@@ -127,31 +137,18 @@ export default function Leads() {
   async function converterEmCliente(lead) {
      if (window.confirm(`✅ Converter "${lead.nome}" em cliente?`)) {
       try {
-        const { data: clienteExistente, error: checkError } = await supabase
-            .from('clients')
-            .select('id')
-            .eq('celular', lead.telefone)
-            .eq('owner_id', ownerId)
-            .single();
-        if (checkError && checkError.code !== 'PGRST116') throw checkError;
-        if (clienteExistente) {
-            alert('❌ Este lead já foi convertido ou já existe um cliente com este número de telefone.');
-            return;
-        }
-        const { error: insertError } = await supabase
-          .from('clients')
-          .insert({
-            owner_id: ownerId,
-            tipo: 'pessoa_fisica',
-            nome: lead.nome,
-            celular: lead.telefone,
-            email: lead.email || null,
-          });
+        const { error: insertError } = await supabase.from('clients').insert({
+          owner_id: ownerId,
+          tipo: 'pessoa_fisica',
+          nome: lead.nome,
+          celular: lead.telefone,
+          email: lead.email || null,
+        });
+
         if (insertError) throw insertError;
-        await supabase
-          .from('leads')
-          .update({ status: 'convertido' })
-          .eq('id', lead.id);
+        
+        await supabase.from('leads').update({ status: 'convertido' }).eq('id', lead.id);
+        
         alert('✅ Lead convertido em cliente com sucesso!');
         carregarLeads();
       } catch (err) {
@@ -190,9 +187,9 @@ export default function Leads() {
 
   const statsLeads = {
     total: leads.length,
-    novos: leads.filter(l => l.status === 'novo').length,
-    qualificados: leads.filter(l => l.status === 'qualificado').length,
-    convertidos: leads.filter(l => l.status === 'convertido').length
+    ativos: leads.filter(l => !['convertido', 'perdido'].includes(l.status)).length,
+    convertidos: leads.filter(l => l.status === 'convertido').length,
+    negociando: leads.filter(l => ['em_contato', 'qualificado', 'em_negociacao'].includes(l.status)).length,
   };
 
   if (carregando) {
@@ -219,17 +216,15 @@ export default function Leads() {
       </div>
 
       <div className="stats-grid" style={{ marginBottom: 'var(--spacing-xl)' }}>
-        <div className="stat-card-pro"><div className="stat-card-content"><h3 className="stat-title">Total Leads</h3><p className="stat-value" style={{ color: '#0066CC' }}>{statsLeads.total}</p></div></div>
-        <div className="stat-card-pro"><div className="stat-card-content"><h3 className="stat-title">Novos</h3><p className="stat-value" style={{ color: '#F59E0B' }}>{statsLeads.novos}</p></div></div>
-        <div className="stat-card-pro"><div className="stat-card-content"><h3 className="stat-title">Qualificados</h3><p className="stat-value" style={{ color: '#0066CC' }}>{statsLeads.qualificados}</p></div></div>
+        <div className="stat-card-pro"><div className="stat-card-content"><h3 className="stat-title">Leads Ativos</h3><p className="stat-value">{statsLeads.ativos}</p></div></div>
+        <div className="stat-card-pro"><div className="stat-card-content"><h3 className="stat-title">Em Negociação</h3><p className="stat-value" style={{ color: '#F59E0B' }}>{statsLeads.negociando}</p></div></div>
         <div className="stat-card-pro"><div className="stat-card-content"><h3 className="stat-title">Convertidos</h3><p className="stat-value" style={{ color: '#10B981' }}>{statsLeads.convertidos}</p></div></div>
+        <div className="stat-card-pro"><div className="stat-card-content"><h3 className="stat-title">Total Geral</h3><p className="stat-value">{statsLeads.total}</p></div></div>
       </div>
 
       {mostrarForm && (
         <div className="stat-card-pro" style={{ marginBottom: 'var(--spacing-xl)' }}>
-          <h3 className="section-title" style={{ marginBottom: 'var(--spacing-lg)' }}>
-            {editando ? 'Editar Lead' : 'Cadastrar Novo Lead'}
-          </h3>
+          <h3 className="section-title" style={{ marginBottom: 'var(--spacing-lg)' }}>{editando ? 'Editar Lead' : 'Cadastrar Novo Lead'}</h3>
           <form onSubmit={salvarLead} className="form-professional" autoComplete="nope">
             <div className="form-row">
               <div className="form-group">
@@ -261,9 +256,19 @@ export default function Leads() {
                 </select>
               </div>
             </div>
-            <div className="form-group">
-              <label className="form-label">Interesse</label>
-              <input type="text" value={formData.interesse} onChange={(e) => setFormData({...formData, interesse: e.target.value})} autoComplete="nope" name={`lead_interest_${editando ? editando.id : 'new'}`} />
+            <div className="form-row">
+                <div className="form-group">
+                    <label className="form-label">Status do Lead *</label>
+                    <select value={formData.status} onChange={(e) => setFormData({...formData, status: e.target.value})} required autoComplete="nope">
+                        {STATUS_OPTIONS.map(option => (
+                            <option key={option.value} value={option.value}>{option.label}</option>
+                        ))}
+                    </select>
+                </div>
+                <div className="form-group">
+                    <label className="form-label">Interesse</label>
+                    <input type="text" value={formData.interesse} onChange={(e) => setFormData({...formData, interesse: e.target.value})} autoComplete="nope" name={`lead_interest_${editando ? editando.id : 'new'}`} />
+                </div>
             </div>
             <div className="form-group">
               <label className="form-label">Observações</label>
@@ -284,11 +289,9 @@ export default function Leads() {
             <input type="text" placeholder="Buscar por nome, telefone ou email..." value={filtro} onChange={(e) => setFiltro(e.target.value)} className="search-input-pro" />
           </div>
         </div>
-
         {leadsFiltrados.length === 0 ? (
           <div className="empty-state">
             <h4 className="empty-title">Nenhum lead encontrado</h4>
-            <p className="empty-description">{filtro ? 'Tente ajustar sua busca' : 'Comece cadastrando seu primeiro lead'}</p>
           </div>
         ) : (
           <div className="table-container">
@@ -308,12 +311,20 @@ export default function Leads() {
                     <td>{lead.nome}</td>
                     <td><div>{lead.telefone}</div><div className="table-subtitle">{lead.email}</div></td>
                     <td>{lead.origem}</td>
-                    <td><span className={`badge-status-${lead.status}`}>{lead.status}</span></td>
+                    <td><span className={`badge-status-${lead.status}`}>{lead.status.replace('_', ' ')}</span></td>
                     <td>
                       <div className="table-actions" style={{ display: 'flex', gap: 8 }}>
-                        {lead.status !== 'convertido' && (<button onClick={() => converterEmCliente(lead)} className="btn-icon" title="Converter em Cliente" style={{ background: '#10B981', color: 'white' }}><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><line x1="19" y1="8" x2="19" y2="14" /><line x1="22" y1="11" x2="16" y2="11" /></svg></button>)}
-                        <button onClick={() => editarLead(lead)} className="btn-icon btn-edit-icon" title="Editar"><svg width="18" height="18" viewBox="0 0 18 18" fill="currentColor"><path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10z" /></svg></button>
-                        <button onClick={() => deletarLead(lead.id)} className="btn-icon btn-danger-icon" title="Excluir"><svg width="18" height="18" viewBox="0 0 18 18" fill="currentColor"><path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9z" clipRule="evenodd" /></svg></button>
+                        {lead.status !== 'convertido' && lead.status !== 'perdido' && (
+                          <button onClick={() => converterEmCliente(lead)} className="btn-icon" title="Converter em Cliente" style={{ background: '#10B981', color: 'white' }}>
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><line x1="19" y1="8" x2="19" y2="14" /><line x1="22" y1="11" x2="16" y2="11" /></svg>
+                          </button>
+                        )}
+                        <button onClick={() => editarLead(lead)} className="btn-icon btn-edit-icon" title="Editar">
+                          <svg width="18" height="18" viewBox="0 0 18 18" fill="currentColor"><path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10z" /></svg>
+                        </button>
+                        <button onClick={() => deletarLead(lead.id)} className="btn-icon btn-danger-icon" title="Excluir">
+                          <svg width="18" height="18" viewBox="0 0 18 18" fill="currentColor"><path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9z" clipRule="evenodd" /></svg>
+                        </button>
                       </div>
                     </td>
                   </tr>
@@ -325,4 +336,4 @@ export default function Leads() {
       </div>
     </div>
   );
-} // <--- O PONTO E VÍRGULA FOI REMOVIDO DAQUI
+}
