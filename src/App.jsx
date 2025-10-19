@@ -16,18 +16,15 @@ function App() {
   const [menuAberto, setMenuAberto] = useState(false)
 
   useEffect(() => {
-    // Buscar sessão inicial
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null)
       setLoading(false)
     })
 
-    // Listener de mudanças de autenticação
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null)
     })
 
-    // Cleanup
     return () => subscription.unsubscribe()
   }, [])
 
@@ -46,7 +43,6 @@ function App() {
     return <Login onLogin={setUser} />
   }
 
-  // Menu com ícones SVG profissionais
   const menus = [
     { 
       id: 'dashboard', 
@@ -155,10 +151,8 @@ function App() {
 
   return (
     <div className="app-container">
-      {/* Header Premium 3D */}
       <nav className="header-premium">
         <div className="header-content-premium">
-          {/* Logo Premium */}
           <div className="brand-premium">
             <div className="logo-premium">
               <img 
@@ -173,7 +167,6 @@ function App() {
             </div>
           </div>
 
-          {/* Navigation Premium */}
           <div className="nav-premium desktop-nav">
             {menus.map(m => (
               <button
@@ -189,7 +182,6 @@ function App() {
             ))}
           </div>
 
-          {/* User Section Premium */}
           <div className="user-section-premium desktop-user">
             <div className="user-avatar-premium">{userInitial}</div>
             <span className="user-name-premium">{userName}</span>
@@ -202,7 +194,6 @@ function App() {
             </button>
           </div>
 
-          {/* Hamburger Premium */}
           <button 
             className="hamburger-premium mobile-only"
             onClick={() => setMenuAberto(!menuAberto)}
@@ -216,7 +207,6 @@ function App() {
         </div>
       </nav>
 
-      {/* Mobile Drawer Premium */}
       <div className={`mobile-drawer-premium ${menuAberto ? 'open' : ''}`}>
         <div className="drawer-header-premium">
           <div className="user-avatar-premium large">{userInitial}</div>
@@ -253,7 +243,6 @@ function App() {
         </div>
       </div>
 
-      {/* Overlay */}
       {menuAberto && (
         <div 
           className="overlay-premium"
@@ -261,10 +250,9 @@ function App() {
         />
       )}
 
-      {/* Content */}
       <main className="main-content-premium">
         <div className="content-wrapper">
-          {telaAtual === 'dashboard' && <Dashboard />}
+          {telaAtual === 'dashboard' && <Dashboard onNavigate={setTelaAtual} />}
           {telaAtual === 'leads' && <Leads />}
           {telaAtual === 'clientes' && <Clientes />}
           {telaAtual === 'produtos' && <Produtos />}

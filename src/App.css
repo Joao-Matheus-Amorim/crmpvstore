@@ -108,3 +108,206 @@
 .read-the-docs {
   color: #2d18e9;
 }
+/* ============================================
+   AÇÕES RÁPIDAS DO DASHBOARD
+   ============================================ */
+
+.quick-actions-pro {
+  margin-top: 2.5rem;
+}
+
+.section-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin-bottom: 1.5rem;
+}
+
+.actions-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+}
+
+.action-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1.5rem;
+  border-radius: 20px;
+  border: none;
+  color: white;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+  overflow: hidden;
+}
+
+.action-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0) 100%);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.action-card:hover::before {
+  opacity: 1;
+}
+
+.action-card:hover {
+  transform: translateY(-5px) scale(1.02);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
+}
+
+.action-card:active {
+  transform: translateY(-2px) scale(0.98);
+}
+
+.action-icon {
+  margin-bottom: 1rem;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  backdrop-filter: blur(10px);
+}
+
+.action-title {
+  font-size: 1.2rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  text-align: center;
+}
+
+.action-subtitle {
+  font-size: 0.9rem;
+  opacity: 0.9;
+  text-align: center;
+}
+
+/* Mobile responsivo */
+@media (max-width: 768px) {
+  .actions-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+  }
+
+  .action-card {
+    padding: 1.5rem 1rem;
+  }
+
+  .action-title {
+    font-size: 1rem;
+  }
+
+  .action-subtitle {
+    font-size: 0.8rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .actions-grid {
+    grid-template-columns: 1fr;
+  }
+}
+/* ============================================
+   BACKGROUND PREMIUM COM LOGO GIGANTE
+   ============================================ */
+
+.app-container {
+  position: relative;
+  min-height: 100vh;
+}
+
+.app-container::before {
+  content: '';
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(-15deg);
+  width: 1200px;
+  height: 1200px;
+  background-image: url('/logo.png');
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  opacity: 0.03;
+  z-index: 0;
+  pointer-events: none;
+  animation: floatLogo 20s ease-in-out infinite;
+}
+
+@keyframes floatLogo {
+  0%, 100% {
+    transform: translate(-50%, -50%) rotate(-15deg) scale(1);
+  }
+  50% {
+    transform: translate(-50%, -48%) rotate(-12deg) scale(1.05);
+  }
+}
+
+/* Garantir que o conteúdo fique acima */
+.header-premium,
+.main-content-premium,
+.mobile-drawer-premium {
+  position: relative;
+  z-index: 1;
+}
+
+/* Variação: Múltiplas logos (ainda mais premium) */
+.main-content-premium::before {
+  content: '';
+  position: fixed;
+  top: 10%;
+  right: -15%;
+  width: 600px;
+  height: 600px;
+  background-image: url('/logo.png');
+  background-size: contain;
+  background-repeat: no-repeat;
+  opacity: 0.02;
+  z-index: 0;
+  pointer-events: none;
+  animation: rotateSlow 30s linear infinite;
+}
+
+.main-content-premium::after {
+  content: '';
+  position: fixed;
+  bottom: 10%;
+  left: -10%;
+  width: 500px;
+  height: 500px;
+  background-image: url('/logo.png');
+  background-size: contain;
+  background-repeat: no-repeat;
+  opacity: 0.02;
+  z-index: 0;
+  pointer-events: none;
+  animation: rotateSlow 25s linear infinite reverse;
+}
+
+@keyframes rotateSlow {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Efeito de profundidade no scroll */
+.content-wrapper {
+  position: relative;
+  z-index: 2;
+}
