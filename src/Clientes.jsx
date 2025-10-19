@@ -1,3 +1,4 @@
+// TESTE AUTO DEPLOY - 18/10/2025 22:21
 import { useState, useEffect } from 'react'
 import { supabase } from './supabaseClient.js'
 
@@ -538,3 +539,4 @@ export default function Clientes() {
     </div>
   )
 }
+
