@@ -2,45 +2,20 @@ import { useState, useEffect } from 'react';
 import { supabase } from './supabaseClient.js';
 import './Produtos.css';
 
-// Lista completa de modelos iPhone do XR ao 17Pro Max
 // Lista completa de modelos iPhone do XR ao 17 Pro Max
 const MODELOS_IPHONE = [
-  'iPhone XR',
-  'iPhone XS',
-  'iPhone XS Max',
-  'iPhone 11',
-  'iPhone 11 Pro',
-  'iPhone 11 Pro Max',
+  'iPhone XR', 'iPhone XS', 'iPhone XS Max',
+  'iPhone 11', 'iPhone 11 Pro', 'iPhone 11 Pro Max',
   'iPhone SE (2ª geração)',
-  'iPhone 12 Mini',
-  'iPhone 12',
-  'iPhone 12 Pro',
-  'iPhone 12 Pro Max',
-  'iPhone 13 Mini',
-  'iPhone 13',
-  'iPhone 13 Pro',
-  'iPhone 13 Pro Max',
+  'iPhone 12 Mini', 'iPhone 12', 'iPhone 12 Pro', 'iPhone 12 Pro Max',
+  'iPhone 13 Mini', 'iPhone 13', 'iPhone 13 Pro', 'iPhone 13 Pro Max',
   'iPhone SE (3ª geração)',
-  'iPhone 14',
-  'iPhone 14 Plus',
-  'iPhone 14 Pro',
-  'iPhone 14 Pro Max',
-  'iPhone 15',
-  'iPhone 15 Plus',
-  'iPhone 15 Pro',
-  'iPhone 15 Pro Max',
-  'iPhone 16',
-  'iPhone 16 Plus',
-  'iPhone 16 Pro',
-  'iPhone 16 Pro Max',
-  'iPhone 17',
-  'iPhone 17 Plus',
-  'iPhone 17 Pro',
-  'iPhone 17 Pro Max',
+  'iPhone 14', 'iPhone 14 Plus', 'iPhone 14 Pro', 'iPhone 14 Pro Max',
+  'iPhone 15', 'iPhone 15 Plus', 'iPhone 15 Pro', 'iPhone 15 Pro Max',
+  'iPhone 16', 'iPhone 16 Plus', 'iPhone 16 Pro', 'iPhone 16 Pro Max',
+  'iPhone 17', 'iPhone 17 Plus', 'iPhone 17 Pro', 'iPhone 17 Pro Max',
 ];
 
-
-// Cores oficiais por modelo de iPhone
 // Cores oficiais por modelo de iPhone
 const CORES_POR_MODELO = {
   'iPhone XR': ['Preto', 'Branco', 'Azul', 'Amarelo', 'Coral', 'Vermelho (PRODUCT RED)'],
@@ -77,7 +52,6 @@ const CORES_POR_MODELO = {
   'iPhone 17 Pro Max': ['Titânio Natural', 'Titânio Azul Profundo', 'Titânio Verde', 'Titânio Grafite'],
 };
 
-
 export default function Produtos() {
   const [produtos, setProdutos] = useState([]);
   const [ownerId, setOwnerId] = useState(null);
@@ -103,7 +77,6 @@ export default function Produtos() {
 
   const [formData, setFormData] = useState(estadoInicialForm);
 
-  // Cores disponíveis baseadas no modelo selecionado
   const coresDisponiveis = formData.modelo && CORES_POR_MODELO[formData.modelo] 
     ? CORES_POR_MODELO[formData.modelo] 
     : [];
@@ -124,19 +97,27 @@ export default function Produtos() {
   async function carregarProdutos() {
     try {
       setCarregando(true);
-      const { data, error } = await supabase.from('products').select('*').eq('owner_id', ownerId).in('status', ['disponivel', 'vendido', 'reservado', 'manutencao']).order('created_at', { ascending: false });
+      const { data, error } = await supabase
+        .from('products')
+        .select('*')
+        .eq('owner_id', ownerId)
+        .order('created_at', { ascending: false });
+      
       if (error) throw error;
       setProdutos(data || []);
-    } catch (err) { console.error('Erro ao carregar produtos:', err); } 
-    finally { setCarregando(false); }
+    } catch (err) {
+      console.error('Erro ao carregar produtos:', err);
+    } finally {
+      setCarregando(false);
+    }
   }
 
   async function salvarProduto(e) {
     e.preventDefault();
     setSalvando(true);
 
-    if (!formData.nome || !formData.marca) {
-      alert('Nome do produto e Marca são obrigatórios.');
+    if (!formData.nome || !formData.marca || !formData.modelo) {
+      alert('Nome, Marca e Modelo são obrigatórios.');
       setSalvando(false);
       return;
     }
@@ -145,15 +126,32 @@ export default function Produtos() {
       const produtoData = {
         nome: formData.nome.trim(),
         marca: formData.marca.trim(),
-        modelo: formData.modelo?.trim() || null,
+        modelo: formData.modelo.trim(),
         cor: formData.cor?.trim() || null,
         armazenamento: formData.armazenamento || null,
-        estado_conservacao: formData.estado_conservacao,
+        estado: formData.estado_conservacao,
         status: formData.status,
         imei: formData.imei?.trim() || null,
         observacoes: formData.observacoes?.trim() || null,
         preco_compra_centavos: Math.round(parseFloat(formData.preco_compra || 0) * 100),
         preco_venda_centavos: Math.round(parseFloat(formData.preco_venda || 0) * 100),
+        ram: null,
+        originalidade: 'original',
+        origem: 'nacional',
+        nf_existe: false,
+        nf_data: null,
+        nf_numero: null,
+        grade: 'A',
+        acessorios: { fone: false, carregador: false, pelicula: false, outros: '' },
+        desbloqueado: true,
+        operadoras: null,
+        capacidade: formData.armazenamento || null,
+        aparelho_desbloqueado: false,
+        fone: false,
+        carregador: false,
+        pelicula: false,
+        outros_acessorios: null,
+        data_compra: null
       };
 
       let error;
@@ -173,6 +171,23 @@ export default function Produtos() {
       alert('Erro ao salvar produto:\n' + err.message);
     } finally {
       setSalvando(false);
+    }
+  }
+
+  async function alterarStatus(produtoId, novoStatus) {
+    try {
+      const { error } = await supabase
+        .from('products')
+        .update({ status: novoStatus })
+        .eq('id', produtoId);
+
+      if (error) throw error;
+      
+      alert(`Status alterado para "${novoStatus}" com sucesso!`);
+      carregarProdutos();
+    } catch (err) {
+      console.error('Erro ao alterar status:', err);
+      alert('Erro ao alterar status.');
     }
   }
 
@@ -197,7 +212,7 @@ export default function Produtos() {
       modelo: produto.modelo || '',
       cor: produto.cor || '',
       armazenamento: produto.armazenamento || '',
-      estado_conservacao: produto.estado_conservacao || 'excelente',
+      estado_conservacao: produto.estado || 'excelente',
       preco_compra: produto.preco_compra_centavos ? produto.preco_compra_centavos / 100 : '',
       preco_venda: produto.preco_venda_centavos ? produto.preco_venda_centavos / 100 : '',
       imei: produto.imei || '',
@@ -218,23 +233,12 @@ export default function Produtos() {
     return (valorEmCentavos / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
   }
 
-  // Função para lidar com mudança de marca
   function handleMarcaChange(novaMarca) {
-    setFormData({
-      ...formData,
-      marca: novaMarca,
-      modelo: '', // Limpa o modelo ao trocar de marca
-      cor: '' // Limpa a cor ao trocar de marca
-    });
+    setFormData({ ...formData, marca: novaMarca, modelo: '', cor: '' });
   }
 
-  // Função para lidar com mudança de modelo
   function handleModeloChange(novoModelo) {
-    setFormData({
-      ...formData,
-      modelo: novoModelo,
-      cor: '' // Limpa a cor ao trocar de modelo
-    });
+    setFormData({ ...formData, modelo: novoModelo, cor: '' });
   }
 
   const produtosFiltrados = produtos.filter(produto =>
@@ -354,53 +358,29 @@ export default function Produtos() {
               </div>
               <div className="form-row-3d">
                 <div className="form-group-3d">
-                  <label className="form-label-3d">Modelo</label>
+                  <label className="form-label-3d">Modelo *</label>
                   {formData.marca === 'Apple' ? (
-                    <select 
-                      value={formData.modelo} 
-                      onChange={(e) => handleModeloChange(e.target.value)} 
-                      autoComplete="nope" 
-                      className="form-input-3d"
-                    >
+                    <select value={formData.modelo} onChange={(e) => handleModeloChange(e.target.value)} autoComplete="nope" className="form-input-3d" required>
                       <option value="">Selecione o modelo do iPhone...</option>
                       {MODELOS_IPHONE.map(modelo => (
                         <option key={modelo} value={modelo}>{modelo}</option>
                       ))}
                     </select>
                   ) : (
-                    <input 
-                      type="text" 
-                      value={formData.modelo} 
-                      onChange={(e) => setFormData({ ...formData, modelo: e.target.value })} 
-                      autoComplete="nope" 
-                      className="form-input-3d" 
-                      placeholder="Digite o modelo..."
-                    />
+                    <input type="text" value={formData.modelo} onChange={(e) => setFormData({ ...formData, modelo: e.target.value })} autoComplete="nope" className="form-input-3d" placeholder="Digite o modelo..." required />
                   )}
                 </div>
                 <div className="form-group-3d">
                   <label className="form-label-3d">Cor</label>
                   {formData.marca === 'Apple' && coresDisponiveis.length > 0 ? (
-                    <select 
-                      value={formData.cor} 
-                      onChange={(e) => setFormData({ ...formData, cor: e.target.value })} 
-                      autoComplete="nope" 
-                      className="form-input-3d"
-                    >
+                    <select value={formData.cor} onChange={(e) => setFormData({ ...formData, cor: e.target.value })} autoComplete="nope" className="form-input-3d">
                       <option value="">Selecione a cor...</option>
                       {coresDisponiveis.map(cor => (
                         <option key={cor} value={cor}>{cor}</option>
                       ))}
                     </select>
                   ) : (
-                    <input 
-                      type="text" 
-                      value={formData.cor} 
-                      onChange={(e) => setFormData({ ...formData, cor: e.target.value })} 
-                      autoComplete="nope" 
-                      className="form-input-3d" 
-                      placeholder="Digite a cor..."
-                    />
+                    <input type="text" value={formData.cor} onChange={(e) => setFormData({ ...formData, cor: e.target.value })} autoComplete="nope" className="form-input-3d" placeholder="Digite a cor..." />
                   )}
                 </div>
                 <div className="form-group-3d">
@@ -442,6 +422,33 @@ export default function Produtos() {
                     <option value="bom">Bom</option>
                     <option value="regular">Regular</option>
                     <option value="ruim">Ruim</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div className="form-section-3d">
+              <h4 className="form-section-title-3d">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <path d="M12 6v6l4 2"></path>
+                </svg>
+                Status do Produto
+              </h4>
+              <div className="form-row-3d">
+                <div className="form-group-3d">
+                  <label className="form-label-3d">Status *</label>
+                  <select 
+                    value={formData.status} 
+                    onChange={(e) => setFormData({ ...formData, status: e.target.value })} 
+                    required 
+                    autoComplete="nope" 
+                    className="form-input-3d"
+                  >
+                    <option value="disponivel">Disponível</option>
+                    <option value="vendido">Vendido</option>
+                    <option value="reservado">Reservado</option>
+                    <option value="manutencao">Manutenção</option>
                   </select>
                 </div>
               </div>
@@ -526,6 +533,30 @@ export default function Produtos() {
                       </td>
                       <td>
                         <div className="table-actions-3d">
+                          <select 
+                            value={produto.status} 
+                            onChange={(e) => alterarStatus(produto.id, e.target.value)}
+                            style={{
+                              padding: '0.5rem 0.75rem',
+                              borderRadius: '8px',
+                              border: '2px solid #e2e8f0',
+                              fontSize: '0.875rem',
+                              fontWeight: '600',
+                              marginRight: '0.5rem',
+                              cursor: 'pointer',
+                              background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
+                              boxShadow: '0 2px 4px rgba(0,0,0,0.05)',
+                              transition: 'all 0.3s'
+                            }}
+                            onFocus={(e) => e.target.style.borderColor = '#2563EB'}
+                            onBlur={(e) => e.target.style.borderColor = '#e2e8f0'}
+                          >
+                            <option value="disponivel">Disponível</option>
+                            <option value="vendido">Vendido</option>
+                            <option value="reservado">Reservado</option>
+                            <option value="manutencao">Manutenção</option>
+                          </select>
+                          
                           <button onClick={() => editarProduto(produto)} className="btn-icon-3d btn-edit-3d" title="Editar">
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                               <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>

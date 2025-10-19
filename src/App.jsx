@@ -7,6 +7,7 @@ import Produtos from './Produtos.jsx'
 import Leads from './Leads.jsx'
 import Contratos from './Contratos.jsx'
 import Configuracoes from './Configuracoes.jsx'
+import Estoque from './Estoque.jsx'
 
 function App() {
   const [user, setUser] = useState(null)
@@ -15,33 +16,19 @@ function App() {
   const [menuAberto, setMenuAberto] = useState(false)
 
   useEffect(() => {
-    const fetchSession = async () => {
-      try {
-        const { data: { session }, error } = await supabase.auth.getSession()
-        
-        if (error) {
-          console.error('Erro ao buscar sessão:', error)
-          setUser(null)
-        } else {
-          setUser(session?.user ?? null)
-        }
-      } catch (err) {
-        console.error('Erro inesperado:', err)
-        setUser(null)
-      } finally {
-        setLoading(false)
-      }
-    }
+    // Buscar sessão inicial
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null)
+      setLoading(false)
+    })
 
-    fetchSession()
-
+    // Listener de mudanças de autenticação
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null)
     })
 
-    return () => {
-      subscription?.unsubscribe()
-    }
+    // Cleanup
+    return () => subscription.unsubscribe()
   }, [])
 
   if (loading) {
@@ -104,6 +91,18 @@ function App() {
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <rect x="2" y="7" width="20" height="14" rx="2" ry="2"/>
           <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
+        </svg>
+      )
+    },
+    { 
+      id: 'estoque', 
+      label: 'Estoque',
+      icon: (
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <rect x="3" y="3" width="7" height="7" rx="1"/>
+          <rect x="14" y="3" width="7" height="7" rx="1"/>
+          <rect x="14" y="14" width="7" height="7" rx="1"/>
+          <rect x="3" y="14" width="7" height="7" rx="1"/>
         </svg>
       )
     },
@@ -269,6 +268,7 @@ function App() {
           {telaAtual === 'leads' && <Leads />}
           {telaAtual === 'clientes' && <Clientes />}
           {telaAtual === 'produtos' && <Produtos />}
+          {telaAtual === 'estoque' && <Estoque />}
           {telaAtual === 'contratos' && <Contratos />}
           {telaAtual === 'configuracoes' && <Configuracoes />}
         </div>
@@ -278,5 +278,3 @@ function App() {
 }
 
 export default App
-
-/*COMENTARIIO*/
