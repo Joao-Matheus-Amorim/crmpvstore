@@ -275,8 +275,9 @@ export default function Clientes() {
                     placeholder="Digite o nome completo"
                     required
                     minLength="3"
-                    autoComplete="off"
-                    name="customer-name"
+                    autoComplete="nope"
+                    name="new-customer-name"
+                    data-form-type="other"
                   />
                 </div>
 
@@ -289,8 +290,9 @@ export default function Clientes() {
                     placeholder="000.000.000-00"
                     required
                     minLength="11"
-                    autoComplete="off"
-                    name="customer-cpf"
+                    autoComplete="nope"
+                    name="new-customer-cpf"
+                    data-form-type="other"
                   />
                 </div>
               </div>
@@ -303,8 +305,9 @@ export default function Clientes() {
                     value={formData.email}
                     onChange={(e) => setFormData({...formData, email: e.target.value})}
                     placeholder="email@exemplo.com"
-                    autoComplete="off"
-                    name="customer-email"
+                    autoComplete="nope"
+                    name="new-customer-email"
+                    data-form-type="other"
                   />
                 </div>
 
@@ -317,8 +320,9 @@ export default function Clientes() {
                     placeholder="(00) 00000-0000"
                     required
                     minLength="10"
-                    autoComplete="off"
-                    name="customer-phone"
+                    autoComplete="nope"
+                    name="new-customer-phone"
+                    data-form-type="other"
                   />
                 </div>
               </div>
@@ -349,8 +353,9 @@ export default function Clientes() {
                     value={formData.endereco}
                     onChange={(e) => setFormData({...formData, endereco: e.target.value})}
                     placeholder="Rua, Avenida, etc."
-                    autoComplete="off"
-                    name="customer-street"
+                    autoComplete="nope"
+                    name="new-customer-street"
+                    data-form-type="other"
                   />
                 </div>
 
@@ -361,8 +366,9 @@ export default function Clientes() {
                     value={formData.numero}
                     onChange={(e) => setFormData({...formData, numero: e.target.value})}
                     placeholder="Nº"
-                    autoComplete="off"
-                    name="customer-number"
+                    autoComplete="nope"
+                    name="new-customer-number"
+                    data-form-type="other"
                   />
                 </div>
               </div>
@@ -375,8 +381,9 @@ export default function Clientes() {
                     value={formData.bairro}
                     onChange={(e) => setFormData({...formData, bairro: e.target.value})}
                     placeholder="Bairro"
-                    autoComplete="off"
-                    name="customer-neighborhood"
+                    autoComplete="nope"
+                    name="new-customer-neighborhood"
+                    data-form-type="other"
                   />
                 </div>
 
@@ -387,8 +394,9 @@ export default function Clientes() {
                     value={formData.cidade}
                     onChange={(e) => setFormData({...formData, cidade: e.target.value})}
                     placeholder="Cidade"
-                    autoComplete="off"
-                    name="customer-city"
+                    autoComplete="nope"
+                    name="new-customer-city"
+                    data-form-type="other"
                   />
                 </div>
 
@@ -400,8 +408,9 @@ export default function Clientes() {
                     onChange={(e) => setFormData({...formData, estado: e.target.value})}
                     placeholder="UF"
                     maxLength="2"
-                    autoComplete="off"
-                    name="customer-state"
+                    autoComplete="nope"
+                    name="new-customer-state"
+                    data-form-type="other"
                   />
                 </div>
 
@@ -412,8 +421,9 @@ export default function Clientes() {
                     value={formData.cep}
                     onChange={(e) => setFormData({...formData, cep: e.target.value})}
                     placeholder="00000-000"
-                    autoComplete="off"
-                    name="customer-zip"
+                    autoComplete="nope"
+                    name="new-customer-zip"
+                    data-form-type="other"
                   />
                 </div>
               </div>
@@ -451,7 +461,7 @@ export default function Clientes() {
         {clientesFiltrados.length === 0 ? (
           <div className="empty-state">
             <svg width="64" height="64" viewBox="0 0 64 64" fill="none" className="empty-icon">
-              <circle cx="32" cy="32" r="30" stroke="currentColor" strokeWidth="2" opacity="0.2"/>
+              <circle cx="32" cy="32" r="30" stroke="currentColor" strokeWidth="2" opacity="0.2" />
               <path d="M32 20v24M20 32h24" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
             </svg>
             <h4 className="empty-title">Nenhum cliente encontrado</h4>
