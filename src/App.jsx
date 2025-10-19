@@ -8,13 +8,19 @@ import Leads from './Leads.jsx'
 import Contratos from './Contratos.jsx'
 import Configuracoes from './Configuracoes.jsx'
 import Estoque from './Estoque.jsx'
-import logoUrl from './assets/logo.jpg' // ← IMPORT DA LOGO
 
 function App() {
+  // Logos da pasta public/
+  const logoHeader = '/logo.png'  // ✅ LOGO COLORIDA PARA O HEADER
+  const logoBackground = '/logo.jpg'  // ✅ LOGO PARA O BACKGROUND ANIMADO
+  
   const [user, setUser] = useState(null)
   const [loading, setLoading] = useState(true)
   const [telaAtual, setTelaAtual] = useState('dashboard')
   const [menuAberto, setMenuAberto] = useState(false)
+
+  // ... resto do código continua igual
+
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -150,9 +156,9 @@ function App() {
   const userInitial = userEmail.charAt(0).toUpperCase()
   const userName = userEmail.split('@')[0]
 
-  // ← ESTILO DINÂMICO PARA O BACKGROUND
+  // Estilo dinâmico para o background (usando logo.jpg)
   const appStyle = {
-    '--background-logo-url': `url(${logoUrl})`
+    '--background-logo-url': `url(${logoBackground})`
   }
 
   return (
@@ -162,7 +168,7 @@ function App() {
           <div className="brand-premium">
             <div className="logo-premium">
               <img 
-                src={logoUrl}
+                src={logoHeader}
                 alt="PV Store" 
                 className="logo-img-premium"
               />
