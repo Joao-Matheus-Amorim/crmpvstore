@@ -8,6 +8,7 @@ import Leads from './Leads.jsx'
 import Contratos from './Contratos.jsx'
 import Configuracoes from './Configuracoes.jsx'
 import Estoque from './Estoque.jsx'
+import logoUrl from './assets/logo.jpg' // ← IMPORT DA LOGO
 
 function App() {
   const [user, setUser] = useState(null)
@@ -149,14 +150,19 @@ function App() {
   const userInitial = userEmail.charAt(0).toUpperCase()
   const userName = userEmail.split('@')[0]
 
+  // ← ESTILO DINÂMICO PARA O BACKGROUND
+  const appStyle = {
+    '--background-logo-url': `url(${logoUrl})`
+  }
+
   return (
-    <div className="app-container">
+    <div className="app-container" style={appStyle}>
       <nav className="header-premium">
         <div className="header-content-premium">
           <div className="brand-premium">
             <div className="logo-premium">
               <img 
-                src="/logo.png" 
+                src={logoUrl}
                 alt="PV Store" 
                 className="logo-img-premium"
               />

@@ -88,21 +88,18 @@ body {
   text-align: center;
 }
 
-/* Tablets */
 @media (max-width: 1024px) {
   #root {
     padding: 1.5rem;
   }
 }
 
-/* Mobile grande */
 @media (max-width: 768px) {
   #root {
     padding: 1rem;
   }
 }
 
-/* Mobile pequeno */
 @media (max-width: 480px) {
   #root {
     padding: 0.75rem;
@@ -116,7 +113,6 @@ body {
   transition: filter 300ms;
 }
 
-/* Tablets */
 @media (max-width: 1024px) {
   .logo {
     height: 5em;
@@ -124,7 +120,6 @@ body {
   }
 }
 
-/* Mobile grande */
 @media (max-width: 768px) {
   .logo {
     height: 4em;
@@ -132,7 +127,6 @@ body {
   }
 }
 
-/* Mobile pequeno */
 @media (max-width: 480px) {
   .logo {
     height: 3em;
@@ -167,21 +161,18 @@ body {
   padding: 2em;
 }
 
-/* Tablets */
 @media (max-width: 1024px) {
   .card {
     padding: 1.5em;
   }
 }
 
-/* Mobile grande */
 @media (max-width: 768px) {
   .card {
     padding: 1em;
   }
 }
 
-/* Mobile pequeno */
 @media (max-width: 480px) {
   .card {
     padding: 0.75em;
@@ -278,7 +269,6 @@ body {
   text-align: center;
 }
 
-/* Mobile responsivo */
 @media (max-width: 768px) {
   .actions-grid {
     grid-template-columns: repeat(2, 1fr);
@@ -305,7 +295,7 @@ body {
 }
 
 /* ============================================
-   BACKGROUND PREMIUM COM LOGO GIGANTE (ATUALIZADO PARA .JPG E VERCEL)
+   BACKGROUND PREMIUM COM LOGO GIGANTE (CORRIGIDO PARA VITE + VERCEL)
    ============================================ */
 .app-container {
   position: relative;
@@ -313,7 +303,7 @@ body {
   background: var(--bg-primary) !important;
 }
 
-/* Logo Principal Gigante no Centro (CORRIGIDO PARA .JPG) */
+/* Logo Principal Gigante no Centro (CORRIGIDO PARA VITE) */
 .app-container::before {
   content: '' !important;
   position: fixed !important;
@@ -322,7 +312,7 @@ body {
   transform: translate(-50%, -50%) rotate(-15deg) !important;
   width: 1400px !important;
   height: 1400px !important;
-  background-image: url('/logo.jpg') !important;  /* ← CORRIGIDO PARA .JPG */
+  background-image: var(--background-logo-url) !important;  /* ← USA VARIÁVEL DO APP.JSX */
   background-size: contain !important;
   background-repeat: no-repeat !important;
   background-position: center !important;
@@ -341,7 +331,7 @@ body {
   }
 }
 
-/* Logo Secundária no Canto Superior Direito (CORRIGIDO PARA .JPG) */
+/* Logo Secundária no Canto Superior Direito (CORRIGIDO PARA VITE) */
 .main-content-premium::before {
   content: '' !important;
   position: fixed !important;
@@ -349,7 +339,7 @@ body {
   right: -15% !important;
   width: 700px !important;
   height: 700px !important;
-  background-image: url('/logo.jpg') !important;  /* ← CORRIGIDO PARA .JPG */
+  background-image: var(--background-logo-url) !important;  /* ← USA VARIÁVEL DO APP.JSX */
   background-size: contain !important;
   background-repeat: no-repeat !important;
   opacity: 0.06 !important;
@@ -358,7 +348,7 @@ body {
   animation: rotateSlow 30s linear infinite !important;
 }
 
-/* Logo Terciária no Canto Inferior Esquerdo (CORRIGIDO PARA .JPG) */
+/* Logo Terciária no Canto Inferior Esquerdo (CORRIGIDO PARA VITE) */
 .main-content-premium::after {
   content: '' !important;
   position: fixed !important;
@@ -366,7 +356,7 @@ body {
   left: -10% !important;
   width: 600px !important;
   height: 600px !important;
-  background-image: url('/logo.jpg') !important;  /* ← CORRIGIDO PARA .JPG */
+  background-image: var(--background-logo-url) !important;  /* ← USA VARIÁVEL DO APP.JSX */
   background-size: contain !important;
   background-repeat: no-repeat !important;
   opacity: 0.06 !important;
@@ -407,7 +397,7 @@ body {
   
   .main-content-premium::before,
   .main-content-premium::after {
-    display: none !important;  /* Oculta logos nos cantos em mobile para performance */
+    display: none !important;
   }
 }
 
@@ -1199,7 +1189,6 @@ body {
   transform: translateY(-1px) !important;
 }
 
-/* Responsivo Tabela */
 @media (max-width: 768px) {
   .table-container {
     border-radius: var(--border-radius-md) !important;
@@ -1508,4 +1497,196 @@ body {
 
 /* ============================================
    FIM DO CSS PREMIUM
+   ============================================ */
+/* ============================================
+   TEMA COLORIDO BRANCO/AZUL/VERMELHO PV STORE
+   ============================================ */
+
+/* Cards Dashboard com cores da marca */
+.stat-card-pro:nth-child(1)::before {
+  background: var(--gradient-blue) !important;  /* Azul - Leads */
+}
+
+.stat-card-pro:nth-child(2)::before {
+  background: var(--gradient-red) !important;  /* Vermelho - Contratos */
+}
+
+.stat-card-pro:nth-child(3)::before {
+  background: linear-gradient(135deg, #06D6A0 0%, #06A680 100%) !important;  /* Verde - Vendas */
+}
+
+.stat-card-pro:nth-child(4)::before {
+  background: var(--gradient-blue) !important;  /* Azul - Clientes */
+}
+
+.stat-card-pro:nth-child(5)::before {
+  background: var(--gradient-red) !important;  /* Vermelho - Produtos */
+}
+
+/* Valores dos cards com cores alternadas */
+.stat-card-pro:nth-child(odd) .stat-value {
+  background: var(--gradient-blue) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  background-clip: text !important;
+}
+
+.stat-card-pro:nth-child(even) .stat-value {
+  background: var(--gradient-red) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  background-clip: text !important;
+}
+
+/* Ícones dos cards com cores da marca */
+.stat-card-pro:nth-child(1) .stat-icon {
+  background: var(--pv-blue-50) !important;
+  color: var(--pv-blue-primary) !important;
+}
+
+.stat-card-pro:nth-child(2) .stat-icon {
+  background: var(--pv-red-50) !important;
+  color: var(--pv-red-primary) !important;
+}
+
+.stat-card-pro:nth-child(3) .stat-icon {
+  background: rgba(6, 214, 160, 0.1) !important;
+  color: #06D6A0 !important;
+}
+
+.stat-card-pro:nth-child(4) .stat-icon {
+  background: var(--pv-blue-50) !important;
+  color: var(--pv-blue-primary) !important;
+}
+
+.stat-card-pro:nth-child(5) .stat-icon {
+  background: var(--pv-red-50) !important;
+  color: var(--pv-red-primary) !important;
+}
+
+/* Botões de ação alternados */
+.action-card:nth-child(odd) {
+  background: var(--gradient-blue) !important;
+}
+
+.action-card:nth-child(even) {
+  background: var(--gradient-red) !important;
+}
+
+/* Hover nos cards com sombra da cor correspondente */
+.stat-card-pro:nth-child(odd):hover {
+  box-shadow: 0 12px 40px rgba(0, 102, 204, 0.25) !important;
+}
+
+.stat-card-pro:nth-child(even):hover {
+  box-shadow: 0 12px 40px rgba(230, 57, 70, 0.25) !important;
+}
+
+/* Navegação com cores da marca */
+.nav-item-premium:hover {
+  background: var(--pv-blue-50) !important;
+  color: var(--pv-blue-primary) !important;
+}
+
+/* Botão de logout com cor vermelha */
+.btn-logout-premium {
+  background: var(--pv-red-50) !important;
+  color: var(--pv-red-primary) !important;
+}
+
+.btn-logout-premium:hover {
+  background: var(--pv-red-primary) !important;
+  color: white !important;
+}
+
+/* Avatar do usuário com gradiente azul */
+.user-avatar-premium {
+  background: var(--gradient-blue) !important;
+}
+
+/* Drawer mobile com cores da marca */
+.drawer-header-premium {
+  background: var(--gradient-blue) !important;
+}
+
+.drawer-item-premium.active {
+  background: var(--pv-blue-50) !important;
+  color: var(--pv-blue-primary) !important;
+  border-left-color: var(--pv-blue-primary) !important;
+}
+
+.drawer-item-premium:hover {
+  background: var(--pv-blue-50) !important;
+  color: var(--pv-blue-primary) !important;
+}
+
+/* Tabelas com header azul e detalhes vermelhos */
+.table-header {
+  background: var(--gradient-blue) !important;
+}
+
+.btn-edit {
+  background: var(--pv-blue-50) !important;
+  color: var(--pv-blue-primary) !important;
+}
+
+.btn-edit:hover {
+  background: var(--pv-blue-primary) !important;
+  color: white !important;
+}
+
+.btn-delete {
+  background: var(--pv-red-50) !important;
+  color: var(--pv-red-primary) !important;
+}
+
+.btn-delete:hover {
+  background: var(--pv-red-primary) !important;
+  color: white !important;
+}
+
+/* Modal com bordas coloridas */
+.modal-content {
+  border-top: 4px solid var(--pv-blue-primary) !important;
+}
+
+.modal-close:hover {
+  background: var(--pv-red-primary) !important;
+  color: white !important;
+}
+
+/* Formulários com foco azul */
+.form-input:focus,
+.form-select:focus,
+.form-textarea:focus {
+  border-color: var(--pv-blue-primary) !important;
+  box-shadow: 0 0 0 3px var(--pv-blue-50) !important;
+}
+
+/* Paginação com cores da marca */
+.pagination-btn:hover:not(:disabled) {
+  background: var(--pv-blue-primary) !important;
+  color: white !important;
+}
+
+/* Loading spinner com cor azul */
+.spinner-professional {
+  border-top-color: var(--pv-blue-primary) !important;
+}
+
+/* Alertas com cores da marca */
+.alert-success {
+  background: linear-gradient(135deg, var(--pv-blue-50) 0%, var(--pv-blue-100) 100%) !important;
+  border-color: var(--pv-blue-primary) !important;
+  color: var(--pv-blue-dark) !important;
+}
+
+.alert-error {
+  background: linear-gradient(135deg, var(--pv-red-50) 0%, var(--pv-red-100) 100%) !important;
+  border-color: var(--pv-red-primary) !important;
+  color: var(--pv-red-dark) !important;
+}
+
+/* ============================================
+   FIM DO TEMA COLORIDO
    ============================================ */
