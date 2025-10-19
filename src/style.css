@@ -2604,27 +2604,26 @@ textarea::placeholder {
   .mobile-drawer-premium {
     width: 100%;
   }
-}
-/* ============================================
-   LOGO GIGANTE NO BACKGROUND - PREMIUM
+}/* ============================================
+   LOGO GIGANTE NO BACKGROUND - VERCEL
    ============================================ */
 
 body::after {
-  content: '';
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%) rotate(-15deg);
-  width: 1400px;
-  height: 1400px;
-  background-image: url('/logo.png');
-  background-size: contain;
-  background-repeat: no-repeat;
-  background-position: center;
-  opacity: 0.04;
-  z-index: -1;
-  pointer-events: none;
-  animation: floatLogoBackground 20s ease-in-out infinite;
+  content: '' !important;
+  position: fixed !important;
+  top: 50% !important;
+  left: 50% !important;
+  transform: translate(-50%, -50%) rotate(-15deg) !important;
+  width: 1400px !important;
+  height: 1400px !important;
+  background-image: url('/logo.png') !important;
+  background-size: contain !important;
+  background-repeat: no-repeat !important;
+  background-position: center !important;
+  opacity: 0.08 !important;
+  z-index: -1 !important;
+  pointer-events: none !important;
+  animation: floatLogoBackground 20s ease-in-out infinite !important;
 }
 
 @keyframes floatLogoBackground {
@@ -2636,38 +2635,37 @@ body::after {
   }
 }
 
-/* Logo Secundária (canto superior direito) */
+/* Logos nos cantos */
 .main-content-premium::before {
-  content: '';
-  position: fixed;
-  top: 10%;
-  right: -15%;
-  width: 700px;
-  height: 700px;
-  background-image: url('/logo.png');
-  background-size: contain;
-  background-repeat: no-repeat;
-  opacity: 0.025;
-  z-index: 0;
-  pointer-events: none;
-  animation: rotateSlowBg 30s linear infinite;
+  content: '' !important;
+  position: fixed !important;
+  top: 10% !important;
+  right: -15% !important;
+  width: 700px !important;
+  height: 700px !important;
+  background-image: url('/logo.png') !important;
+  background-size: contain !important;
+  background-repeat: no-repeat !important;
+  opacity: 0.06 !important;
+  z-index: 0 !important;
+  pointer-events: none !important;
+  animation: rotateSlowBg 30s linear infinite !important;
 }
 
-/* Logo Terciária (canto inferior esquerdo) */
 .main-content-premium::after {
-  content: '';
-  position: fixed;
-  bottom: 10%;
-  left: -10%;
-  width: 600px;
-  height: 600px;
-  background-image: url('/logo.png');
-  background-size: contain;
-  background-repeat: no-repeat;
-  opacity: 0.025;
-  z-index: 0;
-  pointer-events: none;
-  animation: rotateSlowBg 25s linear infinite reverse;
+  content: '' !important;
+  position: fixed !important;
+  bottom: 10% !important;
+  left: -10% !important;
+  width: 600px !important;
+  height: 600px !important;
+  background-image: url('/logo.png') !important;
+  background-size: contain !important;
+  background-repeat: no-repeat !important;
+  opacity: 0.06 !important;
+  z-index: 0 !important;
+  pointer-events: none !important;
+  animation: rotateSlowBg 25s linear infinite reverse !important;
 }
 
 @keyframes rotateSlowBg {
@@ -2675,28 +2673,16 @@ body::after {
   to { transform: rotate(360deg); }
 }
 
-/* Garantir que o conteúdo fique acima */
-.header-premium,
-.mobile-drawer-premium {
-  position: relative;
-  z-index: 1000;
-}
-
-.content-wrapper {
-  position: relative;
-  z-index: 2;
-}
-
 /* Mobile */
 @media (max-width: 768px) {
   body::after {
-    width: 900px;
-    height: 900px;
-    opacity: 0.03;
+    width: 900px !important;
+    height: 900px !important;
+    opacity: 0.07 !important;
   }
   
   .main-content-premium::before,
   .main-content-premium::after {
-    display: none;
+    display: none !important;
   }
 }
