@@ -229,6 +229,7 @@
   min-height: 100vh;
 }
 
+/* Logo Principal Gigante no Centro */
 .app-container::before {
   content: '';
   position: fixed;
@@ -256,15 +257,7 @@
   }
 }
 
-/* Garantir que o conteúdo fique acima */
-.header-premium,
-.main-content-premium,
-.mobile-drawer-premium {
-  position: relative;
-  z-index: 1;
-}
-
-/* Variação: Múltiplas logos (ainda mais premium) */
+/* Logo Secundária no Canto Superior Direito */
 .main-content-premium::before {
   content: '';
   position: fixed;
@@ -281,6 +274,7 @@
   animation: rotateSlow 30s linear infinite;
 }
 
+/* Logo Terciária no Canto Inferior Esquerdo */
 .main-content-premium::after {
   content: '';
   position: fixed;
@@ -306,8 +300,29 @@
   }
 }
 
-/* Efeito de profundidade no scroll */
+/* Garantir que o conteúdo fique acima */
+.header-premium,
+.main-content-premium,
+.mobile-drawer-premium {
+  position: relative;
+  z-index: 1;
+}
+
 .content-wrapper {
   position: relative;
   z-index: 2;
+}
+
+/* Responsivo Mobile */
+@media (max-width: 768px) {
+  .app-container::before {
+    width: 800px;
+    height: 800px;
+    opacity: 0.02;
+  }
+  
+  .main-content-premium::before,
+  .main-content-premium::after {
+    display: none;
+  }
 }

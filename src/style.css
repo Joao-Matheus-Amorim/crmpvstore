@@ -2605,3 +2605,98 @@ textarea::placeholder {
     width: 100%;
   }
 }
+/* ============================================
+   LOGO GIGANTE NO BACKGROUND - PREMIUM
+   ============================================ */
+
+body::after {
+  content: '';
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(-15deg);
+  width: 1400px;
+  height: 1400px;
+  background-image: url('/logo.png');
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  opacity: 0.04;
+  z-index: -1;
+  pointer-events: none;
+  animation: floatLogoBackground 20s ease-in-out infinite;
+}
+
+@keyframes floatLogoBackground {
+  0%, 100% {
+    transform: translate(-50%, -50%) rotate(-15deg) scale(1);
+  }
+  50% {
+    transform: translate(-50%, -48%) rotate(-12deg) scale(1.05);
+  }
+}
+
+/* Logo Secundária (canto superior direito) */
+.main-content-premium::before {
+  content: '';
+  position: fixed;
+  top: 10%;
+  right: -15%;
+  width: 700px;
+  height: 700px;
+  background-image: url('/logo.png');
+  background-size: contain;
+  background-repeat: no-repeat;
+  opacity: 0.025;
+  z-index: 0;
+  pointer-events: none;
+  animation: rotateSlowBg 30s linear infinite;
+}
+
+/* Logo Terciária (canto inferior esquerdo) */
+.main-content-premium::after {
+  content: '';
+  position: fixed;
+  bottom: 10%;
+  left: -10%;
+  width: 600px;
+  height: 600px;
+  background-image: url('/logo.png');
+  background-size: contain;
+  background-repeat: no-repeat;
+  opacity: 0.025;
+  z-index: 0;
+  pointer-events: none;
+  animation: rotateSlowBg 25s linear infinite reverse;
+}
+
+@keyframes rotateSlowBg {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Garantir que o conteúdo fique acima */
+.header-premium,
+.mobile-drawer-premium {
+  position: relative;
+  z-index: 1000;
+}
+
+.content-wrapper {
+  position: relative;
+  z-index: 2;
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+  body::after {
+    width: 900px;
+    height: 900px;
+    opacity: 0.03;
+  }
+  
+  .main-content-premium::before,
+  .main-content-premium::after {
+    display: none;
+  }
+}
