@@ -497,86 +497,156 @@ export default function Produtos() {
         {produtosFiltrados.length === 0 ? (
           <div className="empty-state-3d"><p>Nenhum produto encontrado</p></div>
         ) : (
-          <div className="table-container-3d">
-            <table className="table-3d">
-              <thead>
-                <tr>
-                  <th>PRODUTO</th>
-                  <th>PREÇOS</th>
-                  <th>LUCRO</th>
-                  <th>STATUS</th>
-                  <th>AÇÕES</th>
-                </tr>
-              </thead>
-              <tbody>
-                {produtosFiltrados.map(produto => {
-                  const lucro = (produto.preco_venda_centavos || 0) - (produto.preco_compra_centavos || 0);
-                  return (
-                    <tr key={produto.id}>
-                      <td>
-                        <div className="text-primary-3d">{produto.nome}</div>
-                        <div className="text-secondary-3d">{produto.marca} {produto.modelo}</div>
-                      </td>
-                      <td>
-                        <div className="text-primary-3d">Venda: {formatarMoeda(produto.preco_venda_centavos)}</div>
-                        <div className="text-secondary-3d">Compra: {formatarMoeda(produto.preco_compra_centavos)}</div>
-                      </td>
-                      <td>
-                        <span className={`lucro-badge ${lucro > 0 ? 'lucro-positivo' : 'lucro-negativo'}`}>
+          <>
+            {/* Tabela Desktop */}
+            <div className="table-container-3d">
+              <table className="table-3d">
+                <thead>
+                  <tr>
+                    <th>PRODUTO</th>
+                    <th>PREÇOS</th>
+                    <th>LUCRO</th>
+                    <th>STATUS</th>
+                    <th>AÇÕES</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {produtosFiltrados.map(produto => {
+                    const lucro = (produto.preco_venda_centavos || 0) - (produto.preco_compra_centavos || 0);
+                    return (
+                      <tr key={produto.id}>
+                        <td>
+                          <div className="text-primary-3d">{produto.nome}</div>
+                          <div className="text-secondary-3d">{produto.marca} {produto.modelo}</div>
+                        </td>
+                        <td>
+                          <div className="text-primary-3d">Venda: {formatarMoeda(produto.preco_venda_centavos)}</div>
+                          <div className="text-secondary-3d">Compra: {formatarMoeda(produto.preco_compra_centavos)}</div>
+                        </td>
+                        <td>
+                          <span className={`lucro-badge ${lucro > 0 ? 'lucro-positivo' : 'lucro-negativo'}`}>
+                            {formatarMoeda(lucro)}
+                          </span>
+                        </td>
+                        <td>
+                          <span className={`badge-status-produto badge-${produto.status}`}>
+                            {produto.status}
+                          </span>
+                        </td>
+                        <td>
+                          <div className="table-actions-3d">
+                            <select 
+                              value={produto.status} 
+                              onChange={(e) => alterarStatus(produto.id, e.target.value)}
+                              style={{
+                                padding: '0.5rem 0.75rem',
+                                borderRadius: '8px',
+                                border: '2px solid #e2e8f0',
+                                fontSize: '0.875rem',
+                                fontWeight: '600',
+                                marginRight: '0.5rem',
+                                cursor: 'pointer',
+                                background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
+                                boxShadow: '0 2px 4px rgba(0,0,0,0.05)',
+                                transition: 'all 0.3s'
+                              }}
+                              onFocus={(e) => e.target.style.borderColor = '#2563EB'}
+                              onBlur={(e) => e.target.style.borderColor = '#e2e8f0'}
+                            >
+                              <option value="disponivel">Disponível</option>
+                              <option value="vendido">Vendido</option>
+                              <option value="reservado">Reservado</option>
+                              <option value="manutencao">Manutenção</option>
+                            </select>
+                            
+                            <button onClick={() => editarProduto(produto)} className="btn-icon-3d btn-edit-3d" title="Editar">
+                              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                              </svg>
+                            </button>
+                            <button onClick={() => deletarProduto(produto.id, produto.nome)} className="btn-icon-3d btn-delete-3d" title="Excluir">
+                              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                <polyline points="3 6 5 6 21 6"></polyline>
+                                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                              </svg>
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Cards Mobile */}
+            <div className="produtos-mobile-cards">
+              {produtosFiltrados.map(produto => {
+                const lucro = (produto.preco_venda_centavos || 0) - (produto.preco_compra_centavos || 0);
+                return (
+                  <div key={produto.id} className="produto-card-mobile">
+                    <div className="produto-header-mobile">
+                      <div className="produto-info-mobile">
+                        <h4>{produto.nome}</h4>
+                        <p>{produto.marca} {produto.modelo}</p>
+                      </div>
+                      <span className={`produto-status-mobile badge-${produto.status}`}>
+                        {produto.status}
+                      </span>
+                    </div>
+
+                    <div className="produto-detalhes-mobile">
+                      <div className="produto-detalhe-item">
+                        <span className="produto-detalhe-label">Venda</span>
+                        <span className="produto-detalhe-valor">{formatarMoeda(produto.preco_venda_centavos)}</span>
+                      </div>
+                      <div className="produto-detalhe-item">
+                        <span className="produto-detalhe-label">Compra</span>
+                        <span className="produto-detalhe-valor">{formatarMoeda(produto.preco_compra_centavos)}</span>
+                      </div>
+                      <div className="produto-detalhe-item">
+                        <span className="produto-detalhe-label">Lucro</span>
+                        <span className="produto-detalhe-valor" style={{ color: lucro > 0 ? '#10B981' : '#EF4444' }}>
                           {formatarMoeda(lucro)}
                         </span>
-                      </td>
-                      <td>
-                        <span className={`badge-status-produto badge-${produto.status}`}>
-                          {produto.status}
+                      </div>
+                      <div className="produto-detalhe-item">
+                        <span className="produto-detalhe-label">IMEI</span>
+                        <span className="produto-detalhe-valor" style={{ fontSize: '0.8rem' }}>
+                          {produto.imei || 'N/A'}
                         </span>
-                      </td>
-                      <td>
-                        <div className="table-actions-3d">
-                          <select 
-                            value={produto.status} 
-                            onChange={(e) => alterarStatus(produto.id, e.target.value)}
-                            style={{
-                              padding: '0.5rem 0.75rem',
-                              borderRadius: '8px',
-                              border: '2px solid #e2e8f0',
-                              fontSize: '0.875rem',
-                              fontWeight: '600',
-                              marginRight: '0.5rem',
-                              cursor: 'pointer',
-                              background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
-                              boxShadow: '0 2px 4px rgba(0,0,0,0.05)',
-                              transition: 'all 0.3s'
-                            }}
-                            onFocus={(e) => e.target.style.borderColor = '#2563EB'}
-                            onBlur={(e) => e.target.style.borderColor = '#e2e8f0'}
-                          >
-                            <option value="disponivel">Disponível</option>
-                            <option value="vendido">Vendido</option>
-                            <option value="reservado">Reservado</option>
-                            <option value="manutencao">Manutenção</option>
-                          </select>
-                          
-                          <button onClick={() => editarProduto(produto)} className="btn-icon-3d btn-edit-3d" title="Editar">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-                              <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
-                            </svg>
-                          </button>
-                          <button onClick={() => deletarProduto(produto.id, produto.nome)} className="btn-icon-3d btn-delete-3d" title="Excluir">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                              <polyline points="3 6 5 6 21 6"></polyline>
-                              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                            </svg>
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
+                      </div>
+                    </div>
+
+                    <div className="produto-acoes-mobile">
+                      <select 
+                        value={produto.status} 
+                        onChange={(e) => alterarStatus(produto.id, e.target.value)}
+                      >
+                        <option value="disponivel">Disponível</option>
+                        <option value="vendido">Vendido</option>
+                        <option value="reservado">Reservado</option>
+                        <option value="manutencao">Manutenção</option>
+                      </select>
+                      <button onClick={() => editarProduto(produto)} className="btn-edit-mobile">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                          <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                        </svg>
+                      </button>
+                      <button onClick={() => deletarProduto(produto.id, produto.nome)} className="btn-delete-mobile">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <polyline points="3 6 5 6 21 6"></polyline>
+                          <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </>
         )}
       </div>
     </div>

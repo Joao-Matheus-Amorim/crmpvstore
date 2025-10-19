@@ -481,3 +481,175 @@
   color: #64748b;
   font-size: 1.1rem;
 }
+/* ============================================
+   RESPONSIVIDADE MOBILE - TABELA DE PRODUTOS
+   ============================================ */
+
+@media (max-width: 768px) {
+  /* Esconde tabela no mobile */
+  .table-container-3d {
+    overflow-x: visible;
+  }
+
+  .table-3d {
+    display: none;
+  }
+
+  /* Cards mobile para produtos */
+  .produtos-mobile-cards {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .produto-card-mobile {
+    background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+    border: 2px solid #e2e8f0;
+    border-radius: 16px;
+    padding: 1.25rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s;
+  }
+
+  .produto-card-mobile:active {
+    transform: scale(0.98);
+  }
+
+  .produto-header-mobile {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #e2e8f0;
+  }
+
+  .produto-info-mobile h4 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin-bottom: 0.25rem;
+  }
+
+  .produto-info-mobile p {
+    font-size: 0.85rem;
+    color: #64748b;
+  }
+
+  .produto-status-mobile {
+    padding: 0.4rem 0.8rem;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+  }
+
+  .produto-detalhes-mobile {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+  }
+
+  .produto-detalhe-item {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .produto-detalhe-label {
+    font-size: 0.7rem;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 0.25rem;
+    font-weight: 600;
+  }
+
+  .produto-detalhe-valor {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #1e293b;
+  }
+
+  .produto-acoes-mobile {
+    display: flex;
+    gap: 0.5rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid #e2e8f0;
+  }
+
+  .produto-acoes-mobile select {
+    flex: 1;
+    padding: 0.65rem;
+    border-radius: 10px;
+    border: 2px solid #e2e8f0;
+    font-size: 0.85rem;
+    font-weight: 600;
+    background: white;
+  }
+
+  .produto-acoes-mobile button {
+    padding: 0.65rem;
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s;
+  }
+
+  .btn-edit-mobile {
+    background: linear-gradient(135deg, #2563EB 0%, #1d4ed8 100%);
+    color: white;
+    min-width: 45px;
+  }
+
+  .btn-delete-mobile {
+    background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%);
+    color: white;
+    min-width: 45px;
+  }
+
+  .btn-edit-mobile:active {
+    transform: scale(0.95);
+  }
+
+  .btn-delete-mobile:active {
+    transform: scale(0.95);
+  }
+
+  /* Ajustes de formulário mobile */
+  .form-row-3d {
+    flex-direction: column;
+  }
+
+  .form-group-3d {
+    width: 100%;
+  }
+
+  .dashboard-header-3d {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .dashboard-header-3d button {
+    width: 100%;
+  }
+
+  .stats-grid-3d {
+    grid-template-columns: 1fr;
+  }
+
+  .search-header-3d {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .search-input-3d {
+    width: 100%;
+  }
+}
+
+@media (min-width: 769px) {
+  .produtos-mobile-cards {
+    display: none;
+  }
+}
