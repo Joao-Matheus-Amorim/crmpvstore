@@ -9,13 +9,12 @@ export default function Clientes() {
   const [editando, setEditando] = useState(null);
   const [filtro, setFiltro] = useState('');
   
-  // Estado inicial do formulário alinhado com a tabela
   const estadoInicialForm = {
     nome: '',
     cpf: '',
     email: '',
     celular: '',
-    tipo: 'pessoa_fisica', // Valor padrão alinhado com o banco
+    tipo: 'pessoa_fisica',
     endereco_rua: '',
     endereco_numero: '',
     bairro: '',
@@ -53,7 +52,7 @@ export default function Clientes() {
         .from('clients')
         .select('*')
         .eq('owner_id', ownerId)
-        .order('nome', { ascending: true });
+        .order('created_at', { ascending: false });
 
       if (error) throw error;
       setClientes(data || []);
@@ -71,16 +70,7 @@ export default function Clientes() {
       alert('❌ Nome deve ter no mínimo 3 caracteres!');
       return;
     }
-    if (!formData.cpf || formData.cpf.trim().length < 11) {
-      alert('❌ CPF é obrigatório! Digite no mínimo 11 dígitos.');
-      return;
-    }
-    if (!formData.celular || formData.celular.trim().length < 10) {
-      alert('❌ Telefone é obrigatório! Digite no mínimo 10 dígitos.');
-      return;
-    }
 
-    // Objeto de dados alinhado com as colunas da tabela
     const clienteData = {
       tipo: formData.tipo,
       nome: formData.nome.trim(),
@@ -96,27 +86,17 @@ export default function Clientes() {
     };
 
     try {
+      let error;
       if (editando) {
-        // Atualiza um cliente existente
-        const { error } = await supabase
-          .from('clients')
-          .update(clienteData)
-          .eq('id', editando.id);
-        
-        if (error) throw error;
-        alert('✅ Cliente atualizado com sucesso!');
+        ({ error } = await supabase.from('clients').update(clienteData).eq('id', editando.id));
+        if (!error) alert('✅ Cliente atualizado com sucesso!');
       } else {
-        // Insere um novo cliente
-        const { error } = await supabase
-          .from('clients')
-          .insert({
-            ...clienteData,
-            owner_id: ownerId
-          });
-        
-        if (error) throw error;
-        alert('✅ Cliente cadastrado com sucesso!');
+        ({ error } = await supabase.from('clients').insert({ ...clienteData, owner_id: ownerId }));
+        if (!error) alert('✅ Cliente cadastrado com sucesso!');
       }
+      
+      if (error) throw error;
+      
       resetForm();
       carregarClientes();
     } catch (err) {
@@ -140,7 +120,6 @@ export default function Clientes() {
 
   function editarCliente(cliente) {
     setEditando(cliente);
-    // Preenche o formulário com os dados corretos do cliente
     setFormData({
       nome: cliente.nome || '',
       cpf: cliente.cpf || '',
@@ -188,7 +167,6 @@ export default function Clientes() {
 
   return (
     <div className="dashboard-professional">
-      {/* Header */}
       <div className="dashboard-header-pro">
         <div>
           <h1 className="page-title">Gestão de Clientes</h1>
@@ -201,73 +179,110 @@ export default function Clientes() {
         </div>
       </div>
 
-      {/* Stats */}
       <div className="stats-grid" style={{ marginBottom: 'var(--spacing-xl)' }}>
-        {/* Cards de estatísticas aqui... */}
+        {/* ... Seus cards de estatísticas ... */}
       </div>
 
-      {/* Formulário de Cadastro/Edição */}
       {mostrarForm && (
         <div className="stat-card-pro" style={{ marginBottom: 'var(--spacing-xl)' }}>
           <div className="stat-card-border" style={{ background: 'var(--gradient-blue)' }}></div>
           <h3 className="section-title" style={{ marginBottom: 'var(--spacing-lg)' }}>
             {editando ? 'Editar Cliente' : 'Cadastrar Novo Cliente'}
           </h3>
-          <form onSubmit={salvarCliente} className="form-professional" autoComplete="off">
-            {/* Seção de Informações Pessoais */}
+          {/* A estratégia anti-autofill começa aqui */}
+          <form onSubmit={salvarCliente} className="form-professional" autoComplete="nope">
             <div className="form-section">
               <h4 className="form-section-title">Informações Pessoais</h4>
-              {/* Nome e CPF */}
               <div className="form-row">
                 <div className="form-group">
                   <label className="form-label">Nome Completo *</label>
-                  <input type="text" value={formData.nome} onChange={(e) => setFormData({...formData, nome: e.target.value})} required minLength="3" autoComplete="off" name="new-customer-name" />
+                  <input
+                    type="text"
+                    value={formData.nome}
+                    onChange={(e) => setFormData({...formData, nome: e.target.value})}
+                    required
+                    minLength="3"
+                    autoComplete="nope"
+                    name={`customer_name_${editando ? editando.id : 'new'}`}
+                  />
                 </div>
                 <div className="form-group">
                   <label className="form-label">CPF *</label>
-                  <input type="text" value={formData.cpf} onChange={(e) => setFormData({...formData, cpf: e.target.value})} required minLength="11" autoComplete="off" name="new-customer-cpf" />
+                  <input
+                    type="text"
+                    value={formData.cpf}
+                    onChange={(e) => setFormData({...formData, cpf: e.target.value})}
+                    required
+                    minLength="11"
+                    autoComplete="nope"
+                    name={`customer_cpf_${editando ? editando.id : 'new'}`}
+                  />
                 </div>
               </div>
-              {/* Email e Celular */}
               <div className="form-row">
-                <div className="form-group">
-                  <label className="form-label">Email</label>
-                  <input type="email" value={formData.email} onChange={(e) => setFormData({...formData, email: e.target.value})} autoComplete="off" name="new-customer-email" />
-                </div>
-                <div className="form-group">
-                  <label className="form-label">Celular *</label>
-                  <input type="tel" value={formData.celular} onChange={(e) => setFormData({...formData, celular: e.target.value})} required minLength="10" autoComplete="off" name="new-customer-phone" />
-                </div>
+                 <div className="form-group">
+                   <label className="form-label">Email</label>
+                   <input
+                     type="email"
+                     value={formData.email}
+                     onChange={(e) => setFormData({...formData, email: e.target.value})}
+                     autoComplete="nope"
+                     name={`customer_email_${editando ? editando.id : 'new'}`}
+                   />
+                 </div>
+                 <div className="form-group">
+                   <label className="form-label">Celular *</label>
+                   <input
+                     type="tel"
+                     value={formData.celular}
+                     onChange={(e) => setFormData({...formData, celular: e.target.value})}
+                     required
+                     minLength="10"
+                     autoComplete="nope"
+                     name={`customer_phone_${editando ? editando.id : 'new'}`}
+                   />
+                 </div>
               </div>
-              {/* Tipo de Cliente */}
               <div className="form-group">
                 <label className="form-label">Tipo de Cliente *</label>
-                <select value={formData.tipo} onChange={(e) => setFormData({...formData, tipo: e.target.value})} required>
+                <select
+                  value={formData.tipo}
+                  onChange={(e) => setFormData({...formData, tipo: e.target.value})}
+                  required
+                  autoComplete="nope"
+                >
                   <option value="pessoa_fisica">Pessoa Física</option>
                   <option value="pessoa_juridica">Pessoa Jurídica</option>
                 </select>
               </div>
             </div>
-            {/* Seção de Endereço */}
+            
             <div className="form-section">
               <h4 className="form-section-title">Endereço</h4>
-              {/* Rua e Número */}
               <div className="form-row">
                 <div className="form-group" style={{ flex: 3 }}>
                   <label className="form-label">Logradouro</label>
-                  <input type="text" value={formData.endereco_rua} onChange={(e) => setFormData({...formData, endereco_rua: e.target.value})} autoComplete="off" name="new-customer-street" />
+                  <input
+                    type="text"
+                    value={formData.endereco_rua}
+                    onChange={(e) => setFormData({...formData, endereco_rua: e.target.value})}
+                    autoComplete="nope"
+                    name={`customer_street_${editando ? editando.id : 'new'}`}
+                  />
                 </div>
                 <div className="form-group" style={{ flex: 1 }}>
                   <label className="form-label">Número</label>
-                  <input type="text" value={formData.endereco_numero} onChange={(e) => setFormData({...formData, endereco_numero: e.target.value})} autoComplete="off" name="new-customer-number" />
+                  <input
+                    type="text"
+                    value={formData.endereco_numero}
+                    onChange={(e) => setFormData({...formData, endereco_numero: e.target.value})}
+                    autoComplete="nope"
+                    name={`customer_number_${editando ? editando.id : 'new'}`}
+                  />
                 </div>
               </div>
-              {/* Bairro, Cidade, Estado, CEP */}
-              <div className="form-row">
-                {/* ...outros inputs para bairro, cidade, uf, cep... */}
-              </div>
             </div>
-            {/* Botões de Ação */}
+
             <div className="form-actions">
               <button type="submit" className="btn-primary" disabled={!ownerId}>
                 {editando ? 'Atualizar Cliente' : 'Salvar Cliente'}
@@ -280,12 +295,22 @@ export default function Clientes() {
         </div>
       )}
 
-      {/* Lista de Clientes */}
       <div className="stat-card-pro">
-        {/* ...cabeçalho da lista e campo de busca... */}
+        <div className="search-header">
+            <h3 className="section-title">Lista de Clientes ({clientesFiltrados.length})</h3>
+            <div className="search-box">
+                <input
+                    type="text"
+                    placeholder="Buscar por nome, CPF, email ou telefone..."
+                    value={filtro}
+                    onChange={(e) => setFiltro(e.target.value)}
+                    className="search-input-pro"
+                />
+            </div>
+        </div>
         {clientesFiltrados.length === 0 ? (
           <div className="empty-state">
-            {/* ...estado vazio... */}
+            <h4 className="empty-title">Nenhum cliente encontrado</h4>
           </div>
         ) : (
           <div className="table-container">
@@ -311,10 +336,10 @@ export default function Clientes() {
                         {cliente.tipo === 'pessoa_fisica' ? 'Pessoa Física' : 'Pessoa Jurídica'}
                       </span>
                     </td>
-                    <td>{cliente.cidade}/{cliente.uf}</td>
+                    <td>{cliente.cidade && cliente.uf ? `${cliente.cidade}/${cliente.uf}` : 'N/A'}</td>
                     <td>
-                      <button onClick={() => editarCliente(cliente)}>Editar</button>
-                      <button onClick={() => deletarCliente(cliente.id)}>Excluir</button>
+                      <button onClick={() => editarCliente(cliente)} className="btn-icon btn-edit-icon">Editar</button>
+                      <button onClick={() => deletarCliente(cliente.id)} className="btn-icon btn-danger-icon">Excluir</button>
                     </td>
                   </tr>
                 ))}
