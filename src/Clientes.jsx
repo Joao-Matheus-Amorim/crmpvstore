@@ -60,7 +60,6 @@ export default function Clientes() {
   async function salvarCliente(e) {
     e.preventDefault()
     
-    // ========== VALIDAÇÃO RIGOROSA ==========
     if (!formData.nome || formData.nome.trim().length < 3) {
       alert('❌ Nome deve ter no mínimo 3 caracteres!')
       return
@@ -216,7 +215,6 @@ export default function Clientes() {
         </div>
       </div>
 
-      {/* Stats dos Clientes */}
       <div className="stats-grid" style={{ marginBottom: 'var(--spacing-xl)' }}>
         <div className="stat-card-pro" style={{ animationDelay: '0s' }}>
           <div className="stat-card-border" style={{ background: 'var(--gradient-blue)' }}></div>
@@ -263,7 +261,7 @@ export default function Clientes() {
             {editando ? 'Editar Cliente' : 'Cadastrar Novo Cliente'}
           </h3>
 
-          <form onSubmit={salvarCliente} className="form-professional">
+          <form onSubmit={salvarCliente} className="form-professional" autoComplete="off">
             <div className="form-section">
               <h4 className="form-section-title">Informações Pessoais</h4>
               
@@ -277,6 +275,8 @@ export default function Clientes() {
                     placeholder="Digite o nome completo"
                     required
                     minLength="3"
+                    autoComplete="off"
+                    name="customer-name"
                   />
                 </div>
 
@@ -289,6 +289,8 @@ export default function Clientes() {
                     placeholder="000.000.000-00"
                     required
                     minLength="11"
+                    autoComplete="off"
+                    name="customer-cpf"
                   />
                 </div>
               </div>
@@ -301,6 +303,8 @@ export default function Clientes() {
                     value={formData.email}
                     onChange={(e) => setFormData({...formData, email: e.target.value})}
                     placeholder="email@exemplo.com"
+                    autoComplete="off"
+                    name="customer-email"
                   />
                 </div>
 
@@ -313,6 +317,8 @@ export default function Clientes() {
                     placeholder="(00) 00000-0000"
                     required
                     minLength="10"
+                    autoComplete="off"
+                    name="customer-phone"
                   />
                 </div>
               </div>
@@ -323,6 +329,7 @@ export default function Clientes() {
                   value={formData.tipo}
                   onChange={(e) => setFormData({...formData, tipo: e.target.value})}
                   required
+                  autoComplete="off"
                 >
                   <option value="comprador">Comprador</option>
                   <option value="vendedor">Vendedor</option>
@@ -342,6 +349,8 @@ export default function Clientes() {
                     value={formData.endereco}
                     onChange={(e) => setFormData({...formData, endereco: e.target.value})}
                     placeholder="Rua, Avenida, etc."
+                    autoComplete="off"
+                    name="customer-street"
                   />
                 </div>
 
@@ -352,6 +361,8 @@ export default function Clientes() {
                     value={formData.numero}
                     onChange={(e) => setFormData({...formData, numero: e.target.value})}
                     placeholder="Nº"
+                    autoComplete="off"
+                    name="customer-number"
                   />
                 </div>
               </div>
@@ -364,6 +375,8 @@ export default function Clientes() {
                     value={formData.bairro}
                     onChange={(e) => setFormData({...formData, bairro: e.target.value})}
                     placeholder="Bairro"
+                    autoComplete="off"
+                    name="customer-neighborhood"
                   />
                 </div>
 
@@ -374,6 +387,8 @@ export default function Clientes() {
                     value={formData.cidade}
                     onChange={(e) => setFormData({...formData, cidade: e.target.value})}
                     placeholder="Cidade"
+                    autoComplete="off"
+                    name="customer-city"
                   />
                 </div>
 
@@ -385,6 +400,8 @@ export default function Clientes() {
                     onChange={(e) => setFormData({...formData, estado: e.target.value})}
                     placeholder="UF"
                     maxLength="2"
+                    autoComplete="off"
+                    name="customer-state"
                   />
                 </div>
 
@@ -395,6 +412,8 @@ export default function Clientes() {
                     value={formData.cep}
                     onChange={(e) => setFormData({...formData, cep: e.target.value})}
                     placeholder="00000-000"
+                    autoComplete="off"
+                    name="customer-zip"
                   />
                 </div>
               </div>
