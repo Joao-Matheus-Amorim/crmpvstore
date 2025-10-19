@@ -2605,7 +2605,7 @@ textarea::placeholder {
     width: 100%;
   }
 }/* ============================================
-   LOGO GIGANTE NO BACKGROUND - VERCEL
+   LOGO GIGANTE NO BACKGROUND - VERCEL (CORRIGIDO PARA JPG)
    ============================================ */
 
 body::after {
@@ -2616,7 +2616,7 @@ body::after {
   transform: translate(-50%, -50%) rotate(-15deg) !important;
   width: 1400px !important;
   height: 1400px !important;
-  background-image: url('/logo.png') !important;
+  background-image: url('/logo.jpg') !important;  /* ← MUDOU PARA .JPG */
   background-size: contain !important;
   background-repeat: no-repeat !important;
   background-position: center !important;
@@ -2643,7 +2643,7 @@ body::after {
   right: -15% !important;
   width: 700px !important;
   height: 700px !important;
-  background-image: url('/logo.png') !important;
+  background-image: url('/logo.jpg') !important;  /* ← MUDOU PARA .JPG */
   background-size: contain !important;
   background-repeat: no-repeat !important;
   opacity: 0.06 !important;
@@ -2659,7 +2659,7 @@ body::after {
   left: -10% !important;
   width: 600px !important;
   height: 600px !important;
-  background-image: url('/logo.png') !important;
+  background-image: url('/logo.jpg') !important;  /* ← MUDOU PARA .JPG */
   background-size: contain !important;
   background-repeat: no-repeat !important;
   opacity: 0.06 !important;
