@@ -70,6 +70,75 @@ export default function Configuracoes() {
     }
   }
 
+  // ✅ FUNÇÃO DE UPLOAD DA LOGO
+  async function handleLogoUpload(e) {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    // Validar tamanho (2MB)
+    if (file.size > 2 * 1024 * 1024) {
+      setMensagem({ tipo: 'erro', texto: 'Imagem muito grande. Máximo 2MB' })
+      setTimeout(() => setMensagem(null), 3000)
+      return
+    }
+
+    // Validar formato
+    const validFormats = ['image/png', 'image/jpeg', 'image/jpg', 'image/webp']
+    if (!validFormats.includes(file.type)) {
+      setMensagem({ tipo: 'erro', texto: 'Formato inválido. Use PNG, JPG ou WEBP' })
+      setTimeout(() => setMensagem(null), 3000)
+      return
+    }
+
+    setSalvando(true)
+    try {
+      // Gerar nome único para o arquivo
+      const fileExt = file.name.split('.').pop()
+      const fileName = `logo-${ownerId}-${Date.now()}.${fileExt}`
+
+      // Deletar logo antiga se existir
+      if (config.logo_url && config.logo_url.includes('supabase')) {
+        const oldPath = config.logo_url.split('logos/')[1]
+        if (oldPath) {
+          await supabase.storage.from('logos').remove([oldPath])
+        }
+      }
+
+      // Upload do arquivo
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from('logos')
+        .upload(fileName, file, {
+          cacheControl: '3600',
+          upsert: false
+        })
+
+      if (uploadError) throw uploadError
+
+      // Obter URL pública
+      const { data: { publicUrl } } = supabase.storage
+        .from('logos')
+        .getPublicUrl(fileName)
+
+      // Atualizar estado
+      setConfig({
+        ...config,
+        logo_url: publicUrl
+      })
+
+      setMensagem({ tipo: 'sucesso', texto: 'Logo enviada com sucesso!' })
+      setTimeout(() => setMensagem(null), 3000)
+
+    } catch (err) {
+      console.error('Erro no upload:', err)
+      setMensagem({ tipo: 'erro', texto: 'Erro ao fazer upload da logo' })
+      setTimeout(() => setMensagem(null), 3000)
+    } finally {
+      setSalvando(false)
+      // Limpar o input
+      e.target.value = ''
+    }
+  }
+
   async function salvarConfiguracoes(e) {
     e.preventDefault()
     setSalvando(true)
@@ -435,6 +504,7 @@ export default function Configuracoes() {
             </h3>
 
             <div className="form-professional">
+              {/* ✅ SEÇÃO DE LOGOTIPO COM UPLOAD */}
               <div className="form-section">
                 <h4 className="form-section-title">
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -445,29 +515,87 @@ export default function Configuracoes() {
                   Logotipo
                 </h4>
                 
+                {/* Botão de Upload */}
                 <div className="form-group">
-                  <label className="form-label">URL do Logo</label>
+                  <label className="form-label">Fazer Upload da Logo</label>
+                  <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                    <input
+                      type="file"
+                      accept="image/png,image/jpeg,image/jpg,image/webp"
+                      onChange={handleLogoUpload}
+                      style={{ display: 'none' }}
+                      id="logo-upload"
+                      disabled={salvando}
+                    />
+                    <label 
+                      htmlFor="logo-upload" 
+                      className="btn-secondary" 
+                      style={{ 
+                        cursor: salvando ? 'not-allowed' : 'pointer', 
+                        opacity: salvando ? 0.6 : 1,
+                        margin: 0
+                      }}
+                    >
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                        <polyline points="17 8 12 3 7 8"/>
+                        <line x1="12" y1="3" x2="12" y2="15"/>
+                      </svg>
+                      <span>Selecionar Imagem</span>
+                    </label>
+                    {salvando && (
+                      <span style={{ color: '#64748b', fontSize: '0.9rem' }}>
+                        Enviando...
+                      </span>
+                    )}
+                  </div>
+                  <small>Formatos aceitos: PNG, JPG, JPEG, WEBP (máx. 2MB)</small>
+                </div>
+
+                {/* OU URL Manual */}
+                <div className="form-group" style={{ marginTop: '1.5rem' }}>
+                  <label className="form-label">Ou Cole uma URL</label>
                   <input
                     type="url"
                     value={config.logo_url}
                     onChange={(e) => setConfig({...config, logo_url: e.target.value})}
                     placeholder="https://exemplo.com/logo.png"
                   />
-                  <small>Cole o link direto da imagem (PNG, JPG) ou faça upload no Imgur/ImgBB</small>
+                  <small>Cole o link direto da imagem caso prefira não fazer upload</small>
                 </div>
 
+                {/* Pré-visualização da Logo */}
                 {config.logo_url && (
                   <div className="logo-preview">
                     <p>Pré-visualização:</p>
                     <img 
                       src={config.logo_url} 
-                      alt="Logo" 
-                      onError={(e) => e.target.style.display = 'none'}
+                      alt="Logo da empresa" 
+                      onError={(e) => {
+                        e.target.style.display = 'none'
+                        setMensagem({ tipo: 'erro', texto: 'Erro ao carregar imagem. Verifique a URL.' })
+                        setTimeout(() => setMensagem(null), 3000)
+                      }}
                     />
+                    {config.logo_url && (
+                      <button
+                        type="button"
+                        onClick={() => setConfig({...config, logo_url: ''})}
+                        className="btn-secondary"
+                        style={{ marginTop: '1rem' }}
+                      >
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <polyline points="3 6 5 6 21 6"/>
+                          <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                        </svg>
+                        Remover Logo
+                      </button>
+                    )}
                   </div>
                 )}
               </div>
 
+              {/* Resto da seção de aparência (cores) */}
               <div className="form-section">
                 <h4 className="form-section-title">
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">

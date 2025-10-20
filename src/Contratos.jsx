@@ -41,36 +41,95 @@ export default function Contratos() {
       const { data: { user } } = await supabase.auth.getUser()
       const { data } = await supabase.from('owners').select('id').eq('user_id', user.id).single()
       setOwnerId(data?.id)
+      console.log('✅ Owner ID encontrado:', data?.id)
     } catch (err) {
       console.error('Erro ao buscar owner:', err)
     }
   }
 
+  // ✅ FUNÇÃO ATUALIZADA COM BUSCA SEPARADA
   async function carregarContratos() {
+    if (!ownerId) {
+      console.warn('⚠️ ownerId não definido')
+      return
+    }
+
+    console.log('🔍 Carregando contratos para owner:', ownerId)
+    
     try {
-      const { data, error } = await supabase
+      // Primeiro buscar contratos básicos
+      const { data: contratosData, error: contratosError } = await supabase
         .from('contracts')
-        .select(`
-          *,
-          clients (nome_completo, nome_fantasia, cpf, cnpj, email, celular, telefone, endereco, cidade, uf),
-          products (nome, marca, modelo, cor, armazenamento, imei, estado_conservacao, preco_venda_centavos)
-        `)
+        .select('*')
         .eq('owner_id', ownerId)
         .order('created_at', { ascending: false })
 
-      if (!error) setContratos(data || [])
+      console.log('📊 Resultado contratos:', { contratosData, contratosError })
+
+      if (contratosError) {
+        console.error('❌ Erro ao carregar contratos:', contratosError)
+        setContratos([])
+        setCarregando(false)
+        return
+      }
+
+      if (!contratosData || contratosData.length === 0) {
+        console.log('⚠️ Nenhum contrato encontrado')
+        setContratos([])
+        setCarregando(false)
+        return
+      }
+
+      // Buscar clientes e produtos relacionados
+      const clientIds = [...new Set(contratosData.map(c => c.client_id).filter(Boolean))]
+      const productIds = [...new Set(contratosData.map(c => c.product_id).filter(Boolean))]
+
+      console.log('📋 IDs para buscar:', { clientIds, productIds })
+
+      const promises = []
+      
+      if (clientIds.length > 0) {
+        promises.push(supabase.from('clients').select('*').in('id', clientIds))
+      } else {
+        promises.push(Promise.resolve({ data: [] }))
+      }
+
+      if (productIds.length > 0) {
+        promises.push(supabase.from('products').select('*').in('id', productIds))
+      } else {
+        promises.push(Promise.resolve({ data: [] }))
+      }
+
+      const [clientsResult, productsResult] = await Promise.all(promises)
+
+      console.log('👥 Clientes encontrados:', clientsResult.data?.length || 0)
+      console.log('📦 Produtos encontrados:', productsResult.data?.length || 0)
+
+      // Combinar dados
+      const contratosCompletos = contratosData.map(contrato => ({
+        ...contrato,
+        clients: clientsResult.data?.find(c => c.id === contrato.client_id) || null,
+        products: productsResult.data?.find(p => p.id === contrato.product_id) || null
+      }))
+
+      console.log(`✅ ${contratosCompletos.length} contratos carregados com sucesso`)
+      setContratos(contratosCompletos)
+
     } catch (err) {
-      console.error('Erro ao carregar contratos:', err)
+      console.error('💥 Erro crítico ao carregar contratos:', err)
+      setContratos([])
     } finally {
       setCarregando(false)
     }
   }
 
   async function carregarClientes() {
+    if (!ownerId) return
+    
     try {
       const { data, error } = await supabase
         .from('clients')
-        .select('id, nome_completo, nome_fantasia, email')
+        .select('id, nome_completo, nome_fantasia, email, tipo')
         .eq('owner_id', ownerId)
         .order('nome_completo')
 
@@ -81,6 +140,8 @@ export default function Contratos() {
   }
 
   async function carregarProdutos() {
+    if (!ownerId) return
+    
     try {
       const { data, error } = await supabase
         .from('products')
@@ -127,7 +188,6 @@ export default function Contratos() {
           })
         
         if (!error) {
-          // Atualizar status do produto para vendido
           if (formData.product_id && formData.tipo === 'venda') {
             await supabase
               .from('products')
@@ -154,7 +214,6 @@ export default function Contratos() {
       try {
         await supabase.from('contracts').delete().eq('id', id)
         
-        // Retornar produto para disponível
         if (produtoId) {
           await supabase
             .from('products')
@@ -179,7 +238,6 @@ export default function Contratos() {
         .update({ status: novoStatus })
         .eq('id', id)
       
-      // Se cancelar, retornar produto para disponível
       if (novoStatus === 'cancelado' && produtoId) {
         await supabase
           .from('products')
@@ -196,12 +254,10 @@ export default function Contratos() {
     }
   }
 
-  // ==================== FUNÇÃO DE GERAÇÃO DE PDF ====================
   async function gerarDocumentosPDF(contrato) {
     try {
       setCarregando(true)
       
-      // Buscar dados completos
       const [clienteData, produtoData, lojaData] = await Promise.all([
         supabase.from('clients').select('*').eq('id', contrato.client_id).single(),
         supabase.from('products').select('*').eq('id', contrato.product_id).single(),
@@ -234,7 +290,6 @@ export default function Contratos() {
         prazo_garantia_meses: 12
       }
 
-      // Menu de seleção
       const opcao = prompt(
         '📄 GERAR DOCUMENTOS PDF\n\n' +
         '1 - Recibo de Venda\n' +
@@ -251,13 +306,11 @@ export default function Contratos() {
       if (opcao === '1' || opcao === '3') {
         const pdfRecibo = await gerarRecibo(contrato, cliente, produto, loja)
         pdfRecibo.save(`Recibo_Venda_${contrato.id.slice(0, 8)}.pdf`)
-        console.log('✅ Recibo gerado com sucesso!')
       }
 
       if (opcao === '2' || opcao === '3') {
         const pdfGarantia = await gerarGarantia(contrato, cliente, produto, loja)
         pdfGarantia.save(`Termo_Garantia_${contrato.id.slice(0, 8)}.pdf`)
-        console.log('✅ Garantia gerada com sucesso!')
       }
 
       if (opcao === '3') {
@@ -270,7 +323,7 @@ export default function Contratos() {
 
     } catch (err) {
       console.error('Erro ao gerar PDF:', err)
-      alert('❌ Erro ao gerar PDF:\n\n' + err.message + '\n\nVerifique o console para mais detalhes.')
+      alert('❌ Erro ao gerar PDF:\n\n' + err.message)
     } finally {
       setCarregando(false)
     }
@@ -316,7 +369,6 @@ export default function Contratos() {
     })
   }
 
-  // Auto-preencher valor quando selecionar produto
   function handleProdutoChange(produtoId) {
     const produtoSelecionado = produtos.find(p => p.id === produtoId)
     if (produtoSelecionado && !formData.valor_centavos) {
@@ -364,13 +416,15 @@ export default function Contratos() {
           <p className="page-subtitle">Controle de vendas, compras e geração de documentos</p>
         </div>
         <div className="header-actions">
-          <button className="btn-primary" onClick={() => setMostrarForm(!mostrarForm)}>
+          <button className="btn-primary" onClick={() => {
+            if (!mostrarForm) resetForm()
+            setMostrarForm(!mostrarForm)
+          }}>
             {mostrarForm ? 'Cancelar' : 'Novo Contrato'}
           </button>
         </div>
       </div>
 
-      {/* Stats dos Contratos */}
       <div className="stats-grid" style={{ marginBottom: 'var(--spacing-xl)' }}>
         <div className="stat-card-pro" style={{ animationDelay: '0s' }}>
           <div className="stat-card-border" style={{ background: 'var(--gradient-blue)' }}></div>
@@ -450,6 +504,11 @@ export default function Contratos() {
                       </option>
                     ))}
                   </select>
+                  {clientes.length === 0 && (
+                    <small style={{ color: '#E63946', marginTop: '4px', display: 'block' }}>
+                      ⚠️ Nenhum cliente cadastrado. Cadastre um cliente primeiro!
+                    </small>
+                  )}
                 </div>
 
                 <div className="form-group">
@@ -507,12 +566,12 @@ export default function Contratos() {
                     type="number"
                     value={formData.valor_centavos}
                     onChange={(e) => setFormData({...formData, valor_centavos: e.target.value})}
-                    placeholder="Ex: 200000 (R$ 2.000,00)"
+                    placeholder="Ex: 580000 = R$ 5.800,00"
                     required
                     min="0"
                   />
                   {formData.valor_centavos && (
-                    <small style={{ color: 'var(--text-tertiary)', fontSize: '12px', marginTop: '4px' }}>
+                    <small style={{ color: 'var(--text-tertiary)', fontSize: '12px', marginTop: '4px', display: 'block' }}>
                       = {formatarMoeda(parseInt(formData.valor_centavos))}
                     </small>
                   )}
@@ -528,10 +587,9 @@ export default function Contratos() {
                     <option value="">Selecione...</option>
                     <option value="dinheiro">Dinheiro</option>
                     <option value="pix">PIX</option>
-                    <option value="cartao_credito">Cartão de Crédito</option>
-                    <option value="cartao_debito">Cartão de Débito</option>
-                    <option value="transferencia">Transferência</option>
-                    <option value="boleto">Boleto</option>
+                    <option value="debito">Débito</option>
+                    <option value="credito_parcelado">Crédito Parcelado</option>
+                    <option value="outro">Outro</option>
                   </select>
                 </div>
 
@@ -543,12 +601,13 @@ export default function Contratos() {
                     onChange={(e) => setFormData({...formData, parcelas: e.target.value})}
                     min="1"
                     max="24"
+                    placeholder="1"
                   />
                 </div>
               </div>
 
               {formData.valor_centavos && formData.parcelas > 1 && (
-                <div className="installment-info" style={{ 
+                <div style={{ 
                   padding: '12px', 
                   background: '#E6F2FF', 
                   borderRadius: '8px', 
@@ -662,7 +721,7 @@ export default function Contratos() {
                         )}
                       </td>
                       <td>
-                        <span className={`badge-tipo badge-${contrato.tipo}`} style={{
+                        <span style={{
                           padding: '4px 12px',
                           borderRadius: '6px',
                           fontSize: '12px',
@@ -685,7 +744,7 @@ export default function Contratos() {
                         </div>
                       </td>
                       <td>
-                        <span className="payment-method" style={{ fontSize: '13px', color: '#64748B', textTransform: 'capitalize' }}>
+                        <span style={{ fontSize: '13px', color: '#64748B', textTransform: 'capitalize' }}>
                           {contrato.forma_pagamento?.replace('_', ' ')}
                         </span>
                       </td>
@@ -693,7 +752,6 @@ export default function Contratos() {
                         <select
                           value={contrato.status}
                           onChange={(e) => atualizarStatus(contrato.id, e.target.value, contrato.product_id)}
-                          className={`status-select status-${contrato.status}`}
                           style={{
                             padding: '6px 12px',
                             borderRadius: '6px',
@@ -711,8 +769,7 @@ export default function Contratos() {
                         </select>
                       </td>
                       <td>
-                        <div className="table-actions" style={{ display: 'flex', gap: '8px' }}>
-                          {/* BOTÃO PDF - VERDE */}
+                        <div style={{ display: 'flex', gap: '8px' }}>
                           <button
                             onClick={() => gerarDocumentosPDF(contrato)}
                             className="btn-icon"
@@ -726,11 +783,8 @@ export default function Contratos() {
                               cursor: 'pointer',
                               display: 'flex',
                               alignItems: 'center',
-                              justifyContent: 'center',
-                              transition: 'all 0.2s ease'
+                              justifyContent: 'center'
                             }}
-                            onMouseOver={(e) => e.currentTarget.style.transform = 'translateY(-2px)'}
-                            onMouseOut={(e) => e.currentTarget.style.transform = 'translateY(0)'}
                           >
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                               <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
@@ -740,7 +794,6 @@ export default function Contratos() {
                             </svg>
                           </button>
 
-                          {/* BOTÃO EDITAR */}
                           <button
                             onClick={() => editarContrato(contrato)}
                             className="btn-icon btn-edit-icon"
@@ -751,7 +804,6 @@ export default function Contratos() {
                             </svg>
                           </button>
 
-                          {/* BOTÃO EXCLUIR */}
                           <button
                             onClick={() => deletarContrato(contrato.id, contrato.product_id)}
                             className="btn-icon btn-danger-icon"
