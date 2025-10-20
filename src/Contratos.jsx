@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { supabase } from './supabaseClient.js'
-import { gerarRecibo, gerarGarantia } from './utils/pdfGenerator.js'
+import { generateReceiptPDF, gerarGarantia, gerarContrato, gerarChecklist } from './utils/pdfGenerator.js'
 
 export default function Contratos() {
   const [contratos, setContratos] = useState([])
@@ -41,20 +41,14 @@ export default function Contratos() {
       const { data: { user } } = await supabase.auth.getUser()
       const { data } = await supabase.from('owners').select('id').eq('user_id', user.id).single()
       setOwnerId(data?.id)
-      console.log('✅ Owner ID encontrado:', data?.id)
     } catch (err) {
       console.error('Erro ao buscar owner:', err)
     }
   }
 
   async function carregarContratos() {
-    if (!ownerId) {
-      console.warn('⚠️ ownerId não definido')
-      return
-    }
+    if (!ownerId) return
 
-    console.log('🔍 Carregando contratos para owner:', ownerId)
-    
     try {
       const { data: contratosData, error: contratosError } = await supabase
         .from('contracts')
@@ -62,17 +56,13 @@ export default function Contratos() {
         .eq('owner_id', ownerId)
         .order('created_at', { ascending: false })
 
-      console.log('📊 Resultado contratos:', { contratosData, contratosError })
-
       if (contratosError) {
-        console.error('❌ Erro ao carregar contratos:', contratosError)
         setContratos([])
         setCarregando(false)
         return
       }
 
       if (!contratosData || contratosData.length === 0) {
-        console.log('⚠️ Nenhum contrato encontrado')
         setContratos([])
         setCarregando(false)
         return
@@ -80,8 +70,6 @@ export default function Contratos() {
 
       const clientIds = [...new Set(contratosData.map(c => c.client_id).filter(Boolean))]
       const productIds = [...new Set(contratosData.map(c => c.product_id).filter(Boolean))]
-
-      console.log('📋 IDs para buscar:', { clientIds, productIds })
 
       const promises = []
       
@@ -99,20 +87,16 @@ export default function Contratos() {
 
       const [clientsResult, productsResult] = await Promise.all(promises)
 
-      console.log('👥 Clientes encontrados:', clientsResult.data?.length || 0)
-      console.log('📦 Produtos encontrados:', productsResult.data?.length || 0)
-
       const contratosCompletos = contratosData.map(contrato => ({
         ...contrato,
         clients: clientsResult.data?.find(c => c.id === contrato.client_id) || null,
         products: productsResult.data?.find(p => p.id === contrato.product_id) || null
       }))
 
-      console.log(`✅ ${contratosCompletos.length} contratos carregados com sucesso`)
       setContratos(contratosCompletos)
 
     } catch (err) {
-      console.error('💥 Erro crítico ao carregar contratos:', err)
+      console.error('Erro ao carregar contratos:', err)
       setContratos([])
     } finally {
       setCarregando(false)
@@ -123,16 +107,13 @@ export default function Contratos() {
     if (!ownerId) return
     
     try {
-      // ✅ BUSCAR TAMBÉM 'nome' além de nome_completo e nome_fantasia
       const { data, error } = await supabase
         .from('clients')
-        .select('id, nome, nome_completo, nome_fantasia, email, tipo, cpf, cnpj')
+        .select('id, nome, nome_completo, nome_fantasia, email, tipo, cpf, cnpj, endereco, numero, complemento, bairro, cidade, uf, cep')
         .eq('owner_id', ownerId)
         .order('nome')
 
       if (!error) setClientes(data || [])
-      
-      console.log('✅ Clientes carregados:', data?.length || 0)
     } catch (err) {
       console.error('Erro ao carregar clientes:', err)
     }
@@ -144,7 +125,7 @@ export default function Contratos() {
     try {
       const { data, error } = await supabase
         .from('products')
-        .select('id, nome, marca, modelo, preco_venda_centavos, status')
+        .select('*')
         .eq('owner_id', ownerId)
         .eq('status', 'disponivel')
         .order('nome')
@@ -257,67 +238,101 @@ export default function Contratos() {
     try {
       setCarregando(true)
       
-      const [clienteData, produtoData, lojaData] = await Promise.all([
+      // Buscar dados completos do cliente e produto
+      const [clienteData, produtoData] = await Promise.all([
         supabase.from('clients').select('*').eq('id', contrato.client_id).single(),
-        supabase.from('products').select('*').eq('id', contrato.product_id).single(),
-        supabase.from('store_settings').select('*').eq('owner_id', ownerId).single()
+        contrato.product_id 
+          ? supabase.from('products').select('*').eq('id', contrato.product_id).single()
+          : Promise.resolve({ data: null })
       ])
 
-      if (!clienteData.data || !produtoData.data) {
-        alert('❌ Erro: dados incompletos para gerar PDF\n\nVerifique se o contrato possui cliente e produto vinculados.')
+      if (!clienteData.data) {
+        alert('❌ Erro: Cliente não encontrado.')
         setCarregando(false)
         return
       }
 
       const cliente = clienteData.data
       const produto = produtoData.data
-      const loja = lojaData.data || {
-        nome_fantasia: 'PV Store',
-        razao_social: 'Constructions, Technology And Beauty Ltda',
-        cnpj: '62.826.794/0001-02',
-        inscricao_estadual: '155.885.079.112',
-        endereco: 'Rua Forte do Cabo Norte',
-        numero: '106',
-        bairro: 'Vila Carmosina',
-        cidade: 'São Paulo',
-        uf: 'SP',
-        cep: '08.290-565',
-        telefone: '(11) 2941-3856',
-        celular: '(11) 98765-4321',
-        email: 'constechblz@gmail.com',
-        site: 'https://pvstore.com.br',
-        prazo_garantia_meses: 12
+
+      // Montar objeto no formato esperado pelo generateReceiptPDF
+      const receiptData = {
+        document_number: contrato.id.slice(0, 8),
+        buyer_name: cliente.nome || cliente.nome_completo || cliente.nome_fantasia || '',
+        buyer_cpf: cliente.cpf || cliente.cnpj || '',
+        buyer_address: cliente.endereco || '',
+        buyer_number: cliente.numero || '',
+        buyer_complement: cliente.complemento || '',
+        buyer_neighborhood: cliente.bairro || '',
+        buyer_city: cliente.cidade || '',
+        buyer_state: cliente.uf || '',
+        buyer_zip: cliente.cep || '',
+        seller_name: 'PV Store',
+        seller_cpf: '62.826.794/0001-02',
+        seller_address: 'Rua Forte do Cabo Norte',
+        seller_number: '106',
+        seller_complement: '',
+        seller_neighborhood: 'Vila Carmosina',
+        seller_city: 'São Paulo',
+        seller_state: 'SP',
+        seller_zip: '08.290-565',
+        amount_cents: contrato.valor_centavos,
+        amount_text: new Intl.NumberFormat('pt-BR', { 
+          style: 'currency', 
+          currency: 'BRL' 
+        }).format(contrato.valor_centavos / 100).replace('R$', '').trim(),
+        payment_method: contrato.forma_pagamento,
+        installments: contrato.parcelas,
+        other_payment_method: '',
+        device_brand: produto?.marca || '',
+        device_model: produto?.modelo || produto?.nome || '',
+        device_color: produto?.cor || '',
+        device_imei: produto?.imei || produto?.numero_serie || '',
+        device_storage: produto?.armazenamento || '',
+        device_ram: produto?.memoria_ram || '',
+        device_grade: '',
+        device_origin: '',
+        device_authenticity: '',
+        has_invoice: false,
+        invoice_date: '',
+        unlocked_status: '',
+        unlocked_carriers: '',
+        has_earphones: false,
+        has_charger: false,
+        has_screen_protector: false,
+        other_accessories: '',
+        sale_date: contrato.created_at 
+          ? contrato.created_at.split('T')[0] 
+          : new Date().toISOString().split('T')[0],
+        sale_location: 'São Paulo'
       }
 
       const opcao = prompt(
         '📄 GERAR DOCUMENTOS PDF\n\n' +
         '1 - Recibo de Venda\n' +
         '2 - Termo de Garantia\n' +
-        '3 - Ambos (Recibo + Garantia)\n\n' +
-        'Digite o número da opção (1, 2 ou 3):'
+        '3 - Contrato de Compra\n' +
+        '4 - Checklist\n\n' +
+        'Digite o número da opção (1, 2, 3 ou 4):'
       )
 
-      if (!opcao || !['1', '2', '3'].includes(opcao)) {
+      if (!opcao || !['1', '2', '3', '4'].includes(opcao)) {
         setCarregando(false)
         return
       }
 
-      if (opcao === '1' || opcao === '3') {
-        const pdfRecibo = await gerarRecibo(contrato, cliente, produto, loja)
-        pdfRecibo.save(`Recibo_Venda_${contrato.id.slice(0, 8)}.pdf`)
-      }
-
-      if (opcao === '2' || opcao === '3') {
-        const pdfGarantia = await gerarGarantia(contrato, cliente, produto, loja)
-        pdfGarantia.save(`Termo_Garantia_${contrato.id.slice(0, 8)}.pdf`)
-      }
-
-      if (opcao === '3') {
-        alert('✅ Documentos gerados com sucesso!\n\n📥 Recibo de Venda\n📥 Termo de Garantia\n\nVerifique sua pasta de Downloads.')
-      } else if (opcao === '1') {
+      if (opcao === '1') {
+        await generateReceiptPDF(receiptData)
         alert('✅ Recibo de Venda gerado!\n\n📥 Verifique sua pasta de Downloads.')
       } else if (opcao === '2') {
+        await gerarGarantia()
         alert('✅ Termo de Garantia gerado!\n\n📥 Verifique sua pasta de Downloads.')
+      } else if (opcao === '3') {
+        await gerarContrato()
+        alert('✅ Contrato de Compra gerado!\n\n📥 Verifique sua pasta de Downloads.')
+      } else if (opcao === '4') {
+        await gerarChecklist()
+        alert('✅ Checklist gerado!\n\n📥 Verifique sua pasta de Downloads.')
       }
 
     } catch (err) {
@@ -381,7 +396,6 @@ export default function Contratos() {
     }
   }
 
-  // ✅ FUNÇÃO PARA PEGAR O NOME DO CLIENTE (prioridade: nome > nome_completo > nome_fantasia)
   function getNomeCliente(cliente) {
     return cliente.nome || cliente.nome_completo || cliente.nome_fantasia || 'Cliente sem nome'
   }
@@ -596,7 +610,7 @@ export default function Contratos() {
                     <option value="dinheiro">Dinheiro</option>
                     <option value="pix">PIX</option>
                     <option value="debito">Débito</option>
-                    <option value="credito_parcelado">Crédito Parcelado</option>
+                    <option value="credito">Crédito Parcelado</option>
                     <option value="outro">Outro</option>
                   </select>
                 </div>
