@@ -36,21 +36,36 @@ const formatDateTime = (date) => {
   return new Date(date).toLocaleString('pt-BR')
 }
 
+// ✅ FUNÇÃO PARA PEGAR O NOME DO CLIENTE
+const getNomeCliente = (cliente) => {
+  return cliente.nome || cliente.nome_completo || cliente.nome_fantasia || 'Cliente'
+}
+
+// ✅ FUNÇÃO PARA GERAR NÚMERO DE SÉRIE ÚNICO
+const gerarNumeroSerie = (contratoId, tipo = 'REC') => {
+  const timestamp = Date.now().toString(36).toUpperCase()
+  const contratoHash = contratoId.slice(0, 8).toUpperCase()
+  const random = Math.random().toString(36).substring(2, 6).toUpperCase()
+  return `${tipo}-${contratoHash}-${timestamp}-${random}`
+}
+
 // ==================== RECIBO DE VENDA (DESIGN PROFISSIONAL) ====================
 export async function gerarRecibo(contrato, cliente, produto, loja, pagamento = null) {
   const doc = new jsPDF()
   const pageWidth = doc.internal.pageSize.width
   const pageHeight = doc.internal.pageSize.height
   const margin = 20
-  const primaryColor = [25, 118, 210] // Azul corporativo
-  const secondaryColor = [245, 247, 250] // Cinza claro
+  const primaryColor = [25, 118, 210]
+  const secondaryColor = [245, 247, 250]
+
+  // ✅ NÚMERO DE SÉRIE ÚNICO PARA O RECIBO
+  const numeroRecibo = gerarNumeroSerie(contrato.id, 'REC')
 
   // ===== CABEÇALHO COM BORDA =====
   doc.setDrawColor(220, 220, 220)
   doc.setLineWidth(0.5)
   doc.rect(margin, 15, pageWidth - 2 * margin, 45)
 
-  // Logo placeholder
   if (loja.logo_url) {
     try {
       doc.addImage(loja.logo_url, 'PNG', margin + 5, 20, 30, 30)
@@ -59,7 +74,6 @@ export async function gerarRecibo(contrato, cliente, produto, loja, pagamento = 
     }
   }
 
-  // Dados da empresa
   const startX = loja.logo_url ? margin + 42 : margin + 5
   doc.setTextColor(33, 33, 33)
   doc.setFontSize(16)
@@ -76,15 +90,15 @@ export async function gerarRecibo(contrato, cliente, produto, loja, pagamento = 
   doc.text(enderecoCompleto, startX, 41)
   doc.text(`Tel: ${formatPhone(loja.telefone || loja.celular)} | ${loja.email || ''}`, startX, 46)
 
-  // Box do número do recibo
+  // Box do número do recibo com número único
   doc.setFillColor(...secondaryColor)
   doc.roundedRect(pageWidth - margin - 50, 20, 45, 35, 3, 3, 'F')
   doc.setTextColor(...primaryColor)
   doc.setFontSize(10)
   doc.setFont('helvetica', 'bold')
   doc.text('RECIBO Nº', pageWidth - margin - 48, 28)
-  doc.setFontSize(14)
-  doc.text(String(contrato.id).slice(0, 8).toUpperCase(), pageWidth - margin - 25, 38, { align: 'center' })
+  doc.setFontSize(9)
+  doc.text(numeroRecibo.slice(0, 12), pageWidth - margin - 25, 38, { align: 'center' })
   doc.setFontSize(7)
   doc.setTextColor(100, 100, 100)
   doc.setFont('helvetica', 'normal')
@@ -99,7 +113,7 @@ export async function gerarRecibo(contrato, cliente, produto, loja, pagamento = 
   doc.setFont('helvetica', 'bold')
   doc.text('RECIBO DE VENDA', pageWidth / 2, yPos + 8, { align: 'center' })
 
-  // ===== SEÇÃO CLIENTE =====
+  // ===== SEÇÃO CLIENTE COM NOME CORRETO =====
   yPos += 20
   doc.setFillColor(...secondaryColor)
   doc.roundedRect(margin, yPos, pageWidth - 2 * margin, 8, 2, 2, 'F')
@@ -113,7 +127,8 @@ export async function gerarRecibo(contrato, cliente, produto, loja, pagamento = 
   doc.setFont('helvetica', 'normal')
   doc.setTextColor(60, 60, 60)
 
-  const clienteNome = cliente.nome_completo || cliente.nome_fantasia || 'Cliente'
+  // ✅ USAR FUNÇÃO getNomeCliente
+  const clienteNome = getNomeCliente(cliente)
   const clienteDoc = cliente.cpf || cliente.cnpj || ''
   const clienteTel = cliente.celular || cliente.telefone || ''
   const clienteEmail = cliente.email || ''
@@ -315,9 +330,11 @@ export async function gerarGarantia(contrato, cliente, produto, loja) {
   const pageWidth = doc.internal.pageSize.width
   const pageHeight = doc.internal.pageSize.height
   const margin = 20
-  const accentColor = [220, 53, 69] // Vermelho para garantia
+  const accentColor = [220, 53, 69]
 
-  // Gerar QR Code
+  // ✅ NÚMERO DE SÉRIE ÚNICO PARA GARANTIA
+  const numeroGarantia = gerarNumeroSerie(contrato.id, 'GAR')
+
   const qrData = `https://crmpvstore.vercel.app/garantia/${contrato.id}`
   const qrCode = await QRCode.toDataURL(qrData, { 
     width: 200,
@@ -328,19 +345,16 @@ export async function gerarGarantia(contrato, cliente, produto, loja) {
     }
   })
 
-  // ===== CABEÇALHO COM BORDA =====
   doc.setDrawColor(220, 220, 220)
   doc.setLineWidth(0.5)
   doc.rect(margin, 15, pageWidth - 2 * margin, 40)
 
-  // Logo
   if (loja.logo_url) {
     try {
       doc.addImage(loja.logo_url, 'PNG', margin + 5, 20, 25, 25)
     } catch (e) {}
   }
 
-  // Título principal
   doc.setTextColor(...accentColor)
   doc.setFontSize(22)
   doc.setFont('helvetica', 'bold')
@@ -351,7 +365,6 @@ export async function gerarGarantia(contrato, cliente, produto, loja) {
   doc.setTextColor(100, 100, 100)
   doc.text(`Válido por ${loja.prazo_garantia_meses || 12} meses a partir da data de compra`, pageWidth / 2, 42, { align: 'center' })
 
-  // QR Code com borda
   const qrSize = 35
   const qrX = pageWidth - margin - qrSize - 5
   const qrY = 62
@@ -363,7 +376,6 @@ export async function gerarGarantia(contrato, cliente, produto, loja) {
   doc.setTextColor(100, 100, 100)
   doc.text('Validar online', qrX + qrSize / 2, qrY + qrSize + 5, { align: 'center' })
 
-  // ===== SEÇÃO PRODUTO =====
   let yPos = 65
   doc.setFillColor(245, 247, 250)
   doc.roundedRect(margin, yPos, pageWidth - 2 * margin - qrSize - 10, 8, 2, 2, 'F')
@@ -420,9 +432,10 @@ export async function gerarGarantia(contrato, cliente, produto, loja) {
   doc.text('Nº Garantia:', margin + 3, yPos)
   doc.setFont('helvetica', 'normal')
   doc.setTextColor(...accentColor)
-  doc.text(String(contrato.id).slice(0, 12).toUpperCase(), margin + 26, yPos)
+  // ✅ USAR NÚMERO ÚNICO
+  doc.text(numeroGarantia, margin + 26, yPos)
 
-  // ===== CLIENTE =====
+  // ===== CLIENTE COM NOME CORRETO =====
   yPos += 15
   doc.setFillColor(245, 247, 250)
   doc.roundedRect(margin, yPos, pageWidth - 2 * margin, 8, 2, 2, 'F')
@@ -439,7 +452,8 @@ export async function gerarGarantia(contrato, cliente, produto, loja) {
   doc.setFont('helvetica', 'bold')
   doc.text('Nome:', margin + 3, yPos)
   doc.setFont('helvetica', 'normal')
-  doc.text(cliente.nome_completo || cliente.nome_fantasia || 'Cliente', margin + 18, yPos)
+  // ✅ USAR FUNÇÃO getNomeCliente
+  doc.text(getNomeCliente(cliente), margin + 18, yPos)
 
   yPos += 6
   doc.setFont('helvetica', 'bold')
@@ -461,7 +475,6 @@ export async function gerarGarantia(contrato, cliente, produto, loja) {
     doc.text(cliente.email, margin + 17, yPos)
   }
 
-  // ===== VALIDADE =====
   yPos += 15
   const dataCompra = new Date(contrato.created_at)
   const dataVencimento = new Date(dataCompra)
@@ -493,7 +506,6 @@ export async function gerarGarantia(contrato, cliente, produto, loja) {
   doc.setFont('helvetica', 'bold')
   doc.text(formatDate(dataVencimento), pageWidth / 2 + 23, yPos)
 
-  // ===== COBERTURA =====
   yPos += 18
   doc.setFillColor(245, 247, 250)
   doc.roundedRect(margin, yPos, pageWidth - 2 * margin, 8, 2, 2, 'F')
@@ -538,7 +550,6 @@ export async function gerarGarantia(contrato, cliente, produto, loja) {
     }
   })
 
-  // ===== EXCLUSÕES =====
   yPos += 12
   doc.setFillColor(255, 245, 245)
   doc.roundedRect(margin, yPos, pageWidth - 2 * margin, 8, 2, 2, 'F')
@@ -579,7 +590,6 @@ export async function gerarGarantia(contrato, cliente, produto, loja) {
     }
   })
 
-  // ===== COMO ACIONAR =====
   yPos = pageHeight - 65
   doc.setFillColor(240, 248, 255)
   doc.setDrawColor(25, 118, 210)
@@ -599,7 +609,7 @@ export async function gerarGarantia(contrato, cliente, produto, loja) {
 
   const passos = [
     `1. Entre em contato: ${formatPhone(loja.telefone || loja.celular)}`,
-    `2. Informe o número da garantia: ${String(contrato.id).slice(0, 12).toUpperCase()}`,
+    `2. Informe o número da garantia: ${numeroGarantia}`,
     `3. Leve o aparelho na loja com este documento impresso`,
     `4. Aguarde análise técnica (prazo: até 7 dias úteis)`,
     `5. Reparo ou troca conforme laudo técnico`
@@ -615,7 +625,6 @@ export async function gerarGarantia(contrato, cliente, produto, loja) {
   doc.setTextColor(...accentColor)
   doc.text('⚠ IMPORTANTE: Apresentação deste documento é obrigatória!', margin + 5, yPos)
 
-  // ===== RODAPÉ =====
   const footerY = pageHeight - 18
   doc.setFillColor(250, 250, 250)
   doc.rect(0, footerY - 6, pageWidth, 24, 'F')
@@ -665,7 +674,7 @@ export async function gerarNotaFiscal(contrato, cliente, produto, loja, pagament
   yPos += 5
   doc.text(`Tel: ${formatPhone(loja.telefone)}`, margin, yPos)
 
-  const docNum = `Nº ${String(contrato.id).slice(0, 10).toUpperCase()}`
+  const docNum = `Nº ${gerarNumeroSerie(contrato.id, 'NF').slice(0, 15)}`
   doc.setFontSize(12)
   doc.setFont('helvetica', 'bold')
   doc.text(docNum, pageWidth - margin - doc.getTextWidth(docNum), 28)
@@ -680,7 +689,7 @@ export async function gerarNotaFiscal(contrato, cliente, produto, loja, pagament
   doc.setFont('helvetica', 'bold')
   doc.text('DESTINATÁRIO', margin + 2, yPos + 6)
   doc.setFont('helvetica', 'normal')
-  doc.text(`Nome: ${cliente.nome_completo || cliente.nome_fantasia}`, margin + 2, yPos + 12)
+  doc.text(`Nome: ${getNomeCliente(cliente)}`, margin + 2, yPos + 12)
   doc.text(`CPF/CNPJ: ${formatCpfCnpj(cliente.cpf || cliente.cnpj)}`, margin + 2, yPos + 18)
 
   yPos += 30

@@ -47,7 +47,6 @@ export default function Contratos() {
     }
   }
 
-  // ✅ FUNÇÃO ATUALIZADA COM BUSCA SEPARADA
   async function carregarContratos() {
     if (!ownerId) {
       console.warn('⚠️ ownerId não definido')
@@ -57,7 +56,6 @@ export default function Contratos() {
     console.log('🔍 Carregando contratos para owner:', ownerId)
     
     try {
-      // Primeiro buscar contratos básicos
       const { data: contratosData, error: contratosError } = await supabase
         .from('contracts')
         .select('*')
@@ -80,7 +78,6 @@ export default function Contratos() {
         return
       }
 
-      // Buscar clientes e produtos relacionados
       const clientIds = [...new Set(contratosData.map(c => c.client_id).filter(Boolean))]
       const productIds = [...new Set(contratosData.map(c => c.product_id).filter(Boolean))]
 
@@ -105,7 +102,6 @@ export default function Contratos() {
       console.log('👥 Clientes encontrados:', clientsResult.data?.length || 0)
       console.log('📦 Produtos encontrados:', productsResult.data?.length || 0)
 
-      // Combinar dados
       const contratosCompletos = contratosData.map(contrato => ({
         ...contrato,
         clients: clientsResult.data?.find(c => c.id === contrato.client_id) || null,
@@ -127,13 +123,16 @@ export default function Contratos() {
     if (!ownerId) return
     
     try {
+      // ✅ BUSCAR TAMBÉM 'nome' além de nome_completo e nome_fantasia
       const { data, error } = await supabase
         .from('clients')
-        .select('id, nome_completo, nome_fantasia, email, tipo')
+        .select('id, nome, nome_completo, nome_fantasia, email, tipo, cpf, cnpj')
         .eq('owner_id', ownerId)
-        .order('nome_completo')
+        .order('nome')
 
       if (!error) setClientes(data || [])
+      
+      console.log('✅ Clientes carregados:', data?.length || 0)
     } catch (err) {
       console.error('Erro ao carregar clientes:', err)
     }
@@ -382,8 +381,13 @@ export default function Contratos() {
     }
   }
 
+  // ✅ FUNÇÃO PARA PEGAR O NOME DO CLIENTE (prioridade: nome > nome_completo > nome_fantasia)
+  function getNomeCliente(cliente) {
+    return cliente.nome || cliente.nome_completo || cliente.nome_fantasia || 'Cliente sem nome'
+  }
+
   const contratosFiltrados = contratos.filter(contrato => {
-    const nomeCliente = contrato.clients?.nome_completo || contrato.clients?.nome_fantasia || ''
+    const nomeCliente = contrato.clients?.nome || contrato.clients?.nome_completo || contrato.clients?.nome_fantasia || ''
     const nomeProduto = contrato.products?.nome || ''
     return nomeCliente.toLowerCase().includes(filtro.toLowerCase()) ||
            nomeProduto.toLowerCase().includes(filtro.toLowerCase()) ||
@@ -498,11 +502,15 @@ export default function Contratos() {
                     required
                   >
                     <option value="">Selecione um cliente...</option>
-                    {clientes.map(cliente => (
-                      <option key={cliente.id} value={cliente.id}>
-                        {cliente.nome_completo || cliente.nome_fantasia} - {cliente.email}
-                      </option>
-                    ))}
+                    {clientes.map(cliente => {
+                      const nomeExibir = getNomeCliente(cliente)
+                      const docExibir = cliente.cpf || cliente.cnpj || ''
+                      return (
+                        <option key={cliente.id} value={cliente.id}>
+                          {nomeExibir} {docExibir ? `- CPF/CNPJ: ${docExibir}` : ''}
+                        </option>
+                      )
+                    })}
                   </select>
                   {clientes.length === 0 && (
                     <small style={{ color: '#E63946', marginTop: '4px', display: 'block' }}>
@@ -701,7 +709,7 @@ export default function Contratos() {
               </thead>
               <tbody>
                 {contratosFiltrados.map(contrato => {
-                  const nomeCliente = contrato.clients?.nome_completo || contrato.clients?.nome_fantasia || 'N/A'
+                  const nomeCliente = contrato.clients ? getNomeCliente(contrato.clients) : 'N/A'
                   return (
                     <tr key={contrato.id}>
                       <td>
