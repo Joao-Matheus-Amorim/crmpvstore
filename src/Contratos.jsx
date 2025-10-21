@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { supabase } from './supabaseClient.js'
 import { generateReceiptPDF, gerarGarantia, gerarContrato, gerarChecklist } from './utils/pdfGenerator.js'
 
@@ -34,7 +34,7 @@ export default function Contratos() {
       carregarClientes()
       carregarProdutos()
     }
-  }, [ownerId])
+  }, [ownerId, carregarContratos, carregarClientes, carregarProdutos])
 
   async function buscarOwnerId() {
     try {
@@ -46,7 +46,7 @@ export default function Contratos() {
     }
   }
 
-  async function carregarContratos() {
+  const carregarContratos = useCallback(async () => {
     if (!ownerId) return
 
     try {
@@ -101,9 +101,9 @@ export default function Contratos() {
     } finally {
       setCarregando(false)
     }
-  }
+  }, [ownerId])
 
-  async function carregarClientes() {
+  const carregarClientes = useCallback(async () => {
     if (!ownerId) return
     
     try {
@@ -117,9 +117,9 @@ export default function Contratos() {
     } catch (err) {
       console.error('Erro ao carregar clientes:', err)
     }
-  }
+  }, [ownerId])
 
-  async function carregarProdutos() {
+  const carregarProdutos = useCallback(async () => {
     if (!ownerId) return
     
     try {
@@ -134,7 +134,7 @@ export default function Contratos() {
     } catch (err) {
       console.error('Erro ao carregar produtos:', err)
     }
-  }
+  }, [ownerId])
 
   async function salvarContrato(e) {
     e.preventDefault()

@@ -4,11 +4,12 @@ import Login from './Login.jsx'
 import Dashboard from './Dashboard.jsx'
 import Clientes from './Clientes.jsx'
 import Produtos from './Produtos.jsx'
-import Leads from './Leads.jsx'
+// import Leads from './Leads.jsx' // ❌ REMOVIDO
 import Contratos from './Contratos.jsx'
 import Configuracoes from './Configuracoes.jsx'
 import Estoque from './Estoque.jsx'
 import ReciboVenda from './ReciboVenda.jsx'
+
 
 function App() {
   // Logo da pasta public (não precisa import)
@@ -19,18 +20,22 @@ function App() {
   const [telaAtual, setTelaAtual] = useState('dashboard')
   const [menuAberto, setMenuAberto] = useState(false)
 
+
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null)
       setLoading(false)
     })
 
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null)
     })
 
+
     return () => subscription.unsubscribe()
   }, [])
+
 
   if (loading) {
     return (
@@ -43,9 +48,11 @@ function App() {
     )
   }
 
+
   if (!user) {
     return <Login onLogin={setUser} />
   }
+
 
   const menus = [
     { 
@@ -60,18 +67,7 @@ function App() {
         </svg>
       )
     },
-    { 
-      id: 'leads', 
-      label: 'Leads',
-      icon: (
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
-          <circle cx="9" cy="7" r="4"/>
-          <path d="M22 21v-2a4 4 0 0 0-3-3.87"/>
-          <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-        </svg>
-      )
-    },
+    // ❌ LEADS REMOVIDO DAQUI
     { 
       id: 'clientes', 
       label: 'Clientes',
@@ -145,11 +141,13 @@ function App() {
     }
   ]
 
+
   const handleMenuClick = (id) => {
     setTelaAtual(id)
     setMenuAberto(false)
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
+
 
   const handleLogout = async () => {
     try {
@@ -162,13 +160,16 @@ function App() {
     }
   }
 
+
   const userEmail = user?.email || 'usuário'
   const userInitial = userEmail.charAt(0).toUpperCase()
   const userName = userEmail.split('@')[0]
 
+
   const appStyle = {
     '--background-logo-url': `url(${logoUrl})`
   }
+
 
   return (
     <div className="app-container" style={appStyle}>
@@ -188,6 +189,7 @@ function App() {
             </div>
           </div>
 
+
           <div className="nav-premium desktop-nav">
             {menus.map(m => (
               <button
@@ -203,6 +205,7 @@ function App() {
             ))}
           </div>
 
+
           <div className="user-section-premium desktop-user">
             <div className="user-avatar-premium">{userInitial}</div>
             <span className="user-name-premium">{userName}</span>
@@ -214,6 +217,7 @@ function App() {
               </svg>
             </button>
           </div>
+
 
           <button 
             className="hamburger-premium mobile-only"
@@ -228,6 +232,7 @@ function App() {
         </div>
       </nav>
 
+
       <div className={`mobile-drawer-premium ${menuAberto ? 'open' : ''}`}>
         <div className="drawer-header-premium">
           <div className="user-avatar-premium large">{userInitial}</div>
@@ -236,6 +241,7 @@ function App() {
             <span className="drawer-user-email">{userEmail}</span>
           </div>
         </div>
+
 
         <div className="drawer-menu-premium">
           {menus.map(m => (
@@ -252,6 +258,7 @@ function App() {
           ))}
         </div>
 
+
         <div className="drawer-footer-premium">
           <button className="btn-logout-drawer-premium" onClick={handleLogout} type="button">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -264,6 +271,7 @@ function App() {
         </div>
       </div>
 
+
       {menuAberto && (
         <div 
           className="overlay-premium"
@@ -271,10 +279,11 @@ function App() {
         />
       )}
 
+
       <main className="main-content-premium">
         <div className="content-wrapper">
           {telaAtual === 'dashboard' && <Dashboard onNavigate={setTelaAtual} />}
-          {telaAtual === 'leads' && <Leads />}
+          {/* ❌ LEADS REMOVIDO DAQUI */}
           {telaAtual === 'clientes' && <Clientes />}
           {telaAtual === 'produtos' && <Produtos />}
           {telaAtual === 'estoque' && <Estoque />}
@@ -286,5 +295,6 @@ function App() {
     </div>
   )
 }
+
 
 export default App
