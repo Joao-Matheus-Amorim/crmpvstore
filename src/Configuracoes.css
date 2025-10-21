@@ -84,7 +84,11 @@
   background: linear-gradient(135deg, 
     rgba(241, 245, 249, 0.8) 0%, 
     rgba(226, 232, 240, 0.6) 100%);
-  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+ -webkit-backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter:
+    blur(10px);
   -webkit-backdrop-filter: blur(10px);
   border-radius: 12px;
   box-shadow: 
@@ -410,6 +414,7 @@ label[for="logo-upload"] {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1), 
               0 2px 4px rgba(0, 0, 0, 0.06), 
               inset 0 -2px 4px rgba(0, 0, 0, 0.1);
+  -webkit-user-select: none;
   user-select: none;
 }
 

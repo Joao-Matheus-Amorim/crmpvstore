@@ -310,7 +310,9 @@ body::before {
   align-items: center;
   gap: var(--spacing-xs);
   background: rgba(255, 255, 255, 0.6);
-  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter:
+    blur(10px);
   padding: 6px;
   border-radius: var(--radius-xl);
   border: 1px solid rgba(0, 102, 204, 0.1);
@@ -380,7 +382,9 @@ body::before {
   align-items: center;
   gap: var(--spacing-sm);
   background: rgba(255, 255, 255, 0.7);
-  backdrop-filter: blur(12px);
+ -webkit-backdrop-filter: blur(10px);
+  backdrop-filter:
+    blur(10px);
   padding: 8px 16px;
   border-radius: var(--radius-xl);
   border: 1px solid rgba(0, 102, 204, 0.1);

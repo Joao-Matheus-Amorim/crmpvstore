@@ -33,7 +33,7 @@ export default function Leads() {
   const [formData, setFormData] = useState(estadoInicialForm);
 
   useEffect(() => { buscarOwnerId(); }, []);
-  useEffect(() => { if (ownerId) carregarLeads(); }, [ownerId]);
+  useEffect(() => { if (ownerId) carregarLeads(); }, [carregarLeads, ownerId]);
 
   async function buscarOwnerId() {
     try {
@@ -45,6 +45,7 @@ export default function Leads() {
     } catch (err) { console.error('Erro ao buscar owner:', err); }
   }
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   async function carregarLeads() {
     try {
       setCarregando(true);

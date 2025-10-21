@@ -67,7 +67,7 @@ function App() {
         </svg>
       )
     },
-    // ❌ LEADS REMOVIDO DAQUI
+    // ❌ LEADS REMOVIDO AQUI
     { 
       id: 'clientes', 
       label: 'Clientes',
@@ -283,7 +283,7 @@ function App() {
       <main className="main-content-premium">
         <div className="content-wrapper">
           {telaAtual === 'dashboard' && <Dashboard onNavigate={setTelaAtual} />}
-          {/* ❌ LEADS REMOVIDO DAQUI */}
+          {/* ❌ LEADS REMOVIDO AQUI */}
           {telaAtual === 'clientes' && <Clientes />}
           {telaAtual === 'produtos' && <Produtos />}
           {telaAtual === 'estoque' && <Estoque />}

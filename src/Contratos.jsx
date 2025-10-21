@@ -34,7 +34,7 @@ export default function Contratos() {
       carregarClientes()
       carregarProdutos()
     }
-  }, [ownerId, carregarContratos, carregarClientes, carregarProdutos])
+  }, [ownerId])
 
   async function buscarOwnerId() {
     try {
