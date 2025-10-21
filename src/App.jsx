@@ -4,15 +4,13 @@ import Login from './Login.jsx'
 import Dashboard from './Dashboard.jsx'
 import Clientes from './Clientes.jsx'
 import Produtos from './Produtos.jsx'
-// import Leads from './Leads.jsx' // ❌ REMOVIDO
 import Contratos from './Contratos.jsx'
 import Configuracoes from './Configuracoes.jsx'
 import Estoque from './Estoque.jsx'
 import ReciboVenda from './ReciboVenda.jsx'
-
+import Checklist from './Checklist.jsx'  // ✅ ADICIONADO
 
 function App() {
-  // Logo da pasta public (não precisa import)
   const logoUrl = '/logo.png'
   
   const [user, setUser] = useState(null)
@@ -20,22 +18,18 @@ function App() {
   const [telaAtual, setTelaAtual] = useState('dashboard')
   const [menuAberto, setMenuAberto] = useState(false)
 
-
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null)
       setLoading(false)
     })
 
-
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null)
     })
 
-
     return () => subscription.unsubscribe()
   }, [])
-
 
   if (loading) {
     return (
@@ -48,11 +42,9 @@ function App() {
     )
   }
 
-
   if (!user) {
     return <Login onLogin={setUser} />
   }
-
 
   const menus = [
     { 
@@ -67,7 +59,6 @@ function App() {
         </svg>
       )
     },
-    // ❌ LEADS REMOVIDO AQUI
     { 
       id: 'clientes', 
       label: 'Clientes',
@@ -99,6 +90,16 @@ function App() {
           <rect x="14" y="3" width="7" height="7" rx="1"/>
           <rect x="14" y="14" width="7" height="7" rx="1"/>
           <rect x="3" y="14" width="7" height="7" rx="1"/>
+        </svg>
+      )
+    },
+    { 
+      id: 'checklist', 
+      label: 'Checklist',
+      icon: (
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M9 11l3 3L22 4"/>
+          <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
         </svg>
       )
     },
@@ -141,13 +142,11 @@ function App() {
     }
   ]
 
-
   const handleMenuClick = (id) => {
     setTelaAtual(id)
     setMenuAberto(false)
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
-
 
   const handleLogout = async () => {
     try {
@@ -160,16 +159,13 @@ function App() {
     }
   }
 
-
   const userEmail = user?.email || 'usuário'
   const userInitial = userEmail.charAt(0).toUpperCase()
   const userName = userEmail.split('@')[0]
 
-
   const appStyle = {
     '--background-logo-url': `url(${logoUrl})`
   }
-
 
   return (
     <div className="app-container" style={appStyle}>
@@ -189,7 +185,6 @@ function App() {
             </div>
           </div>
 
-
           <div className="nav-premium desktop-nav">
             {menus.map(m => (
               <button
@@ -205,7 +200,6 @@ function App() {
             ))}
           </div>
 
-
           <div className="user-section-premium desktop-user">
             <div className="user-avatar-premium">{userInitial}</div>
             <span className="user-name-premium">{userName}</span>
@@ -217,7 +211,6 @@ function App() {
               </svg>
             </button>
           </div>
-
 
           <button 
             className="hamburger-premium mobile-only"
@@ -232,7 +225,6 @@ function App() {
         </div>
       </nav>
 
-
       <div className={`mobile-drawer-premium ${menuAberto ? 'open' : ''}`}>
         <div className="drawer-header-premium">
           <div className="user-avatar-premium large">{userInitial}</div>
@@ -241,7 +233,6 @@ function App() {
             <span className="drawer-user-email">{userEmail}</span>
           </div>
         </div>
-
 
         <div className="drawer-menu-premium">
           {menus.map(m => (
@@ -258,7 +249,6 @@ function App() {
           ))}
         </div>
 
-
         <div className="drawer-footer-premium">
           <button className="btn-logout-drawer-premium" onClick={handleLogout} type="button">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -271,7 +261,6 @@ function App() {
         </div>
       </div>
 
-
       {menuAberto && (
         <div 
           className="overlay-premium"
@@ -279,14 +268,13 @@ function App() {
         />
       )}
 
-
       <main className="main-content-premium">
         <div className="content-wrapper">
           {telaAtual === 'dashboard' && <Dashboard onNavigate={setTelaAtual} />}
-          {/* ❌ LEADS REMOVIDO AQUI */}
           {telaAtual === 'clientes' && <Clientes />}
           {telaAtual === 'produtos' && <Produtos />}
           {telaAtual === 'estoque' && <Estoque />}
+          {telaAtual === 'checklist' && <Checklist />}
           {telaAtual === 'contratos' && <Contratos />}
           {telaAtual === 'recibos' && <ReciboVenda />}
           {telaAtual === 'configuracoes' && <Configuracoes />}
@@ -295,6 +283,5 @@ function App() {
     </div>
   )
 }
-
 
 export default App

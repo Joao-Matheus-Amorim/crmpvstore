@@ -22,7 +22,7 @@ export default function Dashboard({ onNavigate }) {
     if (ownerId) {
       carregarStats()
     }
-  }, [ownerId])
+  }, [carregarStats, ownerId])
 
   async function buscarOwnerId() {
     try {
@@ -47,6 +47,7 @@ export default function Dashboard({ onNavigate }) {
     }
   }
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   async function carregarStats() {
     if (!ownerId) return
 

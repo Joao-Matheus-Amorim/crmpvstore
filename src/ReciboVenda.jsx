@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from './supabaseClient.js';
-import { generateReceiptPDF } from './utils/pdfGenerator.js';
+import { generateReceiptPDF } from './utils/receiptGenerator.js';
 import './Dashboard.css';
 
 export default function ReciboVenda() {
@@ -131,7 +131,6 @@ export default function ReciboVenda() {
         alert('✅ Recibo criado!');
       }
       resetForm();
-      // reload
       const { data } = await supabase
         .from('sales_receipts')
         .select('*')
@@ -223,13 +222,71 @@ export default function ReciboVenda() {
 
   return (
     <div className="dashboard-3d">
-      <div className="dashboard-header-3d">
-        <div>
-          <h1 className="page-title-3d">📄 Recibos de Venda</h1>
-          <p className="page-subtitle-3d">Gerenciamento completo de recibos de venda de aparelhos</p>
+      {/* ✅ HEADER ATUALIZADO COM BOTÃO MODERNO */}
+      <div className="dashboard-header-3d" style={{
+        background: 'white',
+        padding: '1.5rem',
+        borderRadius: '16px',
+        boxShadow: '0 4px 16px rgba(0, 0, 0, 0.06)',
+        marginBottom: '2rem',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '1rem'
+      }}>
+        <div style={{ flex: 1 }}>
+          <h1 className="page-title-3d" style={{
+            fontSize: '1.75rem',
+            fontWeight: 700,
+            color: '#1e293b',
+            margin: 0,
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.5rem',
+            marginBottom: '0.5rem'
+          }}>
+            <span style={{fontSize: '1.75rem'}}>📄</span>
+            Recibos de Venda
+          </h1>
+          <p className="page-subtitle-3d" style={{
+            fontSize: '0.95rem',
+            color: '#64748b',
+            margin: 0
+          }}>
+            Gerenciamento completo de recibos de venda de aparelhos
+          </p>
         </div>
-        <button className="btn-primary-3d" onClick={() => { resetForm(); setShowForm(true); }}>
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        
+        <button 
+          className="btn-primary-3d" 
+          onClick={() => { resetForm(); setShowForm(true); }}
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '0.5rem',
+            padding: '0.875rem 1.75rem',
+            background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
+            color: 'white',
+            border: 'none',
+            borderRadius: '12px',
+            fontSize: '0.95rem',
+            fontWeight: 600,
+            cursor: 'pointer',
+            transition: 'all 0.3s ease',
+            boxShadow: '0 4px 14px rgba(59, 130, 246, 0.3)',
+            whiteSpace: 'nowrap',
+            width: '100%',
+            justifyContent: 'center'
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.transform = 'translateY(-2px)';
+            e.currentTarget.style.boxShadow = '0 6px 20px rgba(59, 130, 246, 0.4)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.transform = 'translateY(0)';
+            e.currentTarget.style.boxShadow = '0 4px 14px rgba(59, 130, 246, 0.3)';
+          }}
+        >
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
             <line x1="12" y1="5" x2="12" y2="19" />
             <line x1="5" y1="12" x2="19" y2="12" />
           </svg>
@@ -243,10 +300,6 @@ export default function ReciboVenda() {
             <h3 className="section-title-3d">{editingId ? '✏️ Editar Recibo' : '➕ Novo Recibo de Venda'}</h3>
             <button onClick={() => { setShowForm(false); resetForm(); }} style={{background:'none',border:'none',fontSize:'1.5rem',cursor:'pointer',color:'#64748b',padding:'0.5rem'}}>✕</button>
           </div>
-
-          {/* Seções (Identificação, Comprador, Vendedor, Pagamento, Aparelho, Acessórios) — iguais às que você já tem
-              Mantidas com autocomplete="nope" em todos os inputs/selects conforme solicitado */}
-          {/* ... Reaproveite aqui o formulário já enviado anteriormente ... */}
 
           <div style={{display:'flex',gap:'1rem',justifyContent:'flex-end',paddingTop:'1rem',borderTop:'2px solid #e2e8f0'}}>
             <button type="button" className="btn-secondary-3d" onClick={() => { setShowForm(false); resetForm(); }} style={{padding:'0.875rem 2rem',fontSize:'1rem',fontWeight:600}}>

@@ -414,3 +414,370 @@ backdrop-filter: blur(10px);
     padding: 1.5rem 1rem;
   }
 }
+/* Botão Novo Recibo - Responsivo */
+.dashboard-header-3d {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  align-items: stretch;
+}
+
+.btn-primary-3d {
+  width: 100%;
+  justify-content: center;
+}
+
+.btn-text-desktop {
+  display: inline;
+}
+
+.btn-text-mobile {
+  display: none;
+}
+
+/* Tablet e Desktop */
+@media (min-width: 768px) {
+  .dashboard-header-3d {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .btn-primary-3d {
+    width: auto;
+    min-width: 180px;
+  }
+}
+
+/* Mobile - mostrar texto curto */
+@media (max-width: 480px) {
+  .btn-text-desktop {
+    display: none;
+  }
+
+  .btn-text-mobile {
+    display: inline !important;
+  }
+
+  .btn-primary-3d {
+    padding: 0.875rem 1.25rem;
+    min-width: auto;
+  }
+}
+
+/* Animação de hover */
+.btn-primary-3d:active {
+  transform: translateY(0) !important;
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3) !important;
+}
+/* Media Query para Desktop */
+@media (min-width: 768px) {
+  .dashboard-header-3d {
+    flex-direction: row !important;
+    align-items: center !important;
+  }
+
+  .dashboard-header-3d .btn-primary-3d {
+    width: auto !important;
+    min-width: 180px;
+  }
+}
+/* ========================================
+   CHECKLIST - FORMULÁRIO E ESTILOS
+   ======================================== */
+
+.form-section {
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+  transition: all 0.3s ease;
+}
+
+.form-section:hover {
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.1);
+}
+
+.form-section h4 {
+  margin: 0 0 1.25rem 0;
+  color: #1e293b;
+  font-size: 1.15rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 2px solid #e2e8f0;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1rem;
+}
+
+.form-grid input,
+.form-grid select,
+.form-grid textarea {
+  padding: 0.75rem 1rem;
+  border: 2px solid #e2e8f0;
+  border-radius: 12px;
+  font-size: 0.95rem;
+  font-family: inherit;
+  transition: all 0.3s ease;
+  background: white;
+}
+
+.form-grid input:focus,
+.form-grid select:focus,
+.form-grid textarea:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.form-grid input::placeholder,
+.form-grid select::placeholder,
+.form-grid textarea::placeholder {
+  color: #94a3b8;
+}
+
+.form-grid input:disabled,
+.form-grid select:disabled {
+  background: #f1f5f9;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.checkbox-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+.checkbox-grid label {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 0.95rem;
+  color: #334155;
+  background: white;
+  border: 2px solid transparent;
+}
+
+.checkbox-grid label:hover {
+  background: #f8fafc;
+  border-color: #e2e8f0;
+  transform: translateX(2px);
+}
+
+.checkbox-grid input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+  accent-color: #3b82f6;
+  border-radius: 4px;
+}
+
+.checkbox-grid input[type="checkbox"]:checked + span {
+  font-weight: 500;
+  color: #1e293b;
+}
+
+.form-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+  padding-top: 1.5rem;
+  border-top: 2px solid #e2e8f0;
+  margin-top: 2rem;
+}
+
+.form-actions button {
+  padding: 0.875rem 2rem;
+  font-size: 1rem;
+  font-weight: 600;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.form-actions .btn-secondary-3d {
+  background: white;
+  color: #64748b;
+  border: 2px solid #e2e8f0;
+}
+
+.form-actions .btn-secondary-3d:hover {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.form-actions .btn-primary-3d {
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  color: white;
+  border: none;
+  box-shadow: 0 4px 14px rgba(59, 130, 246, 0.3);
+}
+
+.form-actions .btn-primary-3d:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+}
+
+.form-actions .btn-primary-3d:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Input com label flutuante */
+.form-grid label {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.form-grid label span {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: #64748b;
+}
+
+/* Campos de texto em linha única */
+.form-grid input[type="text"],
+.form-grid input[type="email"],
+.form-grid input[type="tel"],
+.form-grid input[type="number"],
+.form-grid input[type="date"] {
+  width: 100%;
+}
+
+/* Textarea */
+.form-grid textarea {
+  min-height: 80px;
+  resize: vertical;
+  font-family: inherit;
+}
+
+/* Select customizado */
+.form-grid select {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2364748b' d='M10.293 3.293L6 7.586 1.707 3.293A1 1 0 00.293 4.707l5 5a1 1 0 001.414 0l5-5a1 1 0 10-1.414-1.414z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
+  padding-right: 2.5rem;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+  .form-section {
+    padding: 1rem;
+  }
+
+  .form-section h4 {
+    font-size: 1rem;
+  }
+
+  .form-grid,
+  .checkbox-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .form-actions {
+    flex-direction: column;
+  }
+
+  .form-actions button {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .form-grid input,
+  .form-grid select,
+  .form-grid textarea {
+    font-size: 16px; /* Previne zoom no iOS */
+  }
+}
+
+@media (max-width: 480px) {
+  .form-section {
+    border-radius: 12px;
+    margin-left: -0.5rem;
+    margin-right: -0.5rem;
+  }
+
+  .checkbox-grid label {
+    padding: 0.625rem 0.875rem;
+    font-size: 0.9rem;
+  }
+}
+
+/* Estados de validação */
+.form-grid input:invalid:not(:placeholder-shown) {
+  border-color: #ef4444;
+}
+
+.form-grid input:valid:not(:placeholder-shown) {
+  border-color: #10b981;
+}
+
+/* Loading state para botão */
+.btn-primary-3d:disabled::before {
+  content: '';
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  margin-right: 8px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Ajustes para campos específicos do Checklist */
+.form-grid input[type="number"][min="0"][max="100"] {
+  max-width: 150px;
+}
+
+.form-grid input[type="date"] {
+  max-width: 200px;
+}
+
+/* Grupo de checkbox inline */
+.checkbox-inline {
+  display: flex;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.checkbox-inline label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0;
+  background: none;
+  border: none;
+}
+
+.checkbox-inline label:hover {
+  transform: none;
+}

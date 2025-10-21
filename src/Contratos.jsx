@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { supabase } from './supabaseClient.js'
-import { generateReceiptPDF, gerarGarantia, gerarContrato, gerarChecklist } from './utils/pdfGenerator.js'
+import { gerarGarantia, gerarContrato } from './utils/receiptGenerator.js'  // ✅ CORRIGIDO
 
 export default function Contratos() {
   const [contratos, setContratos] = useState([])
@@ -34,7 +34,7 @@ export default function Contratos() {
       carregarClientes()
       carregarProdutos()
     }
-  }, [ownerId])
+  }, [carregarClientes, carregarContratos, carregarProdutos, ownerId])
 
   async function buscarOwnerId() {
     try {
@@ -238,7 +238,6 @@ export default function Contratos() {
     try {
       setCarregando(true)
       
-      // Buscar dados completos do cliente e produto
       const [clienteData, produtoData] = await Promise.all([
         supabase.from('clients').select('*').eq('id', contrato.client_id).single(),
         contrato.product_id 
@@ -255,7 +254,6 @@ export default function Contratos() {
       const cliente = clienteData.data
       const produto = produtoData.data
 
-      // Montar objeto no formato esperado pelo generateReceiptPDF
       const receiptData = {
         document_number: contrato.id.slice(0, 8),
         buyer_name: cliente.nome || cliente.nome_completo || cliente.nome_fantasia || '',
@@ -312,8 +310,8 @@ export default function Contratos() {
         '1 - Recibo de Venda\n' +
         '2 - Termo de Garantia\n' +
         '3 - Contrato de Compra\n' +
-        '4 - Checklist\n\n' +
-        'Digite o número da opção (1, 2, 3 ou 4):'
+        '4 - Checklist (ir para menu Checklist)\n\n' +
+        'Digite o número da opção (1, 2 ou 3):'
       )
 
       if (!opcao || !['1', '2', '3', '4'].includes(opcao)) {
@@ -331,8 +329,7 @@ export default function Contratos() {
         await gerarContrato()
         alert('✅ Contrato de Compra gerado!\n\n📥 Verifique sua pasta de Downloads.')
       } else if (opcao === '4') {
-        await gerarChecklist()
-        alert('✅ Checklist gerado!\n\n📥 Verifique sua pasta de Downloads.')
+        alert('ℹ️ Para gerar Checklist, vá para o menu "Checklist" e crie uma nova avaliação.')
       }
 
     } catch (err) {
