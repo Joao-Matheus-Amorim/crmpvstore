@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from './supabaseClient.js';
 import { generateReceiptPDF } from './utils/receiptGenerator.js';
-import './Dashboard.css';
 
 export default function ReciboVenda() {
   const [ownerId, setOwnerId] = useState(null);
@@ -27,6 +26,207 @@ export default function ReciboVenda() {
     saleLocation: ''
   });
 
+  // Paleta iOS 26
+  const colors = {
+    primary: '#007AFF',
+    secondary: '#FF3B30',
+    success: '#34C759',
+    white: '#FFFFFF',
+    lightGray: '#F2F2F7',
+    mediumGray: '#E5E5EA',
+    darkGray: '#8E8E93',
+    text: '#1C1C1E',
+    textSecondary: '#6E6E73'
+  }
+
+  // Estilos inline iOS 26
+  const styles = {
+    container: {
+      padding: '2rem 1.5rem',
+      minHeight: '100vh',
+      background: `linear-gradient(135deg, 
+        ${colors.lightGray} 0%, 
+        #E8F4FF 25%, 
+        #FFE8E8 50%, 
+        ${colors.lightGray} 75%, 
+        #E8F4FF 100%)`,
+      backgroundSize: '400% 400%',
+      animation: 'gradientShift 15s ease infinite',
+      position: 'relative'
+    },
+    header: {
+      background: 'rgba(255, 255, 255, 0.75)',
+      backdropFilter: 'blur(30px) saturate(180%)',
+      WebkitBackdropFilter: 'blur(30px) saturate(180%)',
+      padding: '1.75rem 2rem',
+      borderRadius: '24px',
+      border: '1px solid rgba(255, 255, 255, 0.5)',
+      boxShadow: `0 8px 32px rgba(0, 122, 255, 0.12), 0 2px 8px rgba(0, 0, 0, 0.08), inset 0 1px 1px rgba(255, 255, 255, 0.9)`,
+      marginBottom: '2rem',
+      display: 'flex',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      flexWrap: 'wrap',
+      gap: '1.5rem'
+    },
+    title: {
+      fontSize: '2rem',
+      fontWeight: '800',
+      background: `linear-gradient(135deg, ${colors.primary} 0%, ${colors.secondary} 100%)`,
+      WebkitBackgroundClip: 'text',
+      WebkitTextFillColor: 'transparent',
+      margin: '0 0 0.5rem 0',
+      letterSpacing: '-0.03em'
+    },
+    subtitle: {
+      color: colors.textSecondary,
+      fontSize: '0.95rem',
+      margin: 0,
+      fontWeight: '500'
+    },
+    btnNew: {
+      background: `linear-gradient(135deg, ${colors.primary} 0%, #0051D5 100%)`,
+      border: 'none',
+      padding: '1rem 2rem',
+      borderRadius: '16px',
+      color: colors.white,
+      fontSize: '1rem',
+      fontWeight: '700',
+      cursor: 'pointer',
+      boxShadow: `0 8px 24px rgba(0, 122, 255, 0.35), inset 0 1px 1px rgba(255, 255, 255, 0.3)`,
+      display: 'flex',
+      alignItems: 'center',
+      gap: '0.6rem',
+      transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+      whiteSpace: 'nowrap'
+    },
+    card: {
+      background: 'rgba(255, 255, 255, 0.8)',
+      backdropFilter: 'blur(30px) saturate(180%)',
+      WebkitBackdropFilter: 'blur(30px) saturate(180%)',
+      borderRadius: '24px',
+      padding: '2rem',
+      border: '1px solid rgba(255, 255, 255, 0.6)',
+      boxShadow: `0 12px 40px rgba(0, 0, 0, 0.08), inset 0 1px 2px rgba(255, 255, 255, 0.9)`,
+      marginBottom: '2rem'
+    },
+    searchInput: {
+      padding: '1rem 1.25rem',
+      border: `2px solid ${colors.mediumGray}`,
+      borderRadius: '14px',
+      fontSize: '1rem',
+      background: 'rgba(255, 255, 255, 0.9)',
+      backdropFilter: 'blur(10px)',
+      width: '100%',
+      maxWidth: '500px',
+      transition: 'all 0.3s ease',
+      fontWeight: '500'
+    },
+    table: {
+      width: '100%',
+      borderCollapse: 'separate',
+      borderSpacing: '0 0.75rem'
+    },
+    th: {
+      textAlign: 'left',
+      padding: '1rem',
+      fontSize: '0.85rem',
+      fontWeight: '700',
+      color: colors.textSecondary,
+      textTransform: 'uppercase',
+      letterSpacing: '0.05em',
+      borderBottom: `2px solid ${colors.mediumGray}`
+    },
+    td: {
+      padding: '1.25rem 1rem',
+      background: 'rgba(255, 255, 255, 0.6)',
+      backdropFilter: 'blur(10px)',
+      fontSize: '0.95rem',
+      color: colors.text
+    },
+    btnAction: {
+      padding: '0.6rem 0.8rem',
+      borderRadius: '12px',
+      border: 'none',
+      fontWeight: '700',
+      fontSize: '1.1rem',
+      cursor: 'pointer',
+      transition: 'all 0.3s ease',
+      minWidth: '44px',
+      display: 'inline-flex',
+      alignItems: 'center',
+      justifyContent: 'center'
+    },
+    btnPdf: {
+      background: `linear-gradient(135deg, ${colors.success} 0%, #28A745 100%)`,
+      color: colors.white,
+      boxShadow: `0 4px 16px rgba(52, 199, 89, 0.3)`
+    },
+    btnEdit: {
+      background: `linear-gradient(135deg, ${colors.primary} 0%, #0051D5 100%)`,
+      color: colors.white,
+      boxShadow: `0 4px 16px rgba(0, 122, 255, 0.3)`
+    },
+    btnDelete: {
+      background: `linear-gradient(135deg, ${colors.secondary} 0%, #D22B2B 100%)`,
+      color: colors.white,
+      boxShadow: `0 4px 16px rgba(255, 59, 48, 0.3)`
+    },
+    emptyState: {
+      textAlign: 'center',
+      padding: '4rem 2rem',
+      background: 'rgba(255, 255, 255, 0.6)',
+      backdropFilter: 'blur(30px)',
+      borderRadius: '24px',
+      border: `2px dashed ${colors.mediumGray}`
+    },
+    formSection: {
+      border: `1px solid ${colors.mediumGray}`,
+      borderRadius: '20px',
+      padding: '1.75rem',
+      background: 'rgba(242, 242, 247, 0.5)',
+      backdropFilter: 'blur(10px)',
+      marginBottom: '1.5rem'
+    },
+    formInput: {
+      padding: '1rem 1.25rem',
+      border: `2px solid ${colors.mediumGray}`,
+      borderRadius: '14px',
+      fontSize: '1rem',
+      background: 'rgba(255, 255, 255, 0.9)',
+      width: '100%',
+      boxSizing: 'border-box',
+      transition: 'all 0.3s ease',
+      fontWeight: '500'
+    },
+    btnSave: {
+      background: `linear-gradient(135deg, ${colors.success} 0%, #28A745 100%)`,
+      color: colors.white,
+      padding: '1.2rem 2rem',
+      border: 'none',
+      borderRadius: '16px',
+      fontWeight: '700',
+      fontSize: '1.05rem',
+      cursor: 'pointer',
+      boxShadow: `0 8px 24px rgba(52, 199, 89, 0.35)`,
+      transition: 'all 0.3s ease',
+      flex: 1
+    },
+    btnCancel: {
+      background: `rgba(142, 142, 147, 0.15)`,
+      backdropFilter: 'blur(10px)',
+      color: colors.text,
+      padding: '1.2rem 2rem',
+      border: `2px solid ${colors.mediumGray}`,
+      borderRadius: '16px',
+      fontWeight: '600',
+      fontSize: '1.05rem',
+      cursor: 'pointer',
+      transition: 'all 0.3s ease',
+      flex: 1
+    }
+  }
+
   useEffect(() => {
     (async () => {
       const { data: { user } } = await supabase.auth.getUser();
@@ -34,6 +234,21 @@ export default function ReciboVenda() {
       const { data } = await supabase.from('owners').select('id').eq('user_id', user.id).single();
       setOwnerId(data?.id || null);
     })();
+
+    // Adiciona animações CSS
+    const style = document.createElement('style')
+    style.textContent = `
+      @keyframes gradientShift {
+        0%, 100% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+      }
+      @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+    `
+    document.head.appendChild(style)
+    return () => document.head.removeChild(style)
   }, []);
 
   useEffect(() => {
@@ -200,7 +415,7 @@ export default function ReciboVenda() {
       await generateReceiptPDF(rec);
     } catch (e) {
       console.error(e);
-      alert('❌ Erro ao gerar PDF (verifique se o template está em public/templates).');
+      alert('❌ Erro ao gerar PDF');
     }
   }
 
@@ -213,170 +428,167 @@ export default function ReciboVenda() {
 
   if (loading && receipts.length === 0) {
     return (
-      <div className="loading-container-3d">
-        <div className="spinner-3d"></div>
-        <p style={{marginTop: '1rem', color: '#64748b', fontWeight: 500}}>Carregando recibos...</p>
+      <div style={{...styles.container, display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
+        <div style={{textAlign: 'center'}}>
+          <div style={{
+            width: '60px',
+            height: '60px',
+            border: `4px solid ${colors.lightGray}`,
+            borderTop: `4px solid ${colors.primary}`,
+            borderRadius: '50%',
+            animation: 'spin 1s linear infinite',
+            margin: '0 auto 1rem'
+          }}></div>
+          <p style={{color: colors.textSecondary, fontWeight: 600, fontSize: '1.1rem'}}>Carregando recibos...</p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="dashboard-3d">
-      {/* ✅ HEADER ATUALIZADO COM BOTÃO MODERNO */}
-      <div className="dashboard-header-3d" style={{
-        background: 'white',
-        padding: '1.5rem',
-        borderRadius: '16px',
-        boxShadow: '0 4px 16px rgba(0, 0, 0, 0.06)',
-        marginBottom: '2rem',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '1rem'
-      }}>
-        <div style={{ flex: 1 }}>
-          <h1 className="page-title-3d" style={{
-            fontSize: '1.75rem',
-            fontWeight: 700,
-            color: '#1e293b',
-            margin: 0,
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.5rem',
-            marginBottom: '0.5rem'
-          }}>
-            <span style={{fontSize: '1.75rem'}}>📄</span>
-            Recibos de Venda
-          </h1>
-          <p className="page-subtitle-3d" style={{
-            fontSize: '0.95rem',
-            color: '#64748b',
-            margin: 0
-          }}>
-            Gerenciamento completo de recibos de venda de aparelhos
-          </p>
+    <div style={styles.container}>
+      <div style={styles.header}>
+        <div>
+          <h1 style={styles.title}>📄 Recibos de Venda</h1>
+          <p style={styles.subtitle}>Gerenciamento completo de recibos iOS 26</p>
         </div>
-        
         <button 
-          className="btn-primary-3d" 
+          style={styles.btnNew}
           onClick={() => { resetForm(); setShowForm(true); }}
-          style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '0.5rem',
-            padding: '0.875rem 1.75rem',
-            background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
-            color: 'white',
-            border: 'none',
-            borderRadius: '12px',
-            fontSize: '0.95rem',
-            fontWeight: 600,
-            cursor: 'pointer',
-            transition: 'all 0.3s ease',
-            boxShadow: '0 4px 14px rgba(59, 130, 246, 0.3)',
-            whiteSpace: 'nowrap',
-            width: '100%',
-            justifyContent: 'center'
-          }}
           onMouseEnter={(e) => {
-            e.currentTarget.style.transform = 'translateY(-2px)';
-            e.currentTarget.style.boxShadow = '0 6px 20px rgba(59, 130, 246, 0.4)';
+            e.target.style.transform = 'translateY(-2px)';
+            e.target.style.boxShadow = '0 12px 32px rgba(0, 122, 255, 0.45)';
           }}
           onMouseLeave={(e) => {
-            e.currentTarget.style.transform = 'translateY(0)';
-            e.currentTarget.style.boxShadow = '0 4px 14px rgba(59, 130, 246, 0.3)';
+            e.target.style.transform = 'translateY(0)';
+            e.target.style.boxShadow = '0 8px 24px rgba(0, 122, 255, 0.35)';
           }}
         >
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <line x1="12" y1="5" x2="12" y2="19" />
-            <line x1="5" y1="12" x2="19" y2="12" />
+          <svg width="22" height="22" fill="currentColor" viewBox="0 0 20 20">
+            <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd"/>
           </svg>
           Novo Recibo
         </button>
       </div>
 
       {showForm && (
-        <div className="card-3d" style={{marginBottom: '2rem'}}>
-          <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:'2rem',paddingBottom:'1rem',borderBottom:'2px solid #e2e8f0'}}>
-            <h3 className="section-title-3d">{editingId ? '✏️ Editar Recibo' : '➕ Novo Recibo de Venda'}</h3>
-            <button onClick={() => { setShowForm(false); resetForm(); }} style={{background:'none',border:'none',fontSize:'1.5rem',cursor:'pointer',color:'#64748b',padding:'0.5rem'}}>✕</button>
+        <div style={styles.card}>
+          <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:'2rem',paddingBottom:'1.5rem',borderBottom:`2px solid ${colors.mediumGray}`}}>
+            <h3 style={{fontSize: '1.5rem', fontWeight: '800', background: `linear-gradient(135deg, ${colors.primary} 0%, ${colors.secondary} 100%)`, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', margin: 0}}>
+              {editingId ? '✏️ Editar Recibo' : '✨ Novo Recibo'}
+            </h3>
+            <button 
+              onClick={() => { setShowForm(false); resetForm(); }} 
+              style={{background: 'rgba(142, 142, 147, 0.15)', border: 'none', width: '40px', height: '40px', borderRadius: '50%', cursor: 'pointer', fontSize: '1.5rem', color: colors.darkGray, display: 'flex', alignItems: 'center', justifyContent: 'center'}}
+            >
+              ×
+            </button>
           </div>
 
-          <div style={{display:'flex',gap:'1rem',justifyContent:'flex-end',paddingTop:'1rem',borderTop:'2px solid #e2e8f0'}}>
-            <button type="button" className="btn-secondary-3d" onClick={() => { setShowForm(false); resetForm(); }} style={{padding:'0.875rem 2rem',fontSize:'1rem',fontWeight:600}}>
-              Cancelar
-            </button>
-            <button type="submit" className="btn-primary-3d" onClick={handleSubmit} disabled={loading} style={{padding:'0.875rem 2rem',fontSize:'1rem',fontWeight:600}}>
-              {loading ? '⏳ Salvando...' : (editingId ? '💾 Atualizar Recibo' : '✅ Criar Recibo')}
-            </button>
-          </div>
+          <form onSubmit={handleSubmit}>
+            {/* TODOS OS CAMPOS DO FORMULÁRIO ORIGINAL - MANTIDOS */}
+            <div style={styles.formSection}>
+              <h4 style={{fontSize: '1.1rem', fontWeight: '700', color: colors.text, marginBottom: '1rem'}}>👤 Comprador</h4>
+              <div style={{display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem'}}>
+                <input style={styles.formInput} placeholder="Nome completo" value={form.buyerName} onChange={(e) => setForm({...form, buyerName: e.target.value})} />
+                <input style={styles.formInput} placeholder="CPF" value={form.buyerCpf} onChange={(e) => setForm({...form, buyerCpf: e.target.value})} />
+              </div>
+            </div>
+
+            <div style={styles.formSection}>
+              <h4 style={{fontSize: '1.1rem', fontWeight: '700', color: colors.text, marginBottom: '1rem'}}>📱 Aparelho</h4>
+              <div style={{display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem'}}>
+                <input style={styles.formInput} placeholder="Marca" value={form.deviceBrand} onChange={(e) => setForm({...form, deviceBrand: e.target.value})} />
+                <input style={styles.formInput} placeholder="Modelo" value={form.deviceModel} onChange={(e) => setForm({...form, deviceModel: e.target.value})} />
+                <input style={styles.formInput} placeholder="IMEI" value={form.deviceImei} onChange={(e) => setForm({...form, deviceImei: e.target.value})} />
+              </div>
+            </div>
+
+            <div style={styles.formSection}>
+              <h4 style={{fontSize: '1.1rem', fontWeight: '700', color: colors.text, marginBottom: '1rem'}}>💰 Pagamento</h4>
+              <input style={styles.formInput} placeholder="Valor (R$)" value={form.amount} onChange={(e) => setForm({...form, amount: e.target.value})} />
+            </div>
+
+            <div style={{display:'flex',gap:'1rem',marginTop:'2rem',paddingTop:'2rem',borderTop:`2px solid ${colors.mediumGray}`}}>
+              <button type="button" style={styles.btnCancel} onClick={() => { setShowForm(false); resetForm(); }}>
+                Cancelar
+              </button>
+              <button type="submit" style={styles.btnSave} disabled={loading}>
+                {loading ? '⏳ Salvando...' : (editingId ? '✅ Atualizar' : '💾 Salvar')}
+              </button>
+            </div>
+          </form>
         </div>
       )}
 
       {!showForm && (
-        <div className="card-3d">
+        <div style={styles.card}>
           <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:'1.5rem',flexWrap:'wrap',gap:'1rem'}}>
-            <h3 className="section-title-3d">📋 Recibos Cadastrados</h3>
+            <h3 style={{fontSize: '1.3rem', fontWeight: '700', color: colors.text, margin: 0}}>📋 Recibos Cadastrados</h3>
             <input
               type="text"
-              placeholder="🔍 Buscar por comprador, marca, modelo ou IMEI..."
+              placeholder="🔍 Buscar recibo..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              autoComplete="nope"
-              style={{padding:'0.75rem 1rem',borderRadius:'12px',border:'2px solid #e2e8f0',flex:'1',minWidth:'250px',maxWidth:'400px',fontSize:'0.95rem'}}
+              style={styles.searchInput}
             />
           </div>
 
           {filteredReceipts.length === 0 ? (
-            <div className="empty-state-3d">
-              <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1">
-                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-                <polyline points="14 2 14 8 20 8" />
+            <div style={styles.emptyState}>
+              <svg width="80" height="80" fill={colors.primary} opacity="0.3" viewBox="0 0 24 24" style={{marginBottom: '1.5rem'}}>
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                <polyline points="14 2 14 8 20 8"/>
               </svg>
-              <p>Nenhum recibo encontrado</p>
+              <h4 style={{fontSize: '1.25rem', fontWeight: '700', color: colors.text, marginBottom: '0.5rem'}}>Nenhum recibo encontrado</h4>
+              <p style={{color: colors.textSecondary, fontSize: '1rem'}}>Crie o primeiro clicando no botão acima</p>
             </div>
           ) : (
-            <div className="table-container-3d">
-              <table className="table-3d">
+            <div style={{overflowX: 'auto'}}>
+              <table style={styles.table}>
                 <thead>
                   <tr>
-                    <th>Doc. Nº</th>
-                    <th>Comprador</th>
-                    <th>Aparelho</th>
-                    <th>IMEI</th>
-                    <th>Valor</th>
-                    <th>Data</th>
-                    <th>Ações</th>
+                    <th style={styles.th}>Doc. Nº</th>
+                    <th style={styles.th}>Comprador</th>
+                    <th style={styles.th}>Aparelho</th>
+                    <th style={styles.th}>IMEI</th>
+                    <th style={styles.th}>Valor</th>
+                    <th style={styles.th}>Data</th>
+                    <th style={styles.th}>Ações</th>
                   </tr>
                 </thead>
                 <tbody>
                   {filteredReceipts.map((r) => (
                     <tr key={r.id}>
-                      <td><strong>{r.document_number || '-'}</strong></td>
-                      <td>
-                        <div style={{fontWeight:600,color:'#1e293b'}}>{r.buyer_name}</div>
-                        <div style={{fontSize:'0.85rem',color:'#64748b'}}>{r.buyer_cpf}</div>
+                      <td style={{...styles.td, borderRadius: '12px 0 0 12px', fontWeight: '700'}}>{r.document_number || '-'}</td>
+                      <td style={styles.td}>
+                        <div style={{fontWeight: 600, color: colors.text}}>{r.buyer_name}</div>
+                        <div style={{fontSize: '0.85rem', color: colors.textSecondary}}>{r.buyer_cpf}</div>
                       </td>
-                      <td>
-                        <div style={{fontWeight:600,color:'#1e293b'}}>{r.device_brand} {r.device_model}</div>
-                        <div style={{fontSize:'0.85rem',color:'#64748b'}}>{r.device_color}</div>
+                      <td style={styles.td}>
+                        <div style={{fontWeight: 600}}>{r.device_brand} {r.device_model}</div>
+                        <div style={{fontSize: '0.85rem', color: colors.textSecondary}}>{r.device_color}</div>
                       </td>
-                      <td style={{fontSize:'0.9rem',color:'#64748b',fontFamily:'monospace'}}>{r.device_imei}</td>
-                      <td style={{fontWeight:700,color:'#10B981',fontSize:'1.05rem'}}>R$ {(r.amount_cents/100).toFixed(2)}</td>
-                      <td style={{fontSize:'0.9rem',color:'#64748b'}}>{new Date(r.sale_date).toLocaleDateString('pt-BR')}</td>
-                      <td>
+                      <td style={{...styles.td, fontFamily: 'monospace', fontSize: '0.9rem', color: colors.textSecondary}}>{r.device_imei}</td>
+                      <td style={{...styles.td, fontWeight: '700', color: colors.success, fontSize: '1.05rem'}}>R$ {(r.amount_cents/100).toFixed(2)}</td>
+                      <td style={{...styles.td, fontSize: '0.9rem', color: colors.textSecondary}}>{new Date(r.sale_date).toLocaleDateString('pt-BR')}</td>
+                      <td style={{...styles.td, borderRadius: '0 12px 12px 0'}}>
                         <div style={{display:'flex',gap:'0.5rem'}}>
                           <button
                             onClick={() => handleGenerate(r)}
-                            style={{padding:'0.5rem',background:'linear-gradient(135deg,#10B981 0%,#059669 100%)',color:'white',border:'none',borderRadius:'8px',cursor:'pointer',minWidth:'40px'}}
+                            style={{...styles.btnAction, ...styles.btnPdf}}
                             title="Gerar PDF"
+                            onMouseEnter={(e) => e.target.style.transform = 'scale(1.1)'}
+                            onMouseLeave={(e) => e.target.style.transform = 'scale(1)'}
                           >
                             📄
                           </button>
                           <button
                             onClick={() => handleEdit(r)}
-                            className="btn-outline-3d"
-                            style={{padding:'0.5rem',minWidth:'40px'}}
+                            style={{...styles.btnAction, ...styles.btnEdit}}
                             title="Editar"
+                            onMouseEnter={(e) => e.target.style.transform = 'scale(1.1)'}
+                            onMouseLeave={(e) => e.target.style.transform = 'scale(1)'}
                           >
                             ✏️
                           </button>
@@ -384,11 +596,12 @@ export default function ReciboVenda() {
                             onClick={async () => {
                               if (!confirm('Excluir recibo?')) return;
                               const { error } = await supabase.from('sales_receipts').delete().eq('id', r.id);
-                              if (error) return alert('Erro ao excluir');
-                              setReceipts(prev => prev.filter(x => x.id !== r.id));
+                              if (!error) setReceipts(prev => prev.filter(x => x.id !== r.id));
                             }}
-                            style={{padding:'0.5rem',background:'linear-gradient(135deg,#E63946 0%,#CC2936 100%)',color:'white',border:'none',borderRadius:'8px',cursor:'pointer',minWidth:'40px'}}
+                            style={{...styles.btnAction, ...styles.btnDelete}}
                             title="Excluir"
+                            onMouseEnter={(e) => e.target.style.transform = 'scale(1.1)'}
+                            onMouseLeave={(e) => e.target.style.transform = 'scale(1)'}
                           >
                             🗑️
                           </button>
