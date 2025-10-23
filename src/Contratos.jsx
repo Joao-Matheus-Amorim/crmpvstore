@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { supabase } from './supabaseClient.js'
-import { generateReceiptPDF, gerarGarantia, gerarContrato } from './utils/receiptGenerator.js'
+import { gerarContratoSeminovo } from './utils/contractGenerator.js'
 
 export default function Contratos() {
   const [contratos, setContratos] = useState([])
@@ -150,7 +150,6 @@ export default function Contratos() {
     }
   }
 
-  // ✅ DECLARAR FUNÇÕES ANTES DO useEffect
   const carregarContratos = useCallback(async () => {
     if (!ownerId) return
     try {
@@ -203,7 +202,6 @@ export default function Contratos() {
     }
   }
 
-  // ✅ AGORA OS useEffect PODEM USAR AS FUNÇÕES
   useEffect(() => {
     buscarOwnerId()
     const style = document.createElement('style')
@@ -261,39 +259,40 @@ export default function Contratos() {
     carregarProdutos()
   }
 
-  async function gerarDocumentosPDF(contrato) {
+  // ✅ FUNÇÃO SIMPLIFICADA - SÓ GERA CONTRATO SEMINOVO
+  async function gerarContratoCompleto(contrato) {
     try {
       setCarregando(true)
-      const [clienteData, produtoData] = await Promise.all([
+      const [clienteData, produtoData, ownerData] = await Promise.all([
         supabase.from('clients').select('*').eq('id', contrato.client_id).single(),
-        contrato.product_id ? supabase.from('products').select('*').eq('id', contrato.product_id).single() : Promise.resolve({ data: null })
+        contrato.product_id ? supabase.from('products').select('*').eq('id', contrato.product_id).single() : Promise.resolve({ data: null }),
+        supabase.from('owners').select('*').eq('id', ownerId).single()
       ])
+      
       if (!clienteData.data) {
         alert('❌ Cliente não encontrado')
         setCarregando(false)
         return
       }
-      const cliente = clienteData.data
-      const produto = produtoData.data
-      const receiptData = {
-        document_number: contrato.id.slice(0, 8),
-        buyer_name: cliente.nome || cliente.nome_completo || '',
-        buyer_cpf: cliente.cpf || cliente.cnpj || '',
-        buyer_address: cliente.endereco || '',
-        seller_name: 'PV Store',
-        amount_cents: contrato.valor_centavos,
-        payment_method: contrato.forma_pagamento,
-        device_model: produto?.modelo || produto?.nome || '',
-        device_imei: produto?.imei || '',
-        sale_date: contrato.created_at ? contrato.created_at.split('T')[0] : new Date().toISOString().split('T')[0]
+      
+      const comprador = clienteData.data
+      const produto = produtoData.data || {}
+      const vendedor = ownerData.data || { 
+        nome: 'PV Store', 
+        email: 'contato@pvstore.com', 
+        telefone: '(11) 99999-9999',
+        cpf: 'N/A',
+        cidade: 'São Paulo',
+        uf: 'SP'
       }
-      const opcao = prompt('1 - Recibo\n2 - Garantia\n3 - Contrato\nDigite:')
-      if (opcao === '1') await generateReceiptPDF(receiptData)
-      else if (opcao === '2') await gerarGarantia()
-      else if (opcao === '3') await gerarContrato()
+      
+      // ✅ GERA O CONTRATO DIRETAMENTE
+      await gerarContratoSeminovo(contrato, comprador, vendedor, produto)
+      alert('✅ Contrato de Seminovo gerado e baixado!')
+      
     } catch (error) {
-      console.error('Erro ao gerar PDF:', error)
-      alert('❌ Erro ao gerar PDF')
+      console.error('Erro ao gerar contrato:', error)
+      alert('❌ Erro ao gerar contrato: ' + error.message)
     } finally {
       setCarregando(false)
     }
@@ -407,6 +406,7 @@ export default function Contratos() {
                   <option value="pix">PIX</option>
                   <option value="credito">Crédito</option>
                   <option value="debito">Débito</option>
+                  <option value="dinheiro">Dinheiro</option>
                 </select>
               </div>
             </div>
@@ -448,7 +448,7 @@ export default function Contratos() {
                       <td style={styles.td}>{c.products?.nome || 'N/A'}</td>
                       <td style={{...styles.td, color: colors.success, fontWeight: 700}}>{formatarMoeda(c.valor_centavos)}</td>
                       <td style={styles.td}>
-                        <select value={c.status} onChange={(e) => atualizarStatus(c.id, e.target.value, c.product_id)} style={{padding: '0.5rem', borderRadius: '8px', border: 'none', background: c.status === 'ativo' ? colors.success : colors.primary, color: 'white', fontWeight: 600}}>
+                        <select value={c.status} onChange={(e) => atualizarStatus(c.id, e.target.value, c.product_id)} style={{padding: '0.5rem', borderRadius: '8px', border: 'none', background: c.status === 'ativo' ? colors.success : colors.primary, color: 'white', fontWeight: 600, cursor: 'pointer'}}>
                           <option value="ativo">Ativo</option>
                           <option value="finalizado">Finalizado</option>
                           <option value="cancelado">Cancelado</option>
@@ -456,9 +456,9 @@ export default function Contratos() {
                       </td>
                       <td style={{...styles.td, borderRadius: '0 12px 12px 0'}}>
                         <div style={{display:'flex',gap:'0.5rem'}}>
-                          <button onClick={() => gerarDocumentosPDF(c)} style={{padding: '0.6rem', background: `linear-gradient(135deg, ${colors.success} 0%, #28A745 100%)`, color: 'white', border: 'none', borderRadius: '10px', cursor: 'pointer'}}>📄</button>
-                          <button onClick={() => editarContrato(c)} style={{padding: '0.6rem', background: `linear-gradient(135deg, ${colors.primary} 0%, #0051D5 100%)`, color: 'white', border: 'none', borderRadius: '10px', cursor: 'pointer'}}>✏️</button>
-                          <button onClick={() => deletarContrato(c.id, c.product_id)} style={{padding: '0.6rem', background: `linear-gradient(135deg, ${colors.secondary} 0%, #D22B2B 100%)`, color: 'white', border: 'none', borderRadius: '10px', cursor: 'pointer'}}>🗑️</button>
+                          <button onClick={() => gerarContratoCompleto(c)} style={{padding: '0.6rem 1rem', background: `linear-gradient(135deg, ${colors.success} 0%, #28A745 100%)`, color: 'white', border: 'none', borderRadius: '10px', cursor: 'pointer', fontSize: '0.9rem', fontWeight: 600}} title="Gerar Contrato PDF">📄 PDF</button>
+                          <button onClick={() => editarContrato(c)} style={{padding: '0.6rem', background: `linear-gradient(135deg, ${colors.primary} 0%, #0051D5 100%)`, color: 'white', border: 'none', borderRadius: '10px', cursor: 'pointer', fontSize: '1.1rem'}} title="Editar">✏️</button>
+                          <button onClick={() => deletarContrato(c.id, c.product_id)} style={{padding: '0.6rem', background: `linear-gradient(135deg, ${colors.secondary} 0%, #D22B2B 100%)`, color: 'white', border: 'none', borderRadius: '10px', cursor: 'pointer', fontSize: '1.1rem'}} title="Excluir">🗑️</button>
                         </div>
                       </td>
                     </tr>
