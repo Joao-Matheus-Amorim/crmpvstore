@@ -29,7 +29,7 @@ export async function gerarContratoSeminovo(contratoData, comprador, vendedor, p
   const dataContrato = contratoData.created_at ? 
     new Date(contratoData.created_at).toLocaleDateString('pt-BR') : 
     new Date().toLocaleDateString('pt-BR')
-  const [dia, mes, ano] = dataContrato.split('/')
+  const [dia,, ano] = dataContrato.split('/')
   
   // ===== FUNÇÃO: BOX =====
   function drawBox(x, y, width, height) {
@@ -476,7 +476,4 @@ export async function gerarContratoSeminovo(contratoData, comprador, vendedor, p
   doc.save(nomeArquivo)
 }
 
-function obterMes(mes) {
-  const m = { '01': 'janeiro', '02': 'fevereiro', '03': 'março', '04': 'abril', '05': 'maio', '06': 'junho', '07': 'julho', '08': 'agosto', '09': 'setembro', '10': 'outubro', '11': 'novembro', '12': 'dezembro' }
-  return m[mes] || 'janeiro'
-}
+
