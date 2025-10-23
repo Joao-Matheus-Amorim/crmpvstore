@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react'
+/* eslint-disable no-unused-vars */
+import { useState, useEffect, useCallback } from 'react'
 import { supabase } from './supabaseClient.js'
 import './Configuracoes.css'
 import './Dashboard.css'
@@ -34,30 +35,18 @@ export default function Configuracoes() {
     observacoes_garantia: ''
   })
 
+   
   useEffect(() => {
     buscarOwnerId()
-  }, [])
+  }, [buscarOwnerId])
 
-  useEffect(() => {
-    if (ownerId) carregarConfiguracoes()
-  }, [ownerId])
-
-  async function buscarOwnerId() {
+  async function carregarConfiguracoes(id) {
     try {
-      const { data: { user } } = await supabase.auth.getUser()
-      const { data } = await supabase.from('owners').select('id').eq('user_id', user.id).single()
-      setOwnerId(data?.id)
-    } catch (err) {
-      console.error('Erro ao buscar owner:', err)
-    }
-  }
-
-  async function carregarConfiguracoes() {
-    try {
+      if (!id) return
       const { data, error } = await supabase
         .from('store_settings')
         .select('*')
-        .eq('owner_id', ownerId)
+        .eq('owner_id', id)
         .single()
 
       if (!error && data) {
@@ -66,6 +55,29 @@ export default function Configuracoes() {
     } catch (err) {
       console.error('Erro ao carregar configurações:', err)
     } finally {
+      setCarregando(false)
+    }
+  }
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  async function buscarOwnerId() {
+    try {
+      // Compatível com a API moderna do Supabase
+      const { data, error } = await supabase.auth.getUser()
+      if (error) {
+        console.error('Erro ao obter usuário:', error)
+        setCarregando(false)
+        return
+      }
+      const user = data?.user
+      if (user?.id) {
+        setOwnerId(user.id)
+        await carregarConfiguracoes(user.id)
+      } else {
+        setCarregando(false)
+      }
+    } catch (err) {
+      console.error('Erro ao buscar ownerId:', err)
       setCarregando(false)
     }
   }
@@ -105,7 +117,7 @@ export default function Configuracoes() {
       }
 
       // Upload do arquivo
-      const { data: uploadData, error: uploadError } = await supabase.storage
+      const { error: uploadError } = await supabase.storage
         .from('logos')
         .upload(fileName, file, {
           cacheControl: '3600',
@@ -739,4 +751,4 @@ export default function Configuracoes() {
       </form>
     </div>
   )
-}
+  }

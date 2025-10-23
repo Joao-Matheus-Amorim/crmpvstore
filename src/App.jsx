@@ -1,44 +1,45 @@
-import { useState, useEffect } from 'react'
-import { supabase } from './supabaseClient.js'
-import Login from './Login.jsx'
-import Dashboard from './Dashboard.jsx'
-import Clientes from './Clientes.jsx'
-import Produtos from './Produtos.jsx'
-import Contratos from './Contratos.jsx'
-import Configuracoes from './Configuracoes.jsx'
-import Estoque from './Estoque.jsx'
-import ReciboVenda from './ReciboVenda.jsx'
-import Checklist from './Checklist.jsx'  // ✅ ADICIONADO
+import { useState, useEffect } from 'react';
+import { supabase } from './supabaseClient.js';
+import Login from './Login.jsx';
+import Dashboard from './Dashboard.jsx';
+import Leads from './Leads.jsx'; // ✅ ADICIONADO: Import do Leads
+import Clientes from './Clientes.jsx';
+import Produtos from './Produtos.jsx';
+import Contratos from './Contratos.jsx';
+import Configuracoes from './Configuracoes.jsx';
+import Estoque from './Estoque.jsx';
+import ReciboVenda from './ReciboVenda.jsx';
+import Checklist from './Checklist.jsx';
 
 function App() {
-  const logoUrl = '/logo.png'
+  const logoUrl = '/logo.png';
   
-  const [user, setUser] = useState(null)
-  const [loading, setLoading] = useState(true)
-  const [telaAtual, setTelaAtual] = useState('dashboard')
-  const [menuAberto, setMenuAberto] = useState(false)
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [telaAtual, setTelaAtual] = useState('dashboard');
+  const [menuAberto, setMenuAberto] = useState(false);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ?? null)
-      setLoading(false)
-    })
+      setUser(session?.user ?? null);
+      setLoading(false);
+    });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null)
-    })
+      setUser(session?.user ?? null);
+    });
 
-    return () => subscription.unsubscribe()
-  }, [])
+    return () => subscription.unsubscribe();
+  }, []);
 
-  // ✅ NOVO: Registro do Service Worker para PWA (app-like)
+  // Registro do Service Worker para PWA
   useEffect(() => {
-    if ('serviceWorker' in navigator && !window.isDev) { // Evita em dev para evitar conflitos
+    if ('serviceWorker' in navigator && !window.isDev) {
       navigator.serviceWorker.register('/sw.js')
         .then(registration => console.log('SW registrado:', registration))
-        .catch(error => console.error('Erro no SW:', error))
+        .catch(error => console.error('Erro no SW:', error));
     }
-  }, [])
+  }, []);
 
   if (loading) {
     return (
@@ -48,11 +49,11 @@ function App() {
           <p className="loading-text">Carregando PV Store CRM</p>
         </div>
       </div>
-    )
+    );
   }
 
   if (!user) {
-    return <Login onLogin={setUser} />
+    return <Login onLogin={setUser} />;
   }
 
   const menus = [
@@ -65,6 +66,18 @@ function App() {
           <rect x="14" y="3" width="7" height="7"/>
           <rect x="14" y="14" width="7" height="7"/>
           <rect x="3" y="14" width="7" height="7"/>
+        </svg>
+      )
+    },
+    { 
+      id: 'leads',  // ✅ ADICIONADO: Menu para Leads
+      label: 'Leads',
+      icon: (
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+          <circle cx="9" cy="7" r="4"/>
+          <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+          <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
         </svg>
       )
     },
@@ -149,32 +162,32 @@ function App() {
         </svg>
       )
     }
-  ]
+  ];
 
   const handleMenuClick = (id) => {
-    setTelaAtual(id)
-    setMenuAberto(false)
-    window.scrollTo({ top: 0, behavior: 'smooth' })
-  }
+    setTelaAtual(id);
+    setMenuAberto(false);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   const handleLogout = async () => {
     try {
-      await supabase.auth.signOut()
-      setUser(null)
-      setTelaAtual('dashboard')
-      setMenuAberto(false)
+      await supabase.auth.signOut();
+      setUser(null);
+      setTelaAtual('dashboard');
+      setMenuAberto(false);
     } catch (error) {
-      console.error('Erro ao fazer logout:', error)
+      console.error('Erro ao fazer logout:', error);
     }
-  }
+  };
 
-  const userEmail = user?.email || 'usuário'
-  const userInitial = userEmail.charAt(0).toUpperCase()
-  const userName = userEmail.split('@')[0]
+  const userEmail = user?.email || 'usuário';
+  const userInitial = userEmail.charAt(0).toUpperCase();
+  const userName = userEmail.split('@')[0];
 
   const appStyle = {
     '--background-logo-url': `url(${logoUrl})`
-  }
+  };
 
   return (
     <div className="app-container" style={appStyle}>
@@ -194,7 +207,7 @@ function App() {
             </div>
           </div>
 
-          {/* ✅ NAV DESKTOP - Escondida no mobile pelo CSS */}
+          {/* NAV DESKTOP */}
           <div className="nav-premium desktop-nav">
             {menus.map(m => (
               <button
@@ -210,7 +223,7 @@ function App() {
             ))}
           </div>
 
-          {/* ✅ USER SECTION DESKTOP */}
+          {/* USER SECTION DESKTOP */}
           <div className="user-section-premium desktop-user">
             <div className="user-avatar-premium">{userInitial}</div>
             <span className="user-name-premium">{userName}</span>
@@ -223,7 +236,7 @@ function App() {
             </button>
           </div>
 
-          {/* ✅ HAMBURGER MOBILE - Só para telas muito pequenas (<375px) pelo CSS */}
+          {/* HAMBURGER MOBILE */}
           <button 
             className="hamburger-premium mobile-only"
             onClick={() => setMenuAberto(!menuAberto)}
@@ -237,7 +250,7 @@ function App() {
         </div>
       </nav>
 
-      {/* ✅ DRAWER MOBILE - Para telas muito pequenas */}
+      {/* DRAWER MOBILE */}
       <div className={`mobile-drawer-premium ${menuAberto ? 'open' : ''}`}>
         <div className="drawer-header-premium">
           <div className="user-avatar-premium large">{userInitial}</div>
@@ -274,7 +287,7 @@ function App() {
         </div>
       </div>
 
-      {/* ✅ OVERLAY PARA DRAWER */}
+      {/* OVERLAY PARA DRAWER */}
       {menuAberto && (
         <div 
           className="overlay-premium"
@@ -282,10 +295,11 @@ function App() {
         />
       )}
 
-      {/* ✅ MAIN CONTENT - Com padding para bottom nav */}
+      {/* MAIN CONTENT */}
       <main className="main-content-premium">
         <div className="content-wrapper">
           {telaAtual === 'dashboard' && <Dashboard onNavigate={setTelaAtual} />}
+          {telaAtual === 'leads' && <Leads />} {/* ✅ ADICIONADO: Render do Leads */}
           {telaAtual === 'clientes' && <Clientes />}
           {telaAtual === 'produtos' && <Produtos />}
           {telaAtual === 'estoque' && <Estoque />}
@@ -296,24 +310,24 @@ function App() {
         </div>
       </main>
 
-      {/* ✅ BOTTOM NAVIGATION BAR - MOBILE */}
-<nav className="bottom-nav-premium">
-  {menus.slice(0, 5).map(m => ( // Mostra só 5 principais no mobile
-    <button
-      key={m.id}
-      onClick={() => handleMenuClick(m.id)}
-      className={`nav-item-mobile ${telaAtual === m.id ? 'active' : ''}`}
-      type="button"
-      aria-label={m.label}
-    >
-      <span className="nav-icon-mobile">{m.icon}</span>
-      <span className="nav-label-mobile">{m.label}</span>
-    </button>
-  ))}
-</nav>
+      {/* BOTTOM NAVIGATION BAR - MOBILE (Agora com 6 itens) */}
+      <nav className="bottom-nav-premium">
+        {menus.slice(0, 6).map(m => ( // Inclui Leads
+          <button
+            key={m.id}
+            onClick={() => handleMenuClick(m.id)}
+            className={`nav-item-mobile ${telaAtual === m.id ? 'active' : ''}`}
+            type="button"
+            aria-label={m.label}
+          >
+            <span className="nav-icon-mobile">{m.icon}</span>
+            <span className="nav-label-mobile">{m.label}</span>
+          </button>
+        ))}
+      </nav>
 
     </div>
-  )
+  );
 }
 
-export default App
+export default App;
