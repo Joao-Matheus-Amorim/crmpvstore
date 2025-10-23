@@ -1,54 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { supabase } from './supabaseClient.js';
 import './Clientes.css';
-
-const formSections = [
-  {
-    title: "Informações Pessoais",
-    icon: (
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-        <circle cx="12" cy="7" r="4"></circle>
-      </svg>
-    ),
-    fields: [
-      { label: "Nome Completo *", placeholder: "Ex: João Silva Santos", key: "nome", required: true, type: "text" },
-      { label: "CPF *", placeholder: "Ex: 12345678900", key: "cpf", required: true, type: "text", maxLength: 11 },
-      { label: "RG", placeholder: "Ex: 123456789", key: "rg", required: false, type: "text" },
-    ]
-  },
-  {
-    title: "Contato e Tipo",
-    icon: (
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-        <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
-      </svg>
-    ),
-    fields: [
-      { label: "Celular", placeholder: "Ex: (11) 98765-4321", key: "celular", required: false, type: "tel" },
-      { label: "Email", placeholder: "Ex: cliente@email.com", key: "email", required: false, type: "email" },
-      { label: "Tipo de Cliente *", key: "tipo", required: true, type: "select", options: [{value: "comprador", label: "Comprador"}, {value: "vendedor", label: "Vendedor"}]},
-    ]
-  },
-  {
-    title: "Endereço",
-    icon: (
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
-        <circle cx="12" cy="10" r="3"></circle>
-      </svg>
-    ),
-    fields: [
-      { label: "CEP", placeholder: "Ex: 01310100 (busca automática)", key: "cep", required: false, type: "text", maxLength: 8 },
-      { label: "Logradouro", placeholder: "Ex: Avenida Paulista", key: "endereco_rua", required: false, type: "text" },
-      { label: "Número", placeholder: "Ex: 1578", key: "endereco_numero", required: false, type: "text" },
-      { label: "Complemento", placeholder: "Ex: Apto 203, Bloco B", key: "endereco_complemento", required: false, type: "text" },
-      { label: "Bairro", placeholder: "Ex: Bela Vista", key: "bairro", required: false, type: "text" },
-      { label: "Cidade", placeholder: "Ex: São Paulo", key: "cidade", required: false, type: "text" },
-      { label: "UF", placeholder: "Ex: SP", key: "uf", required: false, type: "text", maxLength: 2 },
-    ]
-  }
-];
 
 export default function Clientes() {
   const [clientes, setClientes] = useState([]);
@@ -58,176 +10,436 @@ export default function Clientes() {
   const [mostrarForm, setMostrarForm] = useState(false);
   const [editando, setEditando] = useState(null);
   const [filtro, setFiltro] = useState('');
-  
-  const estadoInicialForm = formSections.reduce((acc, section) => {
-    section.fields.forEach(field => { acc[field.key] = field.key === 'tipo' ? 'comprador' : ''; });
-    return acc;
-  }, {});
+  const [showSheet, setShowSheet] = useState(false);
+  const [selectedClient, setSelectedClient] = useState(null);
+
+  const estadoInicialForm = useMemo(() => ({
+    nome: '',
+    cpf: '',
+    email: '',
+    telefone: '',
+    tipo: 'comprador',
+    endereco: '',
+    numero: '',
+    bairro: '',
+    cidade: '',
+    estado: '',
+    cep: ''
+  }), []);
 
   const [formData, setFormData] = useState(estadoInicialForm);
 
-  useEffect(() => { buscarOwnerId(); }, []);
-  useEffect(() => { if (ownerId) carregarClientes(); }, [ownerId]);
+  useEffect(() => {
+    buscarOwnerId();
+  }, []);
 
   async function buscarOwnerId() {
     try {
       const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        const { data } = await supabase.from('owners').select('id').eq('user_id', user.id).single();
-        setOwnerId(data?.id);
-      }
-    } catch (err) { console.error('Erro ao buscar owner:', err); }
+     if (user) {
+  const { data } = await supabase.from('owners').select('id').eq('user_id', user.id).single();
+  setOwnerId(data?.id);
+}
+} catch (error) {
+  console.error('Erro ao buscar owner:', error);
+}
   }
 
-  async function carregarClientes() {
+  const carregarClientes = useCallback(async () => {
+    if (!ownerId) return;
     try {
       setCarregando(true);
-      const { data, error } = await supabase.from('clients').select('*').eq('owner_id', ownerId).order('created_at', { ascending: false });
+      const { data, error } = await supabase
+        .from('clients')
+        .select('*')
+        .eq('owner_id', ownerId)
+        .order('nome', { ascending: true });
       if (error) throw error;
       setClientes(data || []);
-    } catch (err) { console.error('Erro ao carregar clientes:', err); } 
-    finally { setCarregando(false); }
-  }
+    } catch (err) {
+      console.error('Erro ao carregar clientes:', err);
+      alert('Erro ao carregar clientes.');
+    } finally {
+      setCarregando(false);
+    }
+  }, [ownerId]);
+
+  useEffect(() => {
+    if (ownerId) carregarClientes();
+  }, [ownerId, carregarClientes]);
+
+  const handleCpfChange = (e) => {
+    let value = e.target.value.replace(/\D/g, '');
+    value = value.replace(/(\d{3})(\d)/, '$1.$2');
+    value = value.replace(/(\d{3})(\d)/, '$1.$2');
+    value = value.replace(/(\d{3})(\d{1,2})$/, '$1-$2');
+    setFormData({ ...formData, cpf: value });
+  };
+
+  const handleTelefoneChange = (e) => {
+    let value = e.target.value.replace(/\D/g, '');
+    value = value.replace(/(\d{2})(\d)/, '($1) $2');
+    value = value.replace(/(\d{5})(\d)/, '$1-$2');
+    setFormData({ ...formData, telefone: value });
+  };
+
+  const handleCepChange = (e) => {
+    let value = e.target.value.replace(/\D/g, '');
+    value = value.replace(/(\d{5})(\d)/, '$1-$2');
+    setFormData({ ...formData, cep: value });
+  };
 
   async function salvarCliente(e) {
     e.preventDefault();
+    if (!formData.nome || formData.nome.trim().length < 3) { alert('❌ Nome deve ter no mínimo 3 caracteres!'); return; }
+    const cpfLimpo = formData.cpf.replace(/\D/g, '');
+    if (!cpfLimpo || cpfLimpo.length < 11) { alert('❌ CPF é obrigatório! Digite no mínimo 11 dígitos.'); return; }
+    const telLimpo = formData.telefone.replace(/\D/g, '');
+    if (!telLimpo || telLimpo.length < 10) { alert('❌ Telefone é obrigatório! Digite no mínimo 10 dígitos.'); return; }
+
     setSalvando(true);
-    if (!formData.nome || !formData.cpf) { alert('Nome e CPF são obrigatórios.'); setSalvando(false); return; }
+    const clienteData = {
+      tipo: 'pessoa_fisica',
+      nome: formData.nome.trim(),
+      cpf: formData.cpf.trim(),
+      email: formData.email?.trim() || null,
+      celular: formData.telefone?.trim() || null,
+      endereco_rua: formData.endereco?.trim() || null,
+      endereco_numero: formData.numero?.trim() || null,
+      bairro: formData.bairro?.trim() || null,
+      cidade: formData.cidade?.trim() || null,
+      uf: formData.estado?.trim() || null,
+      cep: formData.cep?.trim() || null
+    };
+
     try {
-      const clienteData = Object.fromEntries(Object.entries(formData).map(([key, value]) => [key, value === '' ? null : value]));
-      let error;
-      if (editando) { ({ error } = await supabase.from('clients').update(clienteData).eq('id', editando.id)); } 
-      else { ({ error } = await supabase.from('clients').insert({ ...clienteData, owner_id: ownerId })); }
+      let error = null;
+      if (editando) {
+        const response = await supabase.from('clients').update(clienteData).eq('id', editando.id);
+        error = response.error;
+        if (!error) alert('✅ Cliente atualizado com sucesso!');
+      } else {
+        const response = await supabase.from('clients').insert({ ...clienteData, owner_id: ownerId });
+        error = response.error;
+        if (!error) alert('✅ Cliente cadastrado com sucesso!');
+      }
       if (error) throw error;
-      alert(`Cliente ${editando ? 'atualizado' : 'cadastrado'} com sucesso!`);
       resetForm();
       carregarClientes();
-    } catch (err) { console.error('Erro ao salvar cliente:', err); alert('Erro inesperado ao salvar cliente:\n' + err.message); } 
-    finally { setSalvando(false); }
-  }
-
-  async function deletarCliente(id) {
-    if (window.confirm('Tem certeza que deseja excluir este cliente?')) {
-      try { await supabase.from('clients').delete().eq('id', id); alert('Cliente excluído com sucesso!'); carregarClientes(); } 
-      catch (err) { console.error('Erro ao deletar cliente:', err); alert('Erro ao excluir cliente.'); }
+    } catch (err) {
+      console.error('Erro ao salvar cliente:', err);
+      alert('❌ Erro ao salvar cliente: ' + err.message);
+    } finally {
+      setSalvando(false);
     }
   }
 
-  function editarCliente(cliente) { setEditando(cliente); setFormData(Object.assign({}, estadoInicialForm, cliente)); setMostrarForm(true); window.scrollTo({ top: 0, behavior: 'smooth' }); }
-  function resetForm() { setFormData(estadoInicialForm); setEditando(null); setMostrarForm(false); }
-
-  async function buscarCep(cep) {
-    const cepLimpo = cep.replace(/\D/g, '');
-    setFormData(prev => ({ ...prev, cep: cepLimpo }));
-    if (cepLimpo.length !== 8) return;
-    setSalvando(true);
-    try {
-      const response = await fetch(`https://viacep.com.br/ws/${cepLimpo}/json/`);
-      const data = await response.json();
-      if (data.erro) { alert('CEP não encontrado.'); return; }
-      setFormData(prev => ({ ...prev, endereco_rua: data.logradouro, bairro: data.bairro, cidade: data.localidade, uf: data.uf }));
-    } catch (error) { console.error("Erro ao buscar CEP:", error); } 
-    finally { setSalvando(false); }
+  async function deletarCliente(id) {
+    if (window.confirm('⚠️ Tem certeza que deseja excluir este cliente?')) {
+      try {
+        await supabase.from('clients').delete().eq('id', id);
+        alert('✅ Cliente excluído com sucesso!');
+        carregarClientes();
+        setShowSheet(false);
+      } catch (err) {
+        console.error('Erro ao deletar cliente:', err);
+        alert('❌ Erro ao excluir cliente.');
+      }
+    }
   }
 
-  const clientesFiltrados = clientes.filter(cliente => cliente.nome?.toLowerCase().includes(filtro.toLowerCase()) || cliente.cpf?.includes(filtro) || cliente.celular?.includes(filtro));
+  function editarCliente(cliente) {
+    setEditando(cliente);
+    setFormData({
+      nome: cliente.nome || '',
+      cpf: cliente.cpf || '',
+      email: cliente.email || '',
+      telefone: cliente.celular || '',
+      tipo: 'comprador',
+      endereco: cliente.endereco_rua || '',
+      numero: cliente.endereco_numero || '',
+      bairro: cliente.bairro || '',
+      cidade: cliente.cidade || '',
+      estado: cliente.uf || '',
+      cep: cliente.cep || ''
+    });
+    setMostrarForm(true);
+    setShowSheet(false);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
 
-  if (carregando) { return <div className="loading-container-3d"><div className="spinner-3d"></div><p>Carregando...</p></div>; }
+  function resetForm() {
+    setFormData(estadoInicialForm);
+    setEditando(null);
+    setMostrarForm(false);
+  }
+
+  const abrirSheet = (cliente) => {
+    setSelectedClient(cliente);
+    setShowSheet(true);
+    if (navigator.vibrate) navigator.vibrate(50);
+  };
+
+  const fecharSheet = () => {
+    setShowSheet(false);
+    setSelectedClient(null);
+  };
+
+  const clientesFiltrados = useMemo(() => 
+    clientes.filter(cliente => 
+      cliente.nome?.toLowerCase().includes(filtro.toLowerCase()) ||
+      cliente.email?.toLowerCase().includes(filtro.toLowerCase()) ||
+      cliente.cpf?.includes(filtro) ||
+      cliente.celular?.includes(filtro)
+    ), [clientes, filtro]
+  );
+
+  const statsClientes = useMemo(() => ({
+    total: clientes.length,
+    pessoaFisica: clientes.filter(c => c.tipo === 'pessoa_fisica').length,
+    pessoaJuridica: clientes.filter(c => c.tipo === 'pessoa_juridica').length,
+  }), [clientes]);
+
+  if (carregando) {
+    return (
+      <div className="loading-container glass-card">
+        <div className="spinner-professional"></div>
+        <p className="loading-text">Carregando clientes...</p>
+      </div>
+    );
+  }
+
+  const tipoOpt = selectedClient ? (selectedClient.tipo === 'pessoa_fisica' ? { label: 'PF', color: '#0066CC' } : { label: 'PJ', color: '#DC2626' }) : null;
 
   return (
-    <div className="dashboard-3d">
-      <div className="dashboard-header-3d">
-        <div>
-          <h1 className="page-title-3d">Gestão de Clientes</h1>
-          <p className="page-subtitle-3d">Cadastro de compradores e vendedores</p>
+    <div className="dashboard-container" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
+      <div className="dash-header glass-header">
+        <h1 className="dash-title gradient-text">Gestão de Clientes</h1>
+        <div className="header-search-actions">
+          <input 
+            type="text" 
+            placeholder="Buscar clientes..." 
+            value={filtro} 
+            onChange={(e) => setFiltro(e.target.value)} 
+            className="search-input glass-input" 
+          />
+          <button 
+            className="btn-primary glass-btn" 
+            onClick={() => { if (mostrarForm) { resetForm(); } else { setMostrarForm(true); } }}
+          >
+            {mostrarForm ? 'Cancelar' : '+ Novo Cliente'}
+          </button>
         </div>
-        <button className="btn-3d btn-primary-3d" onClick={() => { mostrarForm ? resetForm() : setMostrarForm(true) }}>
-          {mostrarForm ? 'Cancelar' : '+ Novo Cliente'}
-        </button>
+      </div>
+
+      <div className="stats-row glass-stats" style={{ overflowX: 'auto', paddingBottom: '0.5rem' }}>
+        <div className="stat-card">
+          <div className="stat-icon" style={{ background: 'rgba(0,102,204,0.1)' }}>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#0066CC" strokeWidth="2">
+              <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+              <circle cx="8.5" cy="7" r="4"></circle>
+              <polyline points="17,11 19,13 23,9"></polyline>
+            </svg>
+          </div>
+          <div className="stat-info">
+            <p className="stat-label">Total Clientes</p>
+            <p className="stat-value">{statsClientes.total}</p>
+          </div>
+        </div>
+        <div className="stat-card">
+          <div className="stat-icon" style={{ background: 'rgba(16,185,129,0.1)' }}>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#10B981" strokeWidth="2">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+              <circle cx="9" cy="7" r="4"></circle>
+            </svg>
+          </div>
+          <div className="stat-info">
+            <p className="stat-label">Pessoa Física</p>
+            <p className="stat-value">{statsClientes.pessoaFisica}</p>
+          </div>
+        </div>
+        <div className="stat-card">
+          <div className="stat-icon" style={{ background: 'rgba(220,38,38,0.1)' }}>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#DC2626" strokeWidth="2">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+              <polyline points="14,2 14,8 20,8"></polyline>
+              <line x1="16" y1="13" x2="8" y2="13"></line>
+            </svg>
+          </div>
+          <div className="stat-info">
+            <p className="stat-label">Pessoa Jurídica</p>
+            <p className="stat-value">{statsClientes.pessoaJuridica}</p>
+          </div>
+        </div>
       </div>
 
       {mostrarForm && (
-        <div className="card-3d form-card-3d">
-          <h3 className="section-title-3d">{editando ? 'Editar Cliente' : 'Cadastrar Novo Cliente'}</h3>
-          <form onSubmit={salvarCliente} autoComplete="nope">
-            {formSections.map(section => (
-              <div className="form-section-3d" key={section.title}>
-                <h4 className="form-section-title-3d">{section.icon} {section.title}</h4>
-                <div className="form-row-3d">
-                  {section.fields.map(field => (
-                    <div className="form-group-3d" key={field.key}>
-                      <label className="form-label-3d">{field.label}</label>
-                      {field.type === 'select' ? (
-                        <select autoComplete="nope" value={formData[field.key]} onChange={e => setFormData({...formData, [field.key]: e.target.value})} required={field.required} className="form-input-3d">
-                          {field.options.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
-                        </select>
-                      ) : (
-                        <input type={field.type} placeholder={field.placeholder} value={formData[field.key]} onChange={e => { if(field.key === 'cep') { buscarCep(e.target.value); } else { setFormData({...formData, [field.key]: e.target.value}); }}} autoComplete="nope" required={field.required} maxLength={field.maxLength} className="form-input-3d" />
-                      )}
-                    </div>
-                  ))}
+        <div className="form-accordion glass-card">
+          <button className="accordion-header" onClick={() => setMostrarForm(false)}>
+            <span>{editando ? 'Editar Cliente' : 'Adicionar Novo Cliente'}</span>
+            <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path d="M19 9l-7 7-7-7"></path>
+            </svg>
+          </button>
+          <form onSubmit={salvarCliente} className="client-form">
+            <div className="form-section">
+              <h4 className="form-section-title">Informações Pessoais</h4>
+              <div className="form-row">
+                <div className="form-group">
+                  <label>Nome Completo *</label>
+                  <input type="text" className="glass-input" value={formData.nome} onChange={(e) => setFormData({...formData, nome: e.target.value})} required minLength="3" />
+                </div>
+                <div className="form-group">
+                  <label>CPF *</label>
+                  <input type="text" className="glass-input" value={formData.cpf} onChange={handleCpfChange} required minLength="14" />
                 </div>
               </div>
-            ))}
-            <div className="form-actions-3d">
-              <button type="submit" className="btn-3d btn-primary-3d" disabled={salvando}>{salvando ? 'Salvando...' : (editando ? 'Atualizar Cliente' : 'Salvar Cliente')}</button>
-              <button type="button" className="btn-3d btn-secondary-3d" onClick={resetForm} disabled={salvando}>Cancelar</button>
+              <div className="form-row">
+                <div className="form-group">
+                  <label>Email</label>
+                  <input type="email" className="glass-input" value={formData.email} onChange={(e) => setFormData({...formData, email: e.target.value})} />
+                </div>
+                <div className="form-group">
+                  <label>Telefone *</label>
+                  <input type="tel" className="glass-input" value={formData.telefone} onChange={handleTelefoneChange} required minLength="14" />
+                </div>
+              </div>
+              <div className="form-group">
+                <label>Tipo de Cliente *</label>
+                <select className="glass-input" value={formData.tipo} onChange={(e) => setFormData({...formData, tipo: e.target.value})} required>
+                  <option value="comprador">Comprador</option>
+                  <option value="vendedor">Vendedor</option>
+                  <option value="ambos">Ambos</option>
+                </select>
+              </div>
+            </div>
+            <div className="form-section">
+              <h4 className="form-section-title">Endereço</h4>
+              <div className="form-row">
+                <div className="form-group">
+                  <label>Logradouro</label>
+                  <input type="text" className="glass-input" value={formData.endereco} onChange={(e) => setFormData({...formData, endereco: e.target.value})} />
+                </div>
+                <div className="form-group">
+                  <label>Número</label>
+                  <input type="text" className="glass-input" value={formData.numero} onChange={(e) => setFormData({...formData, numero: e.target.value})} />
+                </div>
+              </div>
+              <div className="form-row">
+                <div className="form-group">
+                  <label>Bairro</label>
+                  <input type="text" className="glass-input" value={formData.bairro} onChange={(e) => setFormData({...formData, bairro: e.target.value})} />
+                </div>
+                <div className="form-group">
+                  <label>Cidade</label>
+                  <input type="text" className="glass-input" value={formData.cidade} onChange={(e) => setFormData({...formData, cidade: e.target.value})} />
+                </div>
+                <div className="form-group">
+                  <label>Estado</label>
+                  <input type="text" className="glass-input" value={formData.estado} onChange={(e) => setFormData({...formData, estado: e.target.value.toUpperCase()})} maxLength="2" />
+                </div>
+                <div className="form-group">
+                  <label>CEP</label>
+                  <input type="text" className="glass-input" value={formData.cep} onChange={handleCepChange} />
+                </div>
+              </div>
+            </div>
+            <div className="form-actions">
+              <button type="submit" className="glass-btn primary" disabled={salvando || !ownerId}>
+                {salvando ? 'Salvando...' : (editando ? 'Atualizar' : 'Salvar')}
+              </button>
+              <button type="button" className="glass-btn secondary" onClick={resetForm}>Cancelar</button>
             </div>
           </form>
         </div>
       )}
-      
-      <div className="card-3d table-card-3d">
-        <div className="search-header-3d">
-          <h3 className="section-title-3d">Lista de Clientes ({clientesFiltrados.length})</h3>
-          <input type="text" placeholder="Buscar por nome, CPF ou celular..." value={filtro} onChange={(e) => setFiltro(e.target.value)} className="search-input-3d" />
-        </div>
-        
+
+      <div className="clientes-section">
+        <h2 className="section-title gradient-text">Lista de Clientes ({clientesFiltrados.length})</h2>
         {clientesFiltrados.length === 0 ? (
-          <div className="empty-state-3d"><p>Nenhum cliente encontrado</p></div>
+          <div className="empty-state glass-card">Nenhum cliente encontrado. Cadastre o primeiro!</div>
         ) : (
-          <div className="table-container-3d">
-            <table className="table-3d">
-              <thead>
-                <tr>
-                  <th>CLIENTE</th>
-                  <th>CONTATO</th>
-                  <th>TIPO</th>
-                  <th>LOCALIZAÇÃO</th>
-                  <th>AÇÕES</th>
-                </tr>
-              </thead>
-              <tbody>
-                {clientesFiltrados.map(cliente => (
-                  <tr key={cliente.id}>
-                    <td><div className="text-primary-3d">{cliente.nome}</div><div className="text-secondary-3d">CPF: {cliente.cpf}</div></td>
-                    <td><div className="text-primary-3d">{cliente.celular || 'N/A'}</div><div className="text-secondary-3d">{cliente.email || 'Sem email'}</div></td>
-                    <td>
-                      <span className={`badge-3d badge-${cliente.tipo}`}>
-                        {cliente.tipo === 'comprador' ? (
-                          <><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg> Comprador</>
-                        ) : (
-                          <><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg> Vendedor</>
-                        )}
-                      </span>
-                    </td>
-                    <td className="text-primary-3d">{cliente.cidade && cliente.uf ? `${cliente.cidade} / ${cliente.uf}` : 'N/A'}</td>
-                    <td>
-                      <div className="table-actions-3d">
-                        <button onClick={() => editarCliente(cliente)} className="btn-icon-3d btn-edit-3d" title="Editar">
-                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
-                        </button>
-                        <button onClick={() => deletarCliente(cliente.id)} className="btn-icon-3d btn-delete-3d" title="Excluir">
-                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+          <div className="clientes-grid">
+            {clientesFiltrados.map((cliente, index) => {
+              const tipoCliente = cliente.tipo === 'pessoa_fisica' ? { color: '#0066CC' } : { color: '#DC2626' };
+              return (
+                <div 
+                  key={cliente.id} 
+                  className="client-tile glass-tile"
+                  onClick={() => abrirSheet(cliente)}
+                  style={{ animationDelay: `${index * 0.05}s` }}
+                >
+                  <span className="tile-name">{cliente.nome.substring(0, 8)}{cliente.nome.length > 8 ? '...' : ''}</span>
+                  <div 
+                    className="tipo-dot" 
+                    style={{ background: tipoCliente.color + '20', borderColor: tipoCliente.color }}
+                    title={cliente.tipo === 'pessoa_fisica' ? 'PF' : 'PJ'}
+                  />
+                </div>
+              );
+            })}
           </div>
         )}
+      </div>
+
+      {showSheet && (
+        <div className="bottom-sheet-overlay" onClick={fecharSheet}>
+          <div className="bottom-sheet glass-sheet" onClick={(e) => e.stopPropagation()}>
+            <div className="sheet-handle" />
+            <div className="sheet-header glass-header-mini">
+              <h3 className="gradient-text">{selectedClient?.nome}</h3>
+              <span className="tipo-badge" style={{ background: tipoOpt?.color + '10', color: tipoOpt?.color }}>
+                {selectedClient?.tipo === 'pessoa_fisica' ? 'PF' : 'PJ'}
+              </span>
+            </div>
+            <div className="sheet-details">
+              <p><strong>CPF:</strong> {selectedClient?.cpf}</p>
+              <p><strong>Telefone:</strong> {selectedClient?.celular}</p>
+              <p><strong>Email:</strong> {selectedClient?.email || 'Não informado'}</p>
+              <p><strong>Tipo:</strong> {selectedClient?.tipo === 'pessoa_fisica' ? 'Pessoa Física' : 'Pessoa Jurídica'}</p>
+              <p><strong>Endereço:</strong> {selectedClient?.endereco_rua} {selectedClient?.endereco_numero}, {selectedClient?.bairro}, {selectedClient?.cidade}/{selectedClient?.uf} - {selectedClient?.cep}</p>
+            </div>
+            <div className="sheet-actions">
+              <button className="glass-btn primary" onClick={() => { editarCliente(selectedClient); fecharSheet(); }}>Editar Cliente</button>
+              <button className="glass-btn danger" onClick={() => deletarCliente(selectedClient.id)}>Excluir Cliente</button>
+              <button className="glass-btn secondary" onClick={fecharSheet}>Fechar</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <div className="quick-actions dash-quick-icons">
+        <button className="quick-icon glass-btn" onClick={() => setMostrarForm(true)}>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <line x1="12" y1="5" x2="12" y2="19" />
+            <line x1="5" y1="12" x2="19" y2="12" />
+          </svg>
+          <span>Novo Cliente</span>
+          <div className="glass-shine" />
+        </button>
+        <button className="quick-icon glass-btn" onClick={() => alert('Exportar CSV em dev')}>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <polyline points="20 6 9 17 4 12" />
+          </svg>
+          <span>Exportar</span>
+          <div className="glass-shine" />
+        </button>
+        <button className="quick-icon glass-btn" onClick={() => setFiltro('')}>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <circle cx="11" cy="11" r="8" />
+            <line x1="21" y1="21" x2="16.65" y2="16.65" />
+          </svg>
+          <span>Limpar Filtro</span>
+          <div className="glass-shine" />
+        </button>
+        <button className="quick-icon glass-btn" onClick={carregarClientes}>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <polyline points="23 4 23 10 17 10" />
+            <path d="M20.49 15A9 9 0 0 1 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 20.49 15" />
+          </svg>
+          <span>Atualizar</span>
+          <div className="glass-shine" />
+        </button>
       </div>
     </div>
   );
