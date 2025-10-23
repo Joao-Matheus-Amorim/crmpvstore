@@ -137,8 +137,8 @@ body {
   position: sticky;
   top: 0;
   background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(20px) saturate(180%);
   -webkit-backdrop-filter: blur(20px) saturate(180%);
+  backdrop-filter: blur(20px) saturate(180%);
   border-bottom: 1px solid rgba(226, 232, 240, 0.5);
   z-index: 100;
   padding: 0.5rem 1rem;
@@ -317,8 +317,8 @@ body {
   left: 0;
   right: 0;
   background: rgba(255, 255, 255, 0.98);
-  backdrop-filter: blur(20px) saturate(180%);
   -webkit-backdrop-filter: blur(20px) saturate(180%);
+  backdrop-filter: blur(20px) saturate(180%);
   border-top: 1px solid rgba(226, 232, 240, 0.5);
   display: flex;
   justify-content: space-around;
@@ -1691,5 +1691,141 @@ html {
 
   .logo-premium img {
     height: 28px;
+  }
+}
+/* ============================================
+   HEADER + USER SECTION - MOBILE OTIMIZADO
+   ============================================ */
+
+.header-content-premium {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 100%;
+  gap: 1rem;
+}
+
+/* Brand (Logo + Título) */
+.brand-premium {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-shrink: 0;
+  min-width: 0;
+}
+
+.logo-premium img {
+  height: 28px;
+  width: auto;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+}
+
+.brand-info-premium {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.brand-info-premium h1 {
+  font-size: 1rem;
+  font-weight: 700;
+  margin: 0;
+  background: linear-gradient(135deg, #0066CC 0%, #00D4FF 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.brand-tagline-premium {
+  font-size: 0.65rem;
+  color: #64748b;
+  margin: 0;
+  line-height: 1;
+  white-space: nowrap;
+  display: none; /* Esconde "Enterprise System" no mobile */
+}
+
+/* ✅ USER SECTION - SÓ AVATAR NO MOBILE */
+.user-section-premium {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-shrink: 0;
+}
+
+.user-avatar-premium {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #0066CC 0%, #2563eb 100%);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.95rem;
+  box-shadow: 0 4px 12px rgba(0, 102, 204, 0.3);
+  cursor: pointer;
+  transition: all 0.3s;
+  flex-shrink: 0;
+}
+
+.user-avatar-premium:active {
+  transform: scale(0.95);
+}
+
+/* ✅ ESCONDE EMAIL/NOME NO MOBILE */
+.user-name-premium,
+.user-email-premium {
+  display: none; /* Escondido no mobile */
+}
+
+/* ✅ ESCONDE BOTÃO LOGOUT NO MOBILE */
+.btn-logout-premium {
+  display: none; /* Escondido no mobile */
+}
+
+/* ✅ DESKTOP (>768px) - MOSTRA EMAIL + LOGOUT */
+@media (min-width: 769px) {
+  .logo-premium img {
+    height: 32px;
+  }
+
+  .brand-info-premium h1 {
+    font-size: 1.1rem;
+  }
+
+  .brand-tagline-premium {
+    display: block;
+    font-size: 0.7rem;
+  }
+
+  .user-name-premium,
+  .user-email-premium {
+    display: block;
+    font-weight: 600;
+    color: #1e293b;
+    font-size: 0.85rem;
+    white-space: nowrap;
+  }
+
+  .btn-logout-premium {
+    display: flex;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    border: none;
+    background: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .btn-logout-premium:hover {
+    background: rgba(239, 68, 68, 0.2);
+    transform: scale(1.05);
   }
 }
