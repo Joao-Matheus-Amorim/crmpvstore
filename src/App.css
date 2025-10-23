@@ -129,7 +129,368 @@ body {
   min-width: 44px;
   transition: all 0.2s;
   color: #94a3b8;
+  font-size: 0.7rem;/* ============================================
+   NAVEGAÇÃO - MOBILE-FIRST OTIMIZADO
+   ============================================ */
+
+.header-premium {
+  position: sticky;
+  top: 0;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border-bottom: 1px solid rgba(226, 232, 240, 0.5);
+  z-index: 100;
+  padding: 0.5rem 1rem;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+}
+
+.header-content-premium {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 100%;
+  gap: 1rem;
+}
+
+/* Brand */
+.brand-premium {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.logo-premium img {
+  height: 28px;
+  width: auto;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+}
+
+.brand-info-premium h1 {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0;
+  background: linear-gradient(135deg, #0066CC 0%, #00D4FF 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.brand-tagline-premium {
+  display: none; /* Oculto no mobile */
+}
+
+/* ✅ NAVEGAÇÃO DESKTOP (>768px) - Horizontal */
+.nav-premium.desktop-nav {
+  display: none;
+}
+
+@media (min-width: 769px) {
+  .nav-premium.desktop-nav {
+    display: flex;
+    flex: 1;
+    justify-content: center;
+    gap: 0.5rem;
+    overflow-x: auto;
+    scrollbar-width: none;
+    padding: 0.25rem 0;
+  }
+
+  .nav-premium.desktop-nav::-webkit-scrollbar {
+    display: none;
+  }
+
+  .brand-tagline-premium {
+    display: block;
+    font-size: 0.7rem;
+    color: #64748b;
+  }
+
+  .logo-premium img {
+    height: 32px;
+  }
+
+  .brand-info-premium h1 {
+    font-size: 1.1rem;
+  }
+}
+
+/* Botões Desktop */
+.nav-item-premium {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+  min-width: 70px;
+  min-height: 56px;
+  padding: 0.5rem 0.75rem;
+  background: rgba(255, 255, 255, 0.4);
+  backdrop-filter: blur(10px) saturate(150%);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05), inset 0 1px 1px rgba(255, 255, 255, 0.5);
+}
+
+.nav-item-premium::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 50%;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.6) 0%, rgba(255, 255, 255, 0) 100%);
+  border-radius: 12px 12px 0 0;
+  pointer-events: none;
+  opacity: 0.5;
+}
+
+.nav-icon-premium {
+  width: 20px;
+  height: 20px;
+  color: #475569;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+  transition: all 0.3s;
+  z-index: 1;
+}
+
+.nav-label-premium {
   font-size: 0.7rem;
+  font-weight: 600;
+  color: #475569;
+  z-index: 1;
+}
+
+.nav-item-premium.active {
+  background: linear-gradient(135deg, rgba(0, 102, 204, 0.15) 0%, rgba(0, 212, 255, 0.15) 100%);
+  border-color: rgba(0, 102, 204, 0.3);
+  box-shadow: 0 4px 16px rgba(0, 102, 204, 0.2);
+  transform: translateY(-1px);
+}
+
+.nav-item-premium.active .nav-icon-premium {
+  color: #0066CC;
+  transform: scale(1.1);
+}
+
+.nav-item-premium.active .nav-label-premium {
+  color: #0066CC;
+  font-weight: 700;
+}
+
+.nav-indicator {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 40%;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, #0066CC, transparent);
+  border-radius: 2px 2px 0 0;
+}
+
+@media (min-width: 769px) {
+  .nav-item-premium:hover {
+    background: rgba(255, 255, 255, 0.6);
+    border-color: rgba(0, 102, 204, 0.2);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+  }
+
+  .nav-item-premium:hover .nav-icon-premium {
+    color: #00D4FF;
+    transform: scale(1.15);
+  }
+}
+
+.nav-item-premium:active {
+  transform: scale(0.95);
+}
+
+/* ✅ BOTTOM NAVIGATION BAR - MOBILE (<768px) */
+.bottom-nav-premium {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(255, 255, 255, 0.98);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border-top: 1px solid rgba(226, 232, 240, 0.5);
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  padding: 0.5rem 0;
+  padding-bottom: env(safe-area-inset-bottom); /* iPhone notch */
+  z-index: 99;
+  box-shadow: 0 -2px 12px rgba(0, 0, 0, 0.05);
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+
+.bottom-nav-premium::-webkit-scrollbar {
+  display: none;
+}
+
+@media (min-width: 769px) {
+  .bottom-nav-premium {
+    display: none;
+  }
+}
+
+/* Botões Mobile (Bottom Nav) */
+.nav-item-mobile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+  min-width: 60px;
+  min-height: 52px;
+  padding: 0.5rem 0.5rem;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  border-radius: 12px;
+  transition: all 0.3s;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  position: relative;
+}
+
+.nav-icon-mobile {
+  width: 22px;
+  height: 22px;
+  color: #94a3b8;
+  stroke: currentColor;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1));
+  transition: all 0.3s;
+}
+
+.nav-label-mobile {
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: #94a3b8;
+  text-align: center;
+  line-height: 1;
+  transition: all 0.3s;
+}
+
+/* Estado Ativo Mobile */
+.nav-item-mobile.active {
+  background: rgba(0, 102, 204, 0.1);
+  transform: scale(1.05);
+}
+
+.nav-item-mobile.active .nav-icon-mobile {
+  color: #0066CC;
+  transform: scale(1.15);
+  filter: drop-shadow(0 2px 6px rgba(0, 102, 204, 0.4));
+}
+
+.nav-item-mobile.active .nav-label-mobile {
+  color: #0066CC;
+  font-weight: 700;
+}
+
+.nav-item-mobile:active {
+  transform: scale(0.92);
+}
+
+/* User Section Desktop */
+.user-section-premium.desktop-user {
+  display: none;
+}
+
+@media (min-width: 769px) {
+  .user-section-premium.desktop-user {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+}
+
+.user-avatar-premium {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #0066CC 0%, #2563eb 100%);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.95rem;
+  box-shadow: 0 4px 12px rgba(0, 102, 204, 0.3);
+  transition: all 0.3s;
+}
+
+.user-name-premium {
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.btn-logout-premium {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: none;
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-logout-premium:hover {
+  background: rgba(239, 68, 68, 0.2);
+}
+
+/* Hamburger (só para telas muito pequenas se necessário) */
+.hamburger-premium {
+  display: none; /* Não precisa mais no mobile padrão */
+}
+
+/* Mobile Drawer (backup para configurações) */
+.mobile-drawer-premium {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 280px;
+  height: 100vh;
+  background: rgba(255, 255, 255, 0.98);
+  backdrop-filter: blur(20px);
+  transform: translateX(-100%);
+  transition: transform 0.3s;
+  z-index: 101;
+  box-shadow: 2px 0 20px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+}
+
+.mobile-drawer-premium.open {
+  transform: translateX(0);
+}
+
+/* ... (resto do drawer mantém igual) ... */
+
+/* Content Padding para Bottom Nav */
+.main-content-premium {
+  padding-bottom: 80px; /* Espaço para bottom nav */
+}
+
+@media (min-width: 769px) {
+  .main-content-premium {
+    padding-bottom: 2rem;
+  }
+}
+
 }
 
 .nav-item-mobile.active {

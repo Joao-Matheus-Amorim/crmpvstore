@@ -555,6 +555,7 @@ export default function Checklist() {
   const handleGeneratePDF = (checklist) => {
     try {
       generateChecklistPDF(checklist)
+    // eslint-disable-next-line no-unused-vars
     } catch (error) {
       alert('❌ Erro ao gerar PDF')
     }

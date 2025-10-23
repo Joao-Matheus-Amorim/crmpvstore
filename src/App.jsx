@@ -296,20 +296,22 @@ function App() {
         </div>
       </main>
 
-      {/* ✅ BOTTOM NAVIGATION BAR - Para mobile (visível <768px pelo CSS) */}
-      <nav className="bottom-nav-premium">
-        {menus.map(m => (
-          <button
-            key={m.id}
-            onClick={() => handleMenuClick(m.id)}
-            className={`nav-item-mobile ${telaAtual === m.id ? 'active' : ''}`}
-            type="button"
-          >
-            <span className="nav-icon-mobile">{m.icon}</span>
-            <span className="nav-label-mobile">{m.label}</span>
-          </button>
-        ))}
-      </nav>
+      {/* ✅ BOTTOM NAVIGATION BAR - MOBILE */}
+<nav className="bottom-nav-premium">
+  {menus.slice(0, 5).map(m => ( // Mostra só 5 principais no mobile
+    <button
+      key={m.id}
+      onClick={() => handleMenuClick(m.id)}
+      className={`nav-item-mobile ${telaAtual === m.id ? 'active' : ''}`}
+      type="button"
+      aria-label={m.label}
+    >
+      <span className="nav-icon-mobile">{m.icon}</span>
+      <span className="nav-label-mobile">{m.label}</span>
+    </button>
+  ))}
+</nav>
+
     </div>
   )
 }
