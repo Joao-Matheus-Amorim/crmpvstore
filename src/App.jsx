@@ -31,6 +31,15 @@ function App() {
     return () => subscription.unsubscribe()
   }, [])
 
+  // ✅ NOVO: Registro do Service Worker para PWA (app-like)
+  useEffect(() => {
+    if ('serviceWorker' in navigator && !window.isDev) { // Evita em dev para evitar conflitos
+      navigator.serviceWorker.register('/sw.js')
+        .then(registration => console.log('SW registrado:', registration))
+        .catch(error => console.error('Erro no SW:', error))
+    }
+  }, [])
+
   if (loading) {
     return (
       <div className="loading-container">
@@ -185,6 +194,7 @@ function App() {
             </div>
           </div>
 
+          {/* ✅ NAV DESKTOP - Escondida no mobile pelo CSS */}
           <div className="nav-premium desktop-nav">
             {menus.map(m => (
               <button
@@ -200,6 +210,7 @@ function App() {
             ))}
           </div>
 
+          {/* ✅ USER SECTION DESKTOP */}
           <div className="user-section-premium desktop-user">
             <div className="user-avatar-premium">{userInitial}</div>
             <span className="user-name-premium">{userName}</span>
@@ -212,6 +223,7 @@ function App() {
             </button>
           </div>
 
+          {/* ✅ HAMBURGER MOBILE - Só para telas muito pequenas (<375px) pelo CSS */}
           <button 
             className="hamburger-premium mobile-only"
             onClick={() => setMenuAberto(!menuAberto)}
@@ -225,6 +237,7 @@ function App() {
         </div>
       </nav>
 
+      {/* ✅ DRAWER MOBILE - Para telas muito pequenas */}
       <div className={`mobile-drawer-premium ${menuAberto ? 'open' : ''}`}>
         <div className="drawer-header-premium">
           <div className="user-avatar-premium large">{userInitial}</div>
@@ -261,6 +274,7 @@ function App() {
         </div>
       </div>
 
+      {/* ✅ OVERLAY PARA DRAWER */}
       {menuAberto && (
         <div 
           className="overlay-premium"
@@ -268,6 +282,7 @@ function App() {
         />
       )}
 
+      {/* ✅ MAIN CONTENT - Com padding para bottom nav */}
       <main className="main-content-premium">
         <div className="content-wrapper">
           {telaAtual === 'dashboard' && <Dashboard onNavigate={setTelaAtual} />}
@@ -280,6 +295,21 @@ function App() {
           {telaAtual === 'configuracoes' && <Configuracoes />}
         </div>
       </main>
+
+      {/* ✅ BOTTOM NAVIGATION BAR - Para mobile (visível <768px pelo CSS) */}
+      <nav className="bottom-nav-premium">
+        {menus.map(m => (
+          <button
+            key={m.id}
+            onClick={() => handleMenuClick(m.id)}
+            className={`nav-item-mobile ${telaAtual === m.id ? 'active' : ''}`}
+            type="button"
+          >
+            <span className="nav-icon-mobile">{m.icon}</span>
+            <span className="nav-label-mobile">{m.label}</span>
+          </button>
+        ))}
+      </nav>
     </div>
   )
 }

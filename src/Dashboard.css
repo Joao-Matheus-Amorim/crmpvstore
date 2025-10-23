@@ -781,3 +781,513 @@ backdrop-filter: blur(10px);
 .checkbox-inline label:hover {
   transform: none;
 }
+/* ============================================
+   AÇÕES RÁPIDAS - GLASS 3D ÁGUA FUTURISTA
+   ============================================ */
+
+.quick-actions-futuristic {
+  margin-top: 2rem;
+  padding: 1rem 0;
+}
+
+.section-title-glass {
+  font-size: 1rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  color: #1e293b;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  background: linear-gradient(135deg, #0066CC 0%, #00D4FF 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.actions-grid-glass {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr); /* 4 colunas mobile */
+  gap: 0.75rem;
+}
+
+@media (max-width: 480px) {
+  .actions-grid-glass {
+    grid-template-columns: repeat(4, 1fr); /* Mantém 4 colunas mesmo em 320px */
+    gap: 0.5rem;
+  }
+}
+
+@media (min-width: 481px) and (max-width: 768px) {
+  .actions-grid-glass {
+    grid-template-columns: repeat(4, 1fr); /* Tablet: 4 colunas */
+    gap: 1rem;
+  }
+}
+
+@media (min-width: 769px) {
+  .actions-grid-glass {
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); /* Desktop: auto-fit */
+    gap: 1.25rem;
+  }
+
+  .section-title-glass {
+    font-size: 1.25rem;
+  }
+}
+
+/* ✅ BOTÃO GLASS 3D FUTURÍSTICO */
+.action-btn-glass {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 70px; /* Compacto mas touch-friendly */
+  padding: 0.75rem 0.5rem;
+  border: none;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.1); /* Transparente água */
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  backdrop-filter: blur(20px) saturate(180%);
+  box-shadow: 
+    0 8px 32px rgba(31, 38, 135, 0.15),
+    inset 0 1px 1px rgba(255, 255, 255, 0.3),
+    inset 0 -1px 1px rgba(0, 0, 0, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Reflexo espelhado (efeito água) */
+.glass-reflection {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 50%;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.4) 0%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  border-radius: 16px 16px 0 0;
+  pointer-events: none;
+  opacity: 0.5;
+  transition: opacity 0.3s;
+}
+
+/* Hover/Active States */
+.action-btn-glass:hover {
+  background: rgba(255, 255, 255, 0.15);
+  transform: translateY(-2px);
+  box-shadow: 
+    0 12px 40px rgba(31, 38, 135, 0.2),
+    inset 0 2px 2px rgba(255, 255, 255, 0.4),
+    inset 0 -2px 2px rgba(0, 0, 0, 0.08);
+}
+
+.action-btn-glass:hover .glass-reflection {
+  opacity: 0.7;
+}
+
+.action-btn-glass:active {
+  transform: translateY(0) scale(0.98);
+  box-shadow: 
+    0 4px 16px rgba(31, 38, 135, 0.15),
+    inset 0 1px 1px rgba(255, 255, 255, 0.2);
+}
+
+/* Conteúdo do botão */
+.glass-content {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+  pointer-events: none;
+}
+
+.action-icon-glass {
+  width: 20px;
+  height: 20px;
+  color: #0066CC;
+  filter: drop-shadow(0 2px 4px rgba(0, 102, 204, 0.3));
+  transition: all 0.3s;
+}
+
+.action-btn-glass:hover .action-icon-glass {
+  color: #00D4FF;
+  transform: scale(1.1);
+  filter: drop-shadow(0 4px 8px rgba(0, 212, 255, 0.5));
+}
+
+.action-label-glass {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: #1e293b;
+  letter-spacing: 0.02em;
+  text-align: center;
+  line-height: 1.2;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media (min-width: 769px) {
+  .action-btn-glass {
+    min-height: 90px;
+    padding: 1rem;
+  }
+
+  .action-icon-glass {
+    width: 24px;
+    height: 24px;
+  }
+
+  .action-label-glass {
+    font-size: 0.85rem;
+  }
+}
+
+/* ✅ ANIMAÇÃO DE ENTRADA */
+@keyframes glassSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.action-btn-glass {
+  animation: glassSlideUp 0.6s ease-out backwards;
+}
+
+.action-btn-glass:nth-child(1) { animation-delay: 0.05s; }
+.action-btn-glass:nth-child(2) { animation-delay: 0.1s; }
+.action-btn-glass:nth-child(3) { animation-delay: 0.15s; }
+.action-btn-glass:nth-child(4) { animation-delay: 0.2s; }
+.action-btn-glass:nth-child(5) { animation-delay: 0.25s; }
+.action-btn-glass:nth-child(6) { animation-delay: 0.3s; }
+.action-btn-glass:nth-child(7) { animation-delay: 0.35s; }
+.action-btn-glass:nth-child(8) { animation-delay: 0.4s; }
+
+/* ✅ PERFORMANCE: Reduz motion se preferido */
+@media (prefers-reduced-motion: reduce) {
+  .action-btn-glass {
+    animation: none;
+    transition-duration: 0.01ms;
+  }
+}
+
+/* ✅ DARK MODE SUPPORT (OPCIONAL) */
+@media (prefers-color-scheme: dark) {
+  .action-btn-glass {
+    background: rgba(15, 23, 42, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .action-label-glass {
+    color: #e2e8f0;
+  }
+}
+/* ============================================
+   DASHBOARD MOBILE-FIRST FLUIDO
+   ============================================ */
+
+.dashboard-mobile {
+  padding: 0.75rem;
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+/* Header Compacto */
+.dash-header-mobile {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  padding: 0.5rem 0;
+}
+
+.dash-title-mobile {
+  font-size: 1.5rem;
+  font-weight: 800;
+  margin: 0;
+  background: linear-gradient(135deg, #0066CC 0%, #00D4FF 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.btn-refresh-mobile {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  color: #0066CC;
+}
+
+.btn-refresh-mobile:active {
+  transform: rotate(180deg) scale(0.95);
+}
+
+/* Stats Compactos - 3 Cards Horizontais */
+.stats-compact-mobile {
+  display: flex;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  padding: 0.25rem 0;
+}
+
+.stats-compact-mobile::-webkit-scrollbar {
+  display: none;
+}
+
+.stat-mini-card {
+  min-width: 140px;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(10px);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s;
+  animation: slideInUp 0.5s ease-out backwards;
+}
+
+.stat-mini-card:nth-child(1) { animation-delay: 0.05s; }
+.stat-mini-card:nth-child(2) { animation-delay: 0.1s; }
+.stat-mini-card:nth-child(3) { animation-delay: 0.15s; }
+
+.stat-mini-card:active {
+  transform: scale(0.98);
+}
+
+.stat-mini-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  flex-shrink: 0;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.stat-mini-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 0;
+}
+
+.stat-mini-label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.stat-mini-value {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: #1e293b;
+  line-height: 1;
+}
+
+/* Ações Rápidas Mobile */
+.quick-actions-mobile {
+  margin-top: 1.5rem;
+}
+
+.section-title-mobile {
+  font-size: 0.9rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.75rem;
+  color: #475569;
+}
+
+.actions-grid-mobile {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.5rem;
+}
+
+@media (max-width: 375px) {
+  .actions-grid-mobile {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.4rem;
+  }
+}
+
+/* Botões Mini Glass 3D */
+.action-btn-mini {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  min-height: 64px;
+  padding: 0.5rem 0.25rem;
+  background: rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(15px) saturate(160%);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 12px;
+  box-shadow: 
+    0 4px 12px rgba(0, 0, 0, 0.08),
+    inset 0 1px 1px rgba(255, 255, 255, 0.4);
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
+  touch-action: manipulation;
+  color: #1e293b;
+  animation: slideInUp 0.6s ease-out backwards;
+}
+
+.action-btn-mini:nth-child(1) { animation-delay: 0.2s; }
+.action-btn-mini:nth-child(2) { animation-delay: 0.25s; }
+.action-btn-mini:nth-child(3) { animation-delay: 0.3s; }
+.action-btn-mini:nth-child(4) { animation-delay: 0.35s; }
+.action-btn-mini:nth-child(5) { animation-delay: 0.4s; }
+.action-btn-mini:nth-child(6) { animation-delay: 0.45s; }
+.action-btn-mini:nth-child(7) { animation-delay: 0.5s; }
+.action-btn-mini:nth-child(8) { animation-delay: 0.55s; }
+
+/* Brilho Glass (reflexo água) */
+.glass-shine {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 50%;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.5) 0%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  border-radius: 12px 12px 0 0;
+  pointer-events: none;
+  opacity: 0.6;
+  transition: opacity 0.3s;
+}
+
+.action-btn-mini:active {
+  transform: scale(0.95);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.action-btn-mini:active .glass-shine {
+  opacity: 0.8;
+}
+
+.action-btn-mini svg {
+  width: 20px;
+  height: 20px;
+  color: #0066CC;
+  filter: drop-shadow(0 2px 4px rgba(0, 102, 204, 0.2));
+  transition: all 0.3s;
+  position: relative;
+  z-index: 1;
+}
+
+.action-btn-mini:active svg {
+  transform: scale(1.1);
+  color: #00D4FF;
+}
+
+.action-btn-mini span {
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-align: center;
+  line-height: 1.1;
+  position: relative;
+  z-index: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+/* Animação */
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(15px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Desktop (opcional) */
+@media (min-width: 769px) {
+  .dashboard-mobile {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+  }
+
+  .dash-title-mobile {
+    font-size: 2rem;
+  }
+
+  .stats-compact-mobile {
+    gap: 1.5rem;
+  }
+
+  .stat-mini-card {
+    min-width: 180px;
+    padding: 1.25rem 1.5rem;
+  }
+
+  .actions-grid-mobile {
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+    gap: 1rem;
+  }
+
+  .action-btn-mini {
+    min-height: 80px;
+    padding: 0.75rem 0.5rem;
+  }
+
+  .action-btn-mini svg {
+    width: 24px;
+    height: 24px;
+  }
+
+  .action-btn-mini span {
+    font-size: 0.75rem;
+  }
+}
