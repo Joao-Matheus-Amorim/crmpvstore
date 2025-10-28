@@ -1,6 +1,9 @@
 import { useState, useEffect, useCallback } from 'react'
 import { supabase } from './supabaseClient.js'
 import { gerarContratoSeminovo } from './utils/contractGenerator.js'
+import './Contratos.css'
+import { gerarTermoGarantia } from './utils/warrantyGenerator.js'
+
 
 export default function Contratos() {
   const [contratos, setContratos] = useState([])
@@ -13,163 +16,89 @@ export default function Contratos() {
   const [filtro, setFiltro] = useState('')
   
   const [formData, setFormData] = useState({
+    // IDs e status
     client_id: '',
     product_id: '',
+    owner_id: null,
     tipo: 'venda',
+    status: 'ativo',
+    
+    // Pagamento
     valor_centavos: '',
+    valor_extenso: '',
     forma_pagamento: '',
     parcelas: '1',
-    data_vencimento: '',
-    observacoes: '',
-    status: 'ativo'
+    dia_vencimento: '',
+    outra_modalidade_parcelamento: '',
+    
+    // Produto
+    device_brand: '',
+    device_model: '',
+    device_color: '',
+    device_imei: '',
+    device_storage: '',
+    device_ram: '',
+    device_authenticity: 'original',
+    has_invoice: false,
+    invoice_date: '',
+    is_unlocked: false,
+    unlocked_carriers: '',
+    
+    // Acessórios
+    has_earphones: false,
+    has_charger: false,
+    has_screen_protector: false,
+    other_accessories: '',
+    
+    // Dados bancários vendedor
+    bank_account: '',
+    bank_agency: '',
+    bank_name: '',
+    
+    // Local e data
+    contract_city: '',
+    contract_state: '',
+    contract_date: new Date().toISOString().split('T')[0],
+    
+    // Testemunhas
+    witness1_name: '',
+    witness1_cpf: '',
+    witness2_name: '',
+    witness2_cpf: '',
+    
+    // Observações
+    observacoes: ''
   })
-
-  const colors = {
-    primary: '#007AFF',
-    secondary: '#FF3B30',
-    success: '#34C759',
-    white: '#FFFFFF',
-    lightGray: '#F2F2F7',
-    mediumGray: '#E5E5EA',
-    darkGray: '#8E8E93',
-    text: '#1C1C1E',
-    textSecondary: '#6E6E73'
-  }
-
-  const styles = {
-    container: {
-      padding: '2rem 1.5rem',
-      minHeight: '100vh',
-      background: `linear-gradient(135deg, ${colors.lightGray} 0%, #E8F4FF 25%, #FFE8E8 50%, ${colors.lightGray} 75%, #E8F4FF 100%)`,
-      backgroundSize: '400% 400%',
-      animation: 'gradientShift 15s ease infinite'
-    },
-    header: {
-      background: 'rgba(255, 255, 255, 0.75)',
-      backdropFilter: 'blur(30px) saturate(180%)',
-      padding: '1.75rem 2rem',
-      borderRadius: '24px',
-      border: '1px solid rgba(255, 255, 255, 0.5)',
-      boxShadow: '0 8px 32px rgba(0, 122, 255, 0.12), inset 0 1px 1px rgba(255, 255, 255, 0.9)',
-      marginBottom: '2rem',
-      display: 'flex',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      flexWrap: 'wrap',
-      gap: '1.5rem'
-    },
-    title: {
-      fontSize: '2rem',
-      fontWeight: '800',
-      background: `linear-gradient(135deg, ${colors.primary} 0%, ${colors.secondary} 100%)`,
-      WebkitBackgroundClip: 'text',
-      WebkitTextFillColor: 'transparent',
-      margin: '0 0 0.5rem 0'
-    },
-    subtitle: {
-      color: colors.textSecondary,
-      fontSize: '0.95rem',
-      margin: 0,
-      fontWeight: '500'
-    },
-    statsGrid: {
-      display: 'grid',
-      gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
-      gap: '1.5rem',
-      marginBottom: '2rem'
-    },
-    statCard: {
-      background: 'rgba(255, 255, 255, 0.8)',
-      backdropFilter: 'blur(30px)',
-      borderRadius: '20px',
-      padding: '1.75rem',
-      border: '1px solid rgba(255, 255, 255, 0.6)',
-      boxShadow: '0 8px 24px rgba(0, 0, 0, 0.08)',
-      transition: 'all 0.3s ease'
-    },
-    card: {
-      background: 'rgba(255, 255, 255, 0.8)',
-      backdropFilter: 'blur(30px)',
-      borderRadius: '24px',
-      padding: '2rem',
-      border: '1px solid rgba(255, 255, 255, 0.6)',
-      boxShadow: '0 12px 40px rgba(0, 0, 0, 0.08)',
-      marginBottom: '2rem'
-    },
-    btnPrimary: {
-      background: `linear-gradient(135deg, ${colors.primary} 0%, #0051D5 100%)`,
-      color: colors.white,
-      padding: '1rem 2rem',
-      borderRadius: '16px',
-      border: 'none',
-      fontWeight: '700',
-      fontSize: '1rem',
-      cursor: 'pointer',
-      boxShadow: '0 8px 24px rgba(0, 122, 255, 0.35)',
-      transition: 'all 0.3s ease',
-      display: 'flex',
-      alignItems: 'center',
-      gap: '0.6rem'
-    },
-    formSection: {
-      border: `1px solid ${colors.mediumGray}`,
-      borderRadius: '20px',
-      padding: '1.75rem',
-      background: 'rgba(242, 242, 247, 0.5)',
-      marginBottom: '1.5rem'
-    },
-    formInput: {
-      padding: '1rem 1.25rem',
-      border: `2px solid ${colors.mediumGray}`,
-      borderRadius: '14px',
-      fontSize: '1rem',
-      background: 'rgba(255, 255, 255, 0.9)',
-      width: '100%',
-      boxSizing: 'border-box',
-      transition: 'all 0.3s ease',
-      fontWeight: '500'
-    },
-    table: {
-      width: '100%',
-      borderCollapse: 'separate',
-      borderSpacing: '0 0.75rem'
-    },
-    th: {
-      textAlign: 'left',
-      padding: '1rem',
-      fontSize: '0.85rem',
-      fontWeight: '700',
-      color: colors.textSecondary,
-      textTransform: 'uppercase'
-    },
-    td: {
-      padding: '1.25rem 1rem',
-      background: 'rgba(255, 255, 255, 0.6)',
-      backdropFilter: 'blur(10px)',
-      fontSize: '0.95rem'
-    }
-  }
 
   const carregarContratos = useCallback(async () => {
     if (!ownerId) return
     try {
-      const { data: contratosData } = await supabase.from('contracts').select('*').eq('owner_id', ownerId).order('created_at', { ascending: false })
+      const { data: contratosData } = await supabase
+        .from('contracts')
+        .select('*')
+        .eq('owner_id', ownerId)
+        .order('created_at', { ascending: false })
+      
       if (!contratosData) {
         setContratos([])
         setCarregando(false)
         return
       }
+
       const clientIds = [...new Set(contratosData.map(c => c.client_id).filter(Boolean))]
       const productIds = [...new Set(contratosData.map(c => c.product_id).filter(Boolean))]
+      
       const [clientsResult, productsResult] = await Promise.all([
         clientIds.length > 0 ? supabase.from('clients').select('*').in('id', clientIds) : Promise.resolve({ data: [] }),
         productIds.length > 0 ? supabase.from('products').select('*').in('id', productIds) : Promise.resolve({ data: [] })
       ])
+      
       const contratosCompletos = contratosData.map(c => ({
         ...c,
         clients: clientsResult.data?.find(cl => cl.id === c.client_id) || null,
         products: productsResult.data?.find(p => p.id === c.product_id) || null
       }))
+      
       setContratos(contratosCompletos)
     } catch (error) {
       console.error('Erro ao carregar contratos:', error)
@@ -181,13 +110,22 @@ export default function Contratos() {
 
   const carregarClientes = useCallback(async () => {
     if (!ownerId) return
-    const { data } = await supabase.from('clients').select('*').eq('owner_id', ownerId).order('nome')
+    const { data } = await supabase
+      .from('clients')
+      .select('*')
+      .eq('owner_id', ownerId)
+      .order('nome')
     setClientes(data || [])
   }, [ownerId])
 
   const carregarProdutos = useCallback(async () => {
     if (!ownerId) return
-    const { data } = await supabase.from('products').select('*').eq('owner_id', ownerId).eq('status', 'disponivel').order('nome')
+    const { data } = await supabase
+      .from('products')
+      .select('*')
+      .eq('owner_id', ownerId)
+      .in('status', ['disponivel', 'ativo'])
+      .order('nome')
     setProdutos(data || [])
   }, [ownerId])
 
@@ -204,10 +142,6 @@ export default function Contratos() {
 
   useEffect(() => {
     buscarOwnerId()
-    const style = document.createElement('style')
-    style.textContent = `@keyframes gradientShift { 0%, 100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } } @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }`
-    document.head.appendChild(style)
-    return () => document.head.removeChild(style)
   }, [])
 
   useEffect(() => {
@@ -221,48 +155,108 @@ export default function Contratos() {
   async function salvarContrato(e) {
     e.preventDefault()
     try {
-      const contratoData = { ...formData, valor_centavos: parseInt(formData.valor_centavos) || 0, parcelas: parseInt(formData.parcelas) || 1 }
+      const contratoData = {
+        ...formData,
+        owner_id: ownerId,
+        valor_centavos: parseInt(formData.valor_centavos) || 0,
+        parcelas: parseInt(formData.parcelas) || 1
+      }
+      
       if (editando) {
         await supabase.from('contracts').update(contratoData).eq('id', editando.id)
-        alert('✅ Contrato atualizado!')
+        alert('Contrato atualizado com sucesso')
       } else {
-        await supabase.from('contracts').insert({ ...contratoData, owner_id: ownerId })
+        await supabase.from('contracts').insert([contratoData])
         if (formData.product_id && formData.tipo === 'venda') {
           await supabase.from('products').update({ status: 'vendido' }).eq('id', formData.product_id)
         }
-        alert('✅ Contrato criado!')
+        alert('Contrato criado com sucesso')
       }
       resetForm()
       carregarContratos()
       carregarProdutos()
     } catch (error) {
       console.error('Erro ao salvar contrato:', error)
-      alert('❌ Erro ao salvar')
+      alert('Erro ao salvar contrato: ' + error.message)
     }
   }
 
   async function deletarContrato(id, produtoId) {
-    if (confirm('Excluir contrato?')) {
-      await supabase.from('contracts').delete().eq('id', id)
-      if (produtoId) await supabase.from('products').update({ status: 'disponivel' }).eq('id', produtoId)
-      carregarContratos()
-      carregarProdutos()
+    if (window.confirm('Tem certeza que deseja excluir este contrato?')) {
+      try {
+        await supabase.from('contracts').delete().eq('id', id)
+        if (produtoId) {
+          await supabase.from('products').update({ status: 'disponivel' }).eq('id', produtoId)
+        }
+        alert('Contrato excluído com sucesso')
+        carregarContratos()
+        carregarProdutos()
+      } catch (error) {
+        console.error('Erro ao excluir contrato:', error)
+        alert('Erro ao excluir contrato')
+      }
     }
   }
 
   async function atualizarStatus(id, novoStatus, produtoId) {
-    await supabase.from('contracts').update({ status: novoStatus }).eq('id', id)
-    if (novoStatus === 'cancelado' && produtoId) {
-      await supabase.from('products').update({ status: 'disponivel' }).eq('id', produtoId)
+    try {
+      await supabase.from('contracts').update({ status: novoStatus }).eq('id', id)
+      if (novoStatus === 'cancelado' && produtoId) {
+        await supabase.from('products').update({ status: 'disponivel' }).eq('id', produtoId)
+      }
+      carregarContratos()
+      carregarProdutos()
+    } catch (error) {
+      console.error('Erro ao atualizar status:', error)
     }
-    carregarContratos()
-    carregarProdutos()
   }
+async function gerarGarantia(contrato) {
+  try {
+    setCarregando(true)
+    
+    const [clienteData, produtoData, ownerData] = await Promise.all([
+      supabase.from('clients').select('*').eq('id', contrato.client_id).single(),
+      contrato.product_id ? supabase.from('products').select('*').eq('id', contrato.product_id).single() : Promise.resolve({ data: null }),
+      supabase.from('owners').select('*').eq('id', ownerId).single()
+    ])
+    
+    if (!clienteData.data) {
+      alert('Cliente não encontrado')
+      setCarregando(false)
+      return
+    }
+    
+    const comprador = clienteData.data
+    const produto = produtoData.data || {}
+    const vendedor = ownerData.data || {
+      nome: 'PV Store',
+      email: 'contato@pvstore.com',
+      telefone: '(11) 99999-9999',
+      cpf: '',
+      rg: '',
+      endereco: '',
+      numero: '',
+      bairro: '',
+      cidade: '',
+      uf: '',
+      cep: ''
+    }
+    
+    await gerarTermoGarantia(contrato, comprador, vendedor, produto)
+    alert('Termo de Garantia gerado e baixado com sucesso')
+    
+  } catch (error) {
+    console.error('Erro ao gerar termo de garantia:', error)
+    alert('Erro ao gerar termo de garantia: ' + error.message)
+  } finally {
+    setCarregando(false)
+  }
+}
 
-  // ✅ FUNÇÃO SIMPLIFICADA - SÓ GERA CONTRATO SEMINOVO
   async function gerarContratoCompleto(contrato) {
     try {
       setCarregando(true)
+      
       const [clienteData, produtoData, ownerData] = await Promise.all([
         supabase.from('clients').select('*').eq('id', contrato.client_id).single(),
         contrato.product_id ? supabase.from('products').select('*').eq('id', contrato.product_id).single() : Promise.resolve({ data: null }),
@@ -270,29 +264,28 @@ export default function Contratos() {
       ])
       
       if (!clienteData.data) {
-        alert('❌ Cliente não encontrado')
+        alert('Cliente não encontrado')
         setCarregando(false)
         return
       }
       
       const comprador = clienteData.data
       const produto = produtoData.data || {}
-      const vendedor = ownerData.data || { 
-        nome: 'PV Store', 
-        email: 'contato@pvstore.com', 
+      const vendedor = ownerData.data || {
+        nome: 'PV Store',
+        email: 'contato@pvstore.com',
         telefone: '(11) 99999-9999',
-        cpf: 'N/A',
-        cidade: 'São Paulo',
-        uf: 'SP'
+        cpf: '',
+        cidade: '',
+        uf: ''
       }
       
-      // ✅ GERA O CONTRATO DIRETAMENTE
       await gerarContratoSeminovo(contrato, comprador, vendedor, produto)
-      alert('✅ Contrato de Seminovo gerado e baixado!')
+      alert('Contrato gerado e baixado com sucesso')
       
     } catch (error) {
       console.error('Erro ao gerar contrato:', error)
-      alert('❌ Erro ao gerar contrato: ' + error.message)
+      alert('Erro ao gerar contrato: ' + error.message)
     } finally {
       setCarregando(false)
     }
@@ -304,18 +297,83 @@ export default function Contratos() {
       client_id: c.client_id || '',
       product_id: c.product_id || '',
       tipo: c.tipo || 'venda',
+      status: c.status || 'ativo',
       valor_centavos: c.valor_centavos || '',
+      valor_extenso: c.valor_extenso || '',
       forma_pagamento: c.forma_pagamento || '',
       parcelas: c.parcelas || '1',
-      data_vencimento: c.data_vencimento || '',
-      observacoes: c.observacoes || '',
-      status: c.status || 'ativo'
+      dia_vencimento: c.dia_vencimento || '',
+      outra_modalidade_parcelamento: c.outra_modalidade_parcelamento || '',
+      device_brand: c.device_brand || '',
+      device_model: c.device_model || '',
+      device_color: c.device_color || '',
+      device_imei: c.device_imei || '',
+      device_storage: c.device_storage || '',
+      device_ram: c.device_ram || '',
+      device_authenticity: c.device_authenticity || 'original',
+      has_invoice: c.has_invoice || false,
+      invoice_date: c.invoice_date || '',
+      is_unlocked: c.is_unlocked || false,
+      unlocked_carriers: c.unlocked_carriers || '',
+      has_earphones: c.has_earphones || false,
+      has_charger: c.has_charger || false,
+      has_screen_protector: c.has_screen_protector || false,
+      other_accessories: c.other_accessories || '',
+      bank_account: c.bank_account || '',
+      bank_agency: c.bank_agency || '',
+      bank_name: c.bank_name || '',
+      contract_city: c.contract_city || '',
+      contract_state: c.contract_state || '',
+      contract_date: c.contract_date || new Date().toISOString().split('T')[0],
+      witness1_name: c.witness1_name || '',
+      witness1_cpf: c.witness1_cpf || '',
+      witness2_name: c.witness2_name || '',
+      witness2_cpf: c.witness2_cpf || '',
+      observacoes: c.observacoes || ''
     })
     setMostrarForm(true)
   }
 
   function resetForm() {
-    setFormData({ client_id: '', product_id: '', tipo: 'venda', valor_centavos: '', forma_pagamento: '', parcelas: '1', data_vencimento: '', observacoes: '', status: 'ativo' })
+    setFormData({
+      client_id: '',
+      product_id: '',
+      owner_id: ownerId,
+      tipo: 'venda',
+      status: 'ativo',
+      valor_centavos: '',
+      valor_extenso: '',
+      forma_pagamento: '',
+      parcelas: '1',
+      dia_vencimento: '',
+      outra_modalidade_parcelamento: '',
+      device_brand: '',
+      device_model: '',
+      device_color: '',
+      device_imei: '',
+      device_storage: '',
+      device_ram: '',
+      device_authenticity: 'original',
+      has_invoice: false,
+      invoice_date: '',
+      is_unlocked: false,
+      unlocked_carriers: '',
+      has_earphones: false,
+      has_charger: false,
+      has_screen_protector: false,
+      other_accessories: '',
+      bank_account: '',
+      bank_agency: '',
+      bank_name: '',
+      contract_city: '',
+      contract_state: '',
+      contract_date: new Date().toISOString().split('T')[0],
+      witness1_name: '',
+      witness1_cpf: '',
+      witness2_name: '',
+      witness2_cpf: '',
+      observacoes: ''
+    })
     setEditando(null)
     setMostrarForm(false)
   }
@@ -324,141 +382,664 @@ export default function Contratos() {
     return (centavos / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
   }
 
+  const handleInputChange = (e) => {
+    const { name, value, type, checked } = e.target
+    setFormData(prev => ({
+      ...prev,
+      [name]: type === 'checkbox' ? checked : value
+    }))
+  }
+
   const contratosFiltrados = contratos.filter(c => {
     const nomeCliente = c.clients?.nome || c.clients?.nome_completo || ''
     const nomeProduto = c.products?.nome || ''
-    return nomeCliente.toLowerCase().includes(filtro.toLowerCase()) || nomeProduto.toLowerCase().includes(filtro.toLowerCase())
+    return nomeCliente.toLowerCase().includes(filtro.toLowerCase()) || 
+           nomeProduto.toLowerCase().includes(filtro.toLowerCase())
   })
 
   const stats = {
     total: contratos.length,
     ativos: contratos.filter(c => c.status === 'ativo').length,
     finalizados: contratos.filter(c => c.status === 'finalizado').length,
-    receita: contratos.filter(c => c.status === 'ativo' || c.status === 'finalizado').reduce((sum, c) => sum + (c.valor_centavos || 0), 0)
+    receita: contratos.filter(c => c.status === 'ativo' || c.status === 'finalizado')
+      .reduce((sum, c) => sum + (c.valor_centavos || 0), 0)
   }
 
   if (carregando) {
     return (
-      <div style={{...styles.container, display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
-        <div style={{textAlign: 'center'}}>
-          <div style={{ width: '60px', height: '60px', border: `4px solid ${colors.lightGray}`, borderTop: `4px solid ${colors.primary}`, borderRadius: '50%', animation: 'spin 1s linear infinite', margin: '0 auto 1rem' }}></div>
-          <p style={{color: colors.textSecondary, fontWeight: 600}}>Carregando...</p>
+      <div className="contratos-container">
+        <div className="loading-contratos">
+          <div className="spinner-contratos"></div>
+          <p className="loading-text-contratos">Carregando contratos...</p>
         </div>
       </div>
     )
   }
 
   return (
-    <div style={styles.container}>
-      <div style={styles.header}>
+    <div className="contratos-container">
+      <div className="contratos-header">
         <div>
-          <h1 style={styles.title}>📋 Gestão de Contratos</h1>
-          <p style={styles.subtitle}>Controle de vendas e geração de documentos</p>
+          <h1 className="contratos-title">Gestão de Contratos</h1>
+          <p className="contratos-subtitle">Controle de vendas e geração de documentos</p>
         </div>
-        <button style={styles.btnPrimary} onClick={() => { if (!mostrarForm) resetForm(); setMostrarForm(!mostrarForm) }}>
-          {mostrarForm ? '✕ Cancelar' : '➕ Novo Contrato'}
+        <button 
+          className="btn-novo-contrato" 
+          onClick={() => { 
+            if (!mostrarForm) resetForm(); 
+            setMostrarForm(!mostrarForm) 
+          }}
+        >
+          {mostrarForm ? 'Cancelar' : 'Novo Contrato'}
         </button>
       </div>
 
-      <div style={styles.statsGrid}>
-        <div style={styles.statCard}>
-          <h3 style={{fontSize: '0.85rem', color: colors.textSecondary, fontWeight: 600, margin: '0 0 0.5rem 0', textTransform: 'uppercase'}}>Total</h3>
-          <p style={{fontSize: '2.5rem', fontWeight: 800, color: colors.primary, margin: 0}}>{stats.total}</p>
+      <div className="stats-grid-contratos">
+        <div className="stat-card-contratos">
+          <h3 className="stat-label-contratos">Total</h3>
+          <p className="stat-value-contratos stat-primary">{stats.total}</p>
         </div>
-        <div style={styles.statCard}>
-          <h3 style={{fontSize: '0.85rem', color: colors.textSecondary, fontWeight: 600, margin: '0 0 0.5rem 0', textTransform: 'uppercase'}}>Ativos</h3>
-          <p style={{fontSize: '2.5rem', fontWeight: 800, color: colors.success, margin: 0}}>{stats.ativos}</p>
+        <div className="stat-card-contratos">
+          <h3 className="stat-label-contratos">Ativos</h3>
+          <p className="stat-value-contratos stat-success">{stats.ativos}</p>
         </div>
-        <div style={styles.statCard}>
-          <h3 style={{fontSize: '0.85rem', color: colors.textSecondary, fontWeight: 600, margin: '0 0 0.5rem 0', textTransform: 'uppercase'}}>Finalizados</h3>
-          <p style={{fontSize: '2.5rem', fontWeight: 800, color: colors.primary, margin: 0}}>{stats.finalizados}</p>
+        <div className="stat-card-contratos">
+          <h3 className="stat-label-contratos">Finalizados</h3>
+          <p className="stat-value-contratos stat-primary">{stats.finalizados}</p>
         </div>
-        <div style={styles.statCard}>
-          <h3 style={{fontSize: '0.85rem', color: colors.textSecondary, fontWeight: 600, margin: '0 0 0.5rem 0', textTransform: 'uppercase'}}>Receita</h3>
-          <p style={{fontSize: '2rem', fontWeight: 800, color: colors.success, margin: 0}}>{formatarMoeda(stats.receita)}</p>
+        <div className="stat-card-contratos">
+          <h3 className="stat-label-contratos">Receita</h3>
+          <p className="stat-value-contratos stat-success" style={{fontSize: '1.75rem'}}>{formatarMoeda(stats.receita)}</p>
         </div>
       </div>
 
       {mostrarForm && (
-        <div style={styles.card}>
-          <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:'2rem',paddingBottom:'1.5rem',borderBottom:`2px solid ${colors.mediumGray}`}}>
-            <h3 style={{fontSize: '1.5rem', fontWeight: '800', background: `linear-gradient(135deg, ${colors.primary} 0%, ${colors.secondary} 100%)`, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', margin: 0}}>
-              {editando ? '✏️ Editar' : '✨ Novo'} Contrato
+        <div className="card-contratos">
+          <div className="card-header-contratos">
+            <h3 className="card-title-contratos">
+              {editando ? 'Editar Contrato' : 'Novo Contrato'}
             </h3>
           </div>
-          <form onSubmit={salvarContrato}>
-            <div style={styles.formSection}>
-              <h4 style={{fontSize: '1.1rem', fontWeight: '700', color: colors.text, marginBottom: '1rem'}}>📋 Informações</h4>
-              <div style={{display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', marginBottom: '1rem'}}>
-                <select style={styles.formInput} value={formData.client_id} onChange={(e) => setFormData({...formData, client_id: e.target.value})} required>
-                  <option value="">Selecione cliente...</option>
-                  {clientes.map(c => <option key={c.id} value={c.id}>{c.nome || c.nome_completo}</option>)}
-                </select>
-                <select style={styles.formInput} value={formData.product_id} onChange={(e) => setFormData({...formData, product_id: e.target.value})}>
-                  <option value="">Selecione produto...</option>
-                  {produtos.map(p => <option key={p.id} value={p.id}>{p.nome}</option>)}
-                </select>
-              </div>
-              <div style={{display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem'}}>
-                <input style={styles.formInput} type="number" placeholder="Valor (centavos)" value={formData.valor_centavos} onChange={(e) => setFormData({...formData, valor_centavos: e.target.value})} required />
-                <select style={styles.formInput} value={formData.forma_pagamento} onChange={(e) => setFormData({...formData, forma_pagamento: e.target.value})} required>
-                  <option value="">Pagamento...</option>
-                  <option value="pix">PIX</option>
-                  <option value="credito">Crédito</option>
-                  <option value="debito">Débito</option>
-                  <option value="dinheiro">Dinheiro</option>
-                </select>
+
+          <form onSubmit={salvarContrato} className="form-contratos">
+            {/* SEÇÃO 1: CLIENTE E PRODUTO */}
+            <div className="form-section-contratos">
+              <h4 className="section-title-contratos">Cliente e Produto</h4>
+              
+              <div className="form-row-contratos">
+                <div className="form-group-contratos">
+                  <label className="form-label-contratos">Cliente</label>
+                  <select 
+                    className="form-input-contratos" 
+                    name="client_id"
+                    value={formData.client_id} 
+                    onChange={handleInputChange} 
+                    required
+                  >
+                    <option value="">Selecione o cliente...</option>
+                    {clientes.map(c => (
+                      <option key={c.id} value={c.id}>
+                        {c.nome || c.nome_completo}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="form-group-contratos">
+                  <label className="form-label-contratos">Produto</label>
+                  <select 
+                    className="form-input-contratos"
+                    name="product_id" 
+                    value={formData.product_id} 
+                    onChange={handleInputChange}
+                  >
+                    <option value="">Selecione o produto...</option>
+                    {produtos.map(p => (
+                      <option key={p.id} value={p.id}>
+                        {p.nome}
+                      </option>
+                    ))}
+                  </select>
+                </div>
               </div>
             </div>
-            <div style={{display:'flex',gap:'1rem',paddingTop:'1.5rem',borderTop:`2px solid ${colors.mediumGray}`}}>
-              <button type="submit" style={{...styles.btnPrimary, background: `linear-gradient(135deg, ${colors.success} 0%, #28A745 100%)`, flex: 1}}>{editando ? '✅ Atualizar' : '💾 Salvar'}</button>
-              <button type="button" onClick={resetForm} style={{...styles.btnPrimary, background: 'rgba(142, 142, 147, 0.15)', color: colors.text, flex: 1}}>Cancelar</button>
+
+            {/* SEÇÃO 2: DADOS DO APARELHO */}
+            <div className="form-section-contratos">
+              <h4 className="section-title-contratos">Dados do Aparelho</h4>
+              
+              <div className="form-row-contratos">
+                <div className="form-group-contratos">
+                  <label className="form-label-contratos">Marca</label>
+                  <input 
+                    className="form-input-contratos"
+                    name="device_brand"
+                    value={formData.device_brand}
+                    onChange={handleInputChange}
+                    placeholder="Ex: Apple"
+                  />
+                </div>
+
+                <div className="form-group-contratos">
+                  <label className="form-label-contratos">Modelo</label>
+                  <input 
+                    className="form-input-contratos"
+                    name="device_model"
+                    value={formData.device_model}
+                    onChange={handleInputChange}
+                    placeholder="Ex: iPhone 15 Pro"
+                  />
+                </div>
+
+                <div className="form-group-contratos">
+                  <label className="form-label-contratos">Cor</label>
+                  <input 
+                    className="form-input-contratos"
+                    name="device_color"
+                    value={formData.device_color}
+                    onChange={handleInputChange}
+                  />
+                </div>
+              </div>
+
+              <div className="form-row-contratos">
+                <div className="form-group-contratos">
+                  <label className="form-label-contratos">IMEI</label>
+                  <input 
+                    className="form-input-contratos"
+                    name="device_imei"
+                    value={formData.device_imei}
+                    onChange={handleInputChange}
+                  />
+                </div>
+
+                <div className="form-group-contratos">
+                  <label className="form-label-contratos">Armazenamento</label>
+                  <input 
+                    className="form-input-contratos"
+                    name="device_storage"
+                    value={formData.device_storage}
+                    onChange={handleInputChange}
+                    placeholder="Ex: 256GB"
+                  />
+                </div>
+
+                <div className="form-group-contratos">
+                  <label className="form-label-contratos">RAM</label>
+                  <input 
+                    className="form-input-contratos"
+                    name="device_ram"
+                    value={formData.device_ram}
+                    onChange={handleInputChange}
+                    placeholder="Ex: 8GB"
+                  />
+                </div>
+              </div>
+
+              <div className="form-row-contratos">
+                <div className="form-group-contratos">
+                  <label className="form-label-contratos">Originalidade</label>
+                  <div className="form-checkbox-row">
+                    <label className="checkbox-group-contratos">
+                      <input 
+                        type="radio" 
+                        name="device_authenticity" 
+                        value="original" 
+                        checked={formData.device_authenticity === 'original'}
+                        onChange={handleInputChange}
+                      />
+                      <span className="checkbox-label-contratos">Original</span>
+                    </label>
+                    <label className="checkbox-group-contratos">
+                      <input 
+                        type="radio" 
+                        name="device_authenticity" 
+                        value="replica" 
+                        checked={formData.device_authenticity === 'replica'}
+                        onChange={handleInputChange}
+                      />
+                      <span className="checkbox-label-contratos">Réplica</span>
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              <div className="form-row-contratos">
+                <div className="form-group-contratos">
+                  <label className="checkbox-group-contratos">
+                    <input 
+                      type="checkbox" 
+                      name="has_invoice" 
+                      checked={formData.has_invoice}
+                      onChange={handleInputChange}
+                    />
+                    <span className="checkbox-label-contratos">Possui nota fiscal</span>
+                  </label>
+                  {formData.has_invoice && (
+                    <input 
+                      className="form-input-contratos"
+                      type="date"
+                      name="invoice_date"
+                      value={formData.invoice_date}
+                      onChange={handleInputChange}
+                      style={{marginTop: '0.5rem'}}
+                    />
+                  )}
+                </div>
+              </div>
+
+              <div className="form-row-contratos">
+                <div className="form-group-contratos">
+                  <label className="form-label-contratos">Desbloqueado</label>
+                  <div className="form-checkbox-row">
+                    <label className="checkbox-group-contratos">
+                      <input 
+                        type="radio" 
+                        name="is_unlocked" 
+                        value="false" 
+                        checked={!formData.is_unlocked}
+                        onChange={() => setFormData({...formData, is_unlocked: false})}
+                      />
+                      <span className="checkbox-label-contratos">Não</span>
+                    </label>
+                    <label className="checkbox-group-contratos">
+                      <input 
+                        type="radio" 
+                        name="is_unlocked" 
+                        value="true" 
+                        checked={formData.is_unlocked}
+                        onChange={() => setFormData({...formData, is_unlocked: true})}
+                      />
+                      <span className="checkbox-label-contratos">Sim, todas operadoras</span>
+                    </label>
+                  </div>
+                  {formData.is_unlocked && (
+                    <input 
+                      className="form-input-contratos"
+                      name="unlocked_carriers"
+                      value={formData.unlocked_carriers}
+                      onChange={handleInputChange}
+                      placeholder="Operadoras específicas (opcional)"
+                      style={{marginTop: '0.5rem'}}
+                    />
+                  )}
+                </div>
+              </div>
+
+              <div className="form-row-contratos">
+                <div className="form-group-contratos">
+                  <label className="form-label-contratos">Acessórios</label>
+                  <div className="form-checkbox-row">
+                    <label className="checkbox-group-contratos">
+                      <input 
+                        type="checkbox" 
+                        name="has_earphones" 
+                        checked={formData.has_earphones}
+                        onChange={handleInputChange}
+                      />
+                      <span className="checkbox-label-contratos">Fone auditivo</span>
+                    </label>
+                    <label className="checkbox-group-contratos">
+                      <input 
+                        type="checkbox" 
+                        name="has_charger" 
+                        checked={formData.has_charger}
+                        onChange={handleInputChange}
+                      />
+                      <span className="checkbox-label-contratos">Carregador</span>
+                    </label>
+                    <label className="checkbox-group-contratos">
+                      <input 
+                        type="checkbox" 
+                        name="has_screen_protector" 
+                        checked={formData.has_screen_protector}
+                        onChange={handleInputChange}
+                      />
+                      <span className="checkbox-label-contratos">Película</span>
+                    </label>
+                  </div>
+                  <input 
+                    className="form-input-contratos"
+                    name="other_accessories"
+                    value={formData.other_accessories}
+                    onChange={handleInputChange}
+                    placeholder="Outros acessórios"
+                    style={{marginTop: '0.5rem'}}
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* SEÇÃO 3: PAGAMENTO */}
+            <div className="form-section-contratos">
+              <h4 className="section-title-contratos">Pagamento</h4>
+              
+              <div className="form-row-contratos">
+                <div className="form-group-contratos">
+                  <label className="form-label-contratos">Valor (R$)</label>
+                  <input 
+                    className="form-input-contratos"
+                    type="number"
+                    name="valor_centavos"
+                    value={formData.valor_centavos}
+                    onChange={handleInputChange}
+                    placeholder="Valor em centavos"
+                    required
+                  />
+                </div>
+
+                <div className="form-group-contratos">
+                  <label className="form-label-contratos">Valor por extenso</label>
+                  <input 
+                    className="form-input-contratos"
+                    name="valor_extenso"
+                    value={formData.valor_extenso}
+                    onChange={handleInputChange}
+                    placeholder="Ex: Cinco mil reais"
+                  />
+                </div>
+              </div>
+
+              <div className="form-row-contratos">
+                <div className="form-group-contratos">
+                  <label className="form-label-contratos">Forma de pagamento</label>
+                  <select 
+                    className="form-input-contratos"
+                    name="forma_pagamento"
+                    value={formData.forma_pagamento}
+                    onChange={handleInputChange}
+                    required
+                  >
+                    <option value="">Selecione...</option>
+                    <option value="dinheiro">À vista em dinheiro</option>
+                    <option value="debito">À vista no débito</option>
+                    <option value="pix">À vista por transferência/PIX</option>
+                    <option value="credito">Crédito parcelado</option>
+                    <option value="outro">Outra modalidade</option>
+                  </select>
+                </div>
+
+                {formData.forma_pagamento === 'credito' && (
+                  <div className="form-group-contratos">
+                    <label className="form-label-contratos">Parcelas</label>
+                    <input 
+                      className="form-input-contratos"
+                      type="number"
+                      name="parcelas"
+                      value={formData.parcelas}
+                      onChange={handleInputChange}
+                      min="1"
+                    />
+                  </div>
+                )}
+
+                {formData.forma_pagamento === 'outro' && (
+                  <div className="form-group-contratos">
+                    <label className="form-label-contratos">Outra modalidade</label>
+                    <input 
+                      className="form-input-contratos"
+                      name="outra_modalidade_parcelamento"
+                      value={formData.outra_modalidade_parcelamento}
+                      onChange={handleInputChange}
+                    />
+                  </div>
+                )}
+              </div>
+
+              {(formData.forma_pagamento === 'credito' || formData.forma_pagamento === 'outro') && (
+                <div className="form-row-contratos">
+                  <div className="form-group-contratos">
+                    <label className="form-label-contratos">Dia do vencimento</label>
+                    <input 
+                      className="form-input-contratos"
+                      type="number"
+                      name="dia_vencimento"
+                      value={formData.dia_vencimento}
+                      onChange={handleInputChange}
+                      min="1"
+                      max="31"
+                      placeholder="Dia do mês"
+                    />
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* SEÇÃO 4: DADOS BANCÁRIOS */}
+            <div className="form-section-contratos">
+              <h4 className="section-title-contratos">Dados Bancários (Vendedor)</h4>
+              
+              <div className="form-row-contratos">
+                <div className="form-group-contratos">
+                  <label className="form-label-contratos">Conta bancária</label>
+                  <input 
+                    className="form-input-contratos"
+                    name="bank_account"
+                    value={formData.bank_account}
+                    onChange={handleInputChange}
+                  />
+                </div>
+
+                <div className="form-group-contratos">
+                  <label className="form-label-contratos">Agência</label>
+                  <input 
+                    className="form-input-contratos"
+                    name="bank_agency"
+                    value={formData.bank_agency}
+                    onChange={handleInputChange}
+                  />
+                </div>
+
+                <div className="form-group-contratos">
+                  <label className="form-label-contratos">Banco</label>
+                  <input 
+                    className="form-input-contratos"
+                    name="bank_name"
+                    value={formData.bank_name}
+                    onChange={handleInputChange}
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* SEÇÃO 5: LOCAL E TESTEMUNHAS */}
+            <div className="form-section-contratos">
+              <h4 className="section-title-contratos">Local e Testemunhas</h4>
+              
+              <div className="form-row-contratos">
+                <div className="form-group-contratos">
+                  <label className="form-label-contratos">Cidade</label>
+                  <input 
+                    className="form-input-contratos"
+                    name="contract_city"
+                    value={formData.contract_city}
+                    onChange={handleInputChange}
+                  />
+                </div>
+
+                <div className="form-group-contratos">
+                  <label className="form-label-contratos">UF</label>
+                  <input 
+                    className="form-input-contratos"
+                    name="contract_state"
+                    value={formData.contract_state}
+                    onChange={handleInputChange}
+                    maxLength="2"
+                    style={{textTransform: 'uppercase'}}
+                  />
+                </div>
+
+                <div className="form-group-contratos">
+                  <label className="form-label-contratos">Data do contrato</label>
+                  <input 
+                    className="form-input-contratos"
+                    type="date"
+                    name="contract_date"
+                    value={formData.contract_date}
+                    onChange={handleInputChange}
+                  />
+                </div>
+              </div>
+
+              <div className="form-row-contratos">
+                <div className="form-group-contratos">
+                  <label className="form-label-contratos">Testemunha 1 - Nome</label>
+                  <input 
+                    className="form-input-contratos"
+                    name="witness1_name"
+                    value={formData.witness1_name}
+                    onChange={handleInputChange}
+                  />
+                </div>
+
+                <div className="form-group-contratos">
+                  <label className="form-label-contratos">Testemunha 1 - CPF</label>
+                  <input 
+                    className="form-input-contratos"
+                    name="witness1_cpf"
+                    value={formData.witness1_cpf}
+                    onChange={handleInputChange}
+                  />
+                </div>
+              </div>
+
+              <div className="form-row-contratos">
+                <div className="form-group-contratos">
+                  <label className="form-label-contratos">Testemunha 2 - Nome</label>
+                  <input 
+                    className="form-input-contratos"
+                    name="witness2_name"
+                    value={formData.witness2_name}
+                    onChange={handleInputChange}
+                  />
+                </div>
+
+                <div className="form-group-contratos">
+                  <label className="form-label-contratos">Testemunha 2 - CPF</label>
+                  <input 
+                    className="form-input-contratos"
+                    name="witness2_cpf"
+                    value={formData.witness2_cpf}
+                    onChange={handleInputChange}
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* SEÇÃO 6: OBSERVAÇÕES */}
+            <div className="form-section-contratos">
+              <h4 className="section-title-contratos">Observações</h4>
+              
+              <div className="form-group-contratos">
+                <textarea 
+                  className="form-input-contratos form-textarea-contratos"
+                  name="observacoes"
+                  value={formData.observacoes}
+                  onChange={handleInputChange}
+                  placeholder="Informações adicionais sobre o contrato..."
+                  rows="4"
+                ></textarea>
+              </div>
+            </div>
+
+            <div className="form-actions-contratos">
+              <button type="submit" className="btn-salvar-contrato">
+                {editando ? 'Atualizar Contrato' : 'Salvar Contrato'}
+              </button>
+              <button type="button" className="btn-cancelar-contrato" onClick={resetForm}>
+                Cancelar
+              </button>
             </div>
           </form>
         </div>
       )}
 
       {!mostrarForm && (
-        <div style={styles.card}>
-          <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:'1.5rem'}}>
-            <h3 style={{fontSize: '1.3rem', fontWeight: '700', color: colors.text, margin: 0}}>Lista de Contratos</h3>
-            <input type="text" placeholder="🔍 Buscar..." value={filtro} onChange={(e) => setFiltro(e.target.value)} style={{...styles.formInput, maxWidth: '400px'}} />
+        <div className="card-contratos">
+          <div className="card-header-contratos" style={{marginBottom: '1.5rem'}}>
+            <h3 className="card-title-contratos">Lista de Contratos</h3>
+            <input 
+              type="text" 
+              placeholder="Buscar contrato..." 
+              value={filtro} 
+              onChange={(e) => setFiltro(e.target.value)} 
+              className="search-input-contratos"
+            />
           </div>
+
           {contratosFiltrados.length === 0 ? (
-            <div style={{textAlign: 'center', padding: '4rem 2rem', background: 'rgba(255, 255, 255, 0.6)', borderRadius: '24px', border: `2px dashed ${colors.mediumGray}`}}>
-              <h4 style={{fontSize: '1.25rem', fontWeight: '700', color: colors.text}}>Nenhum contrato</h4>
-              <p style={{color: colors.textSecondary}}>Crie o primeiro contrato</p>
+            <div className="empty-state-contratos">
+              <svg className="empty-icon-contratos" width="80" height="80" fill="currentColor" opacity="0.3" viewBox="0 0 24 24">
+                <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/>
+                <path fillRule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clipRule="evenodd"/>
+              </svg>
+              <h4 className="empty-title-contratos">Nenhum contrato cadastrado</h4>
+              <p className="empty-subtitle-contratos">Crie seu primeiro contrato</p>
             </div>
           ) : (
-            <div style={{overflowX: 'auto'}}>
-              <table style={styles.table}>
+            <div className="table-responsive-contratos">
+              <table className="table-contratos">
                 <thead>
                   <tr>
-                    <th style={styles.th}>Cliente</th>
-                    <th style={styles.th}>Produto</th>
-                    <th style={styles.th}>Valor</th>
-                    <th style={styles.th}>Status</th>
-                    <th style={styles.th}>Ações</th>
+                    <th>Cliente</th>
+                    <th>Produto</th>
+                    <th>Valor</th>
+                    <th>Status</th>
+                    <th>Ações</th>
                   </tr>
                 </thead>
+                
                 <tbody>
                   {contratosFiltrados.map(c => (
                     <tr key={c.id}>
-                      <td style={{...styles.td, borderRadius: '12px 0 0 12px', fontWeight: 600}}>{c.clients?.nome || 'N/A'}</td>
-                      <td style={styles.td}>{c.products?.nome || 'N/A'}</td>
-                      <td style={{...styles.td, color: colors.success, fontWeight: 700}}>{formatarMoeda(c.valor_centavos)}</td>
-                      <td style={styles.td}>
-                        <select value={c.status} onChange={(e) => atualizarStatus(c.id, e.target.value, c.product_id)} style={{padding: '0.5rem', borderRadius: '8px', border: 'none', background: c.status === 'ativo' ? colors.success : colors.primary, color: 'white', fontWeight: 600, cursor: 'pointer'}}>
+                      <td className="td-cliente">{c.clients?.nome || 'N/A'}</td>
+                      <td>{c.products?.nome || 'N/A'}</td>
+                      <td className="td-valor">{formatarMoeda(c.valor_centavos)}</td>
+                      <td>
+                        <select 
+                          className={`status-select status-${c.status}`}
+                          value={c.status} 
+                          onChange={(e) => atualizarStatus(c.id, e.target.value, c.product_id)}
+                        >
                           <option value="ativo">Ativo</option>
                           <option value="finalizado">Finalizado</option>
                           <option value="cancelado">Cancelado</option>
                         </select>
                       </td>
-                      <td style={{...styles.td, borderRadius: '0 12px 12px 0'}}>
-                        <div style={{display:'flex',gap:'0.5rem'}}>
-                          <button onClick={() => gerarContratoCompleto(c)} style={{padding: '0.6rem 1rem', background: `linear-gradient(135deg, ${colors.success} 0%, #28A745 100%)`, color: 'white', border: 'none', borderRadius: '10px', cursor: 'pointer', fontSize: '0.9rem', fontWeight: 600}} title="Gerar Contrato PDF">📄 PDF</button>
-                          <button onClick={() => editarContrato(c)} style={{padding: '0.6rem', background: `linear-gradient(135deg, ${colors.primary} 0%, #0051D5 100%)`, color: 'white', border: 'none', borderRadius: '10px', cursor: 'pointer', fontSize: '1.1rem'}} title="Editar">✏️</button>
-                          <button onClick={() => deletarContrato(c.id, c.product_id)} style={{padding: '0.6rem', background: `linear-gradient(135deg, ${colors.secondary} 0%, #D22B2B 100%)`, color: 'white', border: 'none', borderRadius: '10px', cursor: 'pointer', fontSize: '1.1rem'}} title="Excluir">🗑️</button>
+   
+
+
+                      <td>
+                                           <button 
+  className="btn-action btn-warranty" 
+  onClick={() => gerarGarantia(c)}
+  title="Gerar Termo de Garantia"
+>
+  Garantia
+</button>
+                        <div className="td-actions">
+                          <button 
+                            className="btn-action btn-pdf" 
+                            onClick={() => gerarContratoCompleto(c)}
+                            title="Gerar PDF"
+                          >
+                            
+                            RECIBO
+                          </button>
+                          <button 
+                            className="btn-action btn-edit" 
+                            onClick={() => editarContrato(c)}
+                            title="Editar"
+                          >
+                            Editar
+                          </button>
+                          <button 
+                            className="btn-action btn-delete" 
+                            onClick={() => deletarContrato(c.id, c.product_id)}
+                            title="Excluir"
+                          >
+                            Excluir
+                          </button>
                         </div>
                       </td>
                     </tr>

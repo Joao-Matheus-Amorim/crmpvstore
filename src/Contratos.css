@@ -1,0 +1,766 @@
+/* ========================================
+   CONTRATOS - 100% MOBILE-FIRST
+   Base: Mobile (320px+) → Tablet → Desktop
+   ======================================== */
+
+/* ========================================
+   BASE MOBILE (320px - 768px)
+   ======================================== */
+
+/* Container */
+.contratos-container {
+  padding: 1rem 0.5rem;
+  padding-bottom: 90px;
+  min-height: 100vh;
+  background: linear-gradient(135deg, 
+    #F2F2F7 0%, 
+    #E8F4FF 25%, 
+    #FFE8E8 50%, 
+    #F2F2F7 75%, 
+    #E8F4FF 100%);
+  background-size: 400% 400%;
+  animation: gradientShift 15s ease infinite;
+}
+
+@keyframes gradientShift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+/* Header */
+.contratos-header {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  padding: 1.25rem;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+}
+
+.contratos-title {
+  font-size: 1.5rem;
+  font-weight: 800;
+  background: linear-gradient(135deg, #007AFF 0%, #FF3B30 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin: 0 0 0.25rem 0;
+  letter-spacing: -0.025em;
+}
+
+.contratos-subtitle {
+  color: #6E6E73;
+  font-size: 0.85rem;
+  margin: 0;
+  font-weight: 500;
+}
+
+.btn-novo-contrato {
+  width: 100%;
+  background: linear-gradient(135deg, #007AFF 0%, #0051D5 100%);
+  color: white;
+  padding: 1rem;
+  min-height: 52px;
+  border: none;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 4px 14px rgba(0, 122, 255, 0.35);
+}
+
+.btn-novo-contrato:active {
+  transform: scale(0.98);
+  box-shadow: 0 2px 8px rgba(0, 122, 255, 0.5);
+}
+
+/* Stats Grid */
+.stats-grid-contratos {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.stat-card-contratos {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-radius: 16px;
+  padding: 1.25rem;
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  transition: all 0.2s;
+}
+
+.stat-label-contratos {
+  font-size: 0.75rem;
+  color: #6E6E73;
+  font-weight: 600;
+  margin: 0 0 0.5rem 0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.stat-value-contratos {
+  font-size: 2rem;
+  font-weight: 800;
+  margin: 0;
+}
+
+.stat-primary {
+  color: #007AFF;
+}
+
+.stat-success {
+  color: #34C759;
+}
+
+/* Card */
+.card-contratos {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-radius: 16px;
+  padding: 1.25rem;
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  margin-bottom: 1.5rem;
+}
+
+.card-header-contratos {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid #E5E5EA;
+}
+
+.card-title-contratos {
+  font-size: 1.2rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, #007AFF 0%, #FF3B30 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin: 0;
+}
+
+.search-input-contratos {
+  width: 100%;
+  padding: 0.875rem;
+  border: 2px solid #E5E5EA;
+  border-radius: 10px;
+  font-size: 16px;
+  background: white;
+  transition: all 0.2s;
+  font-weight: 500;
+}
+
+.search-input-contratos:focus {
+  outline: none;
+  border-color: #007AFF;
+  box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.1);
+}
+
+/* Form */
+.form-contratos {
+  display: grid;
+  gap: 1.25rem;
+}
+
+.form-section-contratos {
+  border: 1px solid #E5E5EA;
+  border-radius: 14px;
+  padding: 1.25rem;
+  background: rgba(242, 242, 247, 0.5);
+}
+
+.section-title-contratos {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #1C1C1E;
+  margin: 0 0 1rem 0;
+}
+
+.form-row-contratos {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.form-group-contratos {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-label-contratos {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #1C1C1E;
+  margin-bottom: 0.5rem;
+}
+
+.form-input-contratos {
+  padding: 0.875rem;
+  border: 2px solid #E5E5EA;
+  border-radius: 10px;
+  font-size: 16px;
+  background: white;
+  transition: all 0.2s;
+  font-weight: 500;
+  color: #1C1C1E;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.form-input-contratos:focus {
+  outline: none;
+  border-color: #007AFF;
+  box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.1);
+}
+
+.form-textarea-contratos {
+  min-height: 100px;
+  resize: vertical;
+}
+
+.form-checkbox-row {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.checkbox-group-contratos {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  background: white;
+  border-radius: 10px;
+  border: 1px solid #E5E5EA;
+  transition: all 0.2s;
+  cursor: pointer;
+}
+
+.checkbox-group-contratos:active {
+  background: rgba(248, 250, 252, 0.8);
+  border-color: #cbd5e1;
+}
+
+.checkbox-label-contratos {
+  font-size: 0.8rem;
+  color: #1C1C1E;
+  cursor: pointer;
+  flex: 1;
+  font-weight: 600;
+}
+
+/* Form Actions */
+.form-actions-contratos {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+  padding-top: 1.25rem;
+  border-top: 2px solid #E5E5EA;
+}
+
+.btn-salvar-contrato {
+  width: 100%;
+  background: linear-gradient(135deg, #34C759 0%, #28A745 100%);
+  color: white;
+  padding: 1.1rem;
+  min-height: 52px;
+  border: none;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 4px 14px rgba(52, 199, 89, 0.35);
+}
+
+.btn-salvar-contrato:active {
+  transform: scale(0.98);
+}
+
+.btn-cancelar-contrato {
+  width: 100%;
+  background: rgba(142, 142, 147, 0.15);
+  color: #1C1C1E;
+  padding: 1.1rem;
+  min-height: 52px;
+  border: 2px solid #E5E5EA;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-cancelar-contrato:active {
+  background: #F2F2F7;
+}
+
+/* Table Mobile */
+.table-responsive-contratos {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.table-contratos {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0 0.75rem;
+  min-width: 600px;
+}
+
+.table-contratos thead th {
+  text-align: left;
+  padding: 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #6E6E73;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+}
+
+.table-contratos tbody td {
+  padding: 1rem 0.75rem;
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(10px);
+  font-size: 0.9rem;
+  border-top: 1px solid #E5E5EA;
+  border-bottom: 1px solid #E5E5EA;
+}
+
+.table-contratos tbody td:first-child {
+  border-left: 1px solid #E5E5EA;
+  border-radius: 12px 0 0 12px;
+}
+
+.table-contratos tbody td:last-child {
+  border-right: 1px solid #E5E5EA;
+  border-radius: 0 12px 12px 0;
+}
+
+.td-cliente {
+  font-weight: 600;
+  color: #1C1C1E;
+}
+
+.td-valor {
+  color: #34C759;
+  font-weight: 700;
+}
+
+/* ========================================
+   BOTÕES DE AÇÃO - ALINHAMENTO PERFEITO
+   ======================================== */
+
+.td-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.btn-action {
+  padding: 0.5rem 0.75rem;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 36px;
+  min-width: 75px;
+  line-height: 1;
+  vertical-align: middle;
+}
+
+.btn-warranty {
+  background: linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%);
+  color: white;
+  box-shadow: 0 2px 8px rgba(139, 92, 246, 0.3);
+}
+
+.btn-pdf {
+  background: linear-gradient(135deg, #34C759 0%, #28A745 100%);
+  color: white;
+  box-shadow: 0 2px 8px rgba(52, 199, 89, 0.3);
+}
+
+.btn-edit {
+  background: linear-gradient(135deg, #007AFF 0%, #0051D5 100%);
+  color: white;
+  box-shadow: 0 2px 8px rgba(0, 122, 255, 0.3);
+}
+
+.btn-delete {
+  background: linear-gradient(135deg, #FF3B30 0%, #D22B2B 100%);
+  color: white;
+  box-shadow: 0 2px 8px rgba(255, 59, 48, 0.3);
+}
+
+.btn-action:active {
+  transform: scale(0.95);
+}
+
+/* Status Select */
+.status-select {
+  padding: 0.5rem 0.75rem;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+  color: white;
+  transition: all 0.2s;
+}
+
+.status-ativo {
+  background: linear-gradient(135deg, #34C759 0%, #28A745 100%);
+}
+
+.status-finalizado {
+  background: linear-gradient(135deg, #007AFF 0%, #0051D5 100%);
+}
+
+.status-cancelado {
+  background: linear-gradient(135deg, #8E8E93 0%, #636366 100%);
+}
+
+/* Empty State */
+.empty-state-contratos {
+  text-align: center;
+  padding: 2.5rem 1.5rem;
+  background: rgba(248, 250, 252, 0.5);
+  border-radius: 16px;
+  border: 2px dashed #cbd5e1;
+}
+
+.empty-icon-contratos {
+  width: 60px;
+  height: 60px;
+  margin: 0 auto 1rem;
+  opacity: 0.3;
+}
+
+.empty-title-contratos {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #475569;
+  margin-bottom: 0.5rem;
+}
+
+.empty-subtitle-contratos {
+  color: #64748b;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+/* Loading */
+.loading-contratos {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+  background: rgba(248, 250, 252, 0.5);
+  border-radius: 16px;
+  padding: 2rem;
+}
+
+.spinner-contratos {
+  width: 45px;
+  height: 45px;
+  border: 3px solid #E5E5EA;
+  border-top: 3px solid #007AFF;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin-bottom: 1rem;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.loading-text-contratos {
+  font-size: 0.95rem;
+  color: #6E6E73;
+  font-weight: 600;
+}
+
+/* ========================================
+   MOBILE MÉDIO (481px - 768px)
+   ======================================== */
+@media (min-width: 481px) {
+  .contratos-container {
+    padding: 1.25rem;
+  }
+
+  .contratos-header {
+    padding: 1.5rem;
+  }
+
+  .contratos-title {
+    font-size: 1.75rem;
+  }
+
+  .stats-grid-contratos {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  .card-contratos {
+    padding: 1.75rem;
+  }
+
+  .form-checkbox-row {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* ========================================
+   TABLET (769px - 1024px)
+   ======================================== */
+@media (min-width: 769px) {
+  .contratos-container {
+    padding: 2rem 1.5rem;
+    padding-bottom: 2rem;
+  }
+
+  .contratos-header {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.75rem 2rem;
+    border-radius: 20px;
+  }
+
+  .contratos-title {
+    font-size: 2rem;
+  }
+
+  .contratos-subtitle {
+    font-size: 0.95rem;
+  }
+
+  .btn-novo-contrato {
+    width: auto;
+    padding: 1rem 2rem;
+  }
+
+  .btn-novo-contrato:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 122, 255, 0.5);
+  }
+
+  .card-contratos {
+    padding: 2rem;
+    border-radius: 20px;
+  }
+
+  .card-header-contratos {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .search-input-contratos {
+    max-width: 400px;
+  }
+
+  .form-row-contratos {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .form-actions-contratos {
+    flex-direction: row;
+  }
+
+  .btn-salvar-contrato,
+  .btn-cancelar-contrato {
+    flex: 1;
+    padding: 1rem;
+  }
+
+  .btn-salvar-contrato:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(52, 199, 89, 0.4);
+  }
+
+  .btn-cancelar-contrato:hover {
+    background: #F2F2F7;
+  }
+
+  .btn-warranty:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(139, 92, 246, 0.4);
+  }
+
+  .btn-pdf:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(52, 199, 89, 0.4);
+  }
+
+  .btn-edit:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 122, 255, 0.4);
+  }
+
+  .btn-delete:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(255, 59, 48, 0.4);
+  }
+}
+
+/* ========================================
+   DESKTOP (1025px+)
+   ======================================== */
+@media (min-width: 1025px) {
+  .contratos-container {
+    padding: 2.5rem 2rem;
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+
+  .form-row-contratos {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* ========================================
+   DESKTOP GRANDE (1440px+)
+   ======================================== */
+@media (min-width: 1440px) {
+  .contratos-container {
+    max-width: 1600px;
+  }
+}
+
+/* ========================================
+   PERFORMANCE & ACESSIBILIDADE
+   ======================================== */
+.card-contratos,
+.stat-card-contratos {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+/* Dark Mode */
+@media (prefers-color-scheme: dark) {
+  .contratos-container {
+    background: linear-gradient(135deg, 
+      #1C1C1E 0%, 
+      #2C2C2E 25%, 
+      #1C1C1E 50%, 
+      #2C2C2E 75%, 
+      #1C1C1E 100%);
+  }
+
+  .contratos-header,
+  .card-contratos,
+  .stat-card-contratos {
+    background: rgba(28, 28, 30, 0.95);
+    border-color: rgba(58, 58, 60, 0.6);
+  }
+
+  .contratos-title {
+    -webkit-text-fill-color: transparent;
+  }
+
+  .contratos-subtitle,
+  .stat-label-contratos,
+  .loading-text-contratos {
+    color: #98989D;
+  }
+
+  .form-input-contratos,
+  .checkbox-group-contratos {
+    background: #2C2C2E;
+    border-color: #3A3A3C;
+    color: #F2F2F7;
+  }
+
+  .form-input-contratos:focus {
+    background: #1C1C1E;
+  }
+}
+/* ========================================
+   FIM CONTRATOS.CSS
+   ======================================== *//* ========================================
+   CORREÇÃO ALINHAMENTO - FORÇA ABSOLUTA
+   ======================================== */
+
+/* Força todos os elementos da célula a alinharem */
+.table-contratos tbody td {
+  vertical-align: middle !important;
+}
+
+/* Status select com altura fixa */
+.status-select {
+  padding: 0.5rem 0.75rem;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+  color: white;
+  transition: all 0.2s;
+  height: 36px !important;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Garante que td-actions use baseline */
+.td-actions {
+  display: flex !important;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center !important;
+  justify-content: flex-start;
+}
+
+/* Força altura e alinhamento em TODOS os botões */
+.btn-action,
+.btn-warranty,
+.btn-pdf,
+.btn-edit,
+.btn-delete {
+  padding: 0 0.75rem !important;
+  height: 36px !important;
+  min-width: 75px;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  line-height: 1 !important;
+  box-sizing: border-box !important;
+}
+/* ========================================
+   FIM CORREÇÃO ALINHAMENTO
+   ======================================== */
