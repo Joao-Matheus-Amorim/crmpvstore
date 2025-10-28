@@ -1,6 +1,6 @@
 /* =================================
    ESTOQUE - 100% MOBILE-FIRST
-   Base: Mobile (320px+) → Escala: Tablet → Desktop
+   Com controle de quantidade +/-
    ================================= */
 
 /* ========================================
@@ -21,15 +21,13 @@
   padding: 0.875rem 1rem;
   border: 2px solid #e2e8f0;
   border-radius: 10px;
-  font-size: 16px; /* Previne zoom no iOS */
+  font-size: 16px;
   font-weight: 600;
   background: white;
   color: #1e293b;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
   transition: all 0.2s;
   cursor: pointer;
-  -webkit-appearance: none;
-  appearance: none;
 }
 
 .filter-select-3d:focus {
@@ -44,10 +42,10 @@
   grid-template-columns: repeat(2, 1fr);
   gap: 0.75rem;
   padding: 0 0.5rem;
-  margin-bottom: 80px; /* Espaço para bottom nav */
+  margin-bottom: 80px;
 }
 
-/* CARD MOBILE - Compacto e touch-friendly */
+/* CARD MOBILE */
 .produto-card-3d {
   background: white;
   border: 2px solid #f1f5f9;
@@ -55,7 +53,6 @@
   overflow: hidden;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
   transition: all 0.2s;
-  position: relative;
 }
 
 .produto-card-3d:active {
@@ -63,12 +60,12 @@
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
 }
 
-/* IMAGEM MOBILE - 1:1 ratio compacto */
+/* IMAGEM MOBILE */
 .produto-imagem-container-3d {
   position: relative;
   width: 100%;
   height: 0;
-  padding-bottom: 100%; /* 1:1 aspect ratio */
+  padding-bottom: 100%;
   background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
   overflow: hidden;
 }
@@ -80,11 +77,6 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform 0.3s;
-}
-
-.produto-card-3d:active .produto-imagem-3d {
-  transform: scale(1.05);
 }
 
 .produto-sem-imagem-3d {
@@ -113,7 +105,7 @@
   color: #94a3b8;
 }
 
-/* BOTÕES MOBILE - Sempre visíveis e grandes para touch */
+/* BOTÕES FOTO */
 .btn-upload-foto-3d {
   position: absolute;
   bottom: 6px;
@@ -131,21 +123,13 @@
   font-weight: 700;
   cursor: pointer;
   box-shadow: 0 2px 8px rgba(37, 99, 235, 0.4);
-  transition: all 0.2s;
   z-index: 10;
   min-height: 32px;
-  opacity: 1; /* Sempre visível no mobile */
-}
-
-.btn-upload-foto-3d:active {
-  background: rgba(29, 78, 216, 0.95);
-  transform: scale(0.95);
 }
 
 .btn-upload-foto-3d svg {
   width: 12px;
   height: 12px;
-  flex-shrink: 0;
 }
 
 .btn-remover-foto-3d {
@@ -164,14 +148,7 @@
   border-radius: 8px;
   cursor: pointer;
   box-shadow: 0 2px 8px rgba(220, 38, 38, 0.4);
-  transition: all 0.2s;
   z-index: 10;
-  opacity: 1; /* Sempre visível no mobile */
-}
-
-.btn-remover-foto-3d:active {
-  background: rgba(185, 28, 28, 0.95);
-  transform: scale(0.95);
 }
 
 .btn-remover-foto-3d svg {
@@ -179,7 +156,7 @@
   height: 14px;
 }
 
-/* INFO DO PRODUTO MOBILE - Compacta */
+/* INFO DO PRODUTO */
 .produto-info-3d {
   padding: 0.75rem;
   display: flex;
@@ -209,15 +186,12 @@
   white-space: nowrap;
 }
 
-/* Detalhes - Inline no mobile */
 .produto-detalhes-3d {
   display: flex;
   gap: 0.3rem;
   flex-wrap: nowrap;
   overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
-  -ms-overflow-style: none;
 }
 
 .produto-detalhes-3d::-webkit-scrollbar {
@@ -244,7 +218,6 @@
   color: #2563EB;
 }
 
-/* PREÇO MOBILE - Compacto */
 .produto-preco-3d {
   display: flex;
   justify-content: space-between;
@@ -259,7 +232,6 @@
   font-weight: 600;
   color: #94a3b8;
   text-transform: uppercase;
-  letter-spacing: 0.3px;
 }
 
 .preco-valor-3d {
@@ -268,7 +240,89 @@
   color: #2563EB;
 }
 
-/* STATUS MOBILE - Badge pequeno */
+/* ========================================
+   CONTROLE DE ESTOQUE +/- MOBILE
+   ======================================== */
+.produto-estoque-controle-3d {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  border-radius: 8px;
+  margin-top: 0.5rem;
+}
+
+.estoque-label-3d {
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  text-align: center;
+}
+
+.estoque-buttons-3d {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+}
+
+/* Botões +/- */
+.btn-estoque-3d {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  flex-shrink: 0;
+}
+
+.btn-estoque-3d:active:not(:disabled) {
+  transform: scale(0.95);
+}
+
+/* Botão MENOS (-) */
+.btn-menos-3d {
+  background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%);
+  color: white;
+}
+
+.btn-menos-3d:disabled {
+  background: #E2E8F0;
+  color: #94A3B8;
+  cursor: not-allowed;
+  opacity: 0.5;
+  box-shadow: none;
+}
+
+/* Botão MAIS (+) */
+.btn-mais-3d {
+  background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+  color: white;
+}
+
+/* Quantidade Display */
+.quantidade-display-3d {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #1e293b;
+  min-width: 50px;
+  text-align: center;
+  padding: 0.4rem 0.75rem;
+  background: white;
+  border-radius: 8px;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.06);
+  border: 2px solid #e2e8f0;
+}
+
+/* STATUS */
 .produto-status-3d {
   display: block;
   text-align: center;
@@ -286,141 +340,34 @@
 .status-vendido { background: #F59E0B; }
 .status-manutencao { background: #DC2626; }
 
-/* Animação de entrada */
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(15px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.produto-card-3d {
-  animation: fadeInUp 0.3s ease-out backwards;
-}
-
-/* ========================================
-   MOBILE MÉDIO (376px - 480px)
-   ======================================== */
-@media (min-width: 376px) {
-  .catalogo-grid-3d {
-    gap: 0.875rem;
-    padding: 0 0.75rem;
-  }
-
-  .produto-nome-3d {
-    font-size: 0.85rem;
-  }
-
-  .produto-modelo-3d {
-    font-size: 0.7rem;
-  }
-
-  .preco-valor-3d {
-    font-size: 0.9rem;
-  }
-
-  .produto-status-3d {
-    font-size: 0.7rem;
-  }
-}
-
-/* ========================================
-   MOBILE GRANDE (481px - 768px)
-   ======================================== */
-@media (min-width: 481px) {
-  .filters-container-3d {
-    flex-direction: row;
-    padding: 0 1rem;
-  }
-
-  .filter-select-3d {
-    flex: 1;
-    min-width: 200px;
-  }
-
-  .catalogo-grid-3d {
-    grid-template-columns: repeat(3, 1fr);
-    gap: 1rem;
-    padding: 0 1rem;
-  }
-
-  .produto-info-3d {
-    padding: 0.875rem;
-  }
-
-  .produto-nome-3d {
-    font-size: 0.9rem;
-  }
-
-  .produto-modelo-3d {
-    font-size: 0.75rem;
-  }
-
-  .preco-valor-3d {
-    font-size: 0.95rem;
-  }
-
-  .produto-status-3d {
-    font-size: 0.7rem;
-    padding: 0.45rem;
-  }
-}
-
 /* ========================================
    TABLET (769px - 1024px)
    ======================================== */
 @media (min-width: 769px) {
-  .filters-container-3d {
-    gap: 1rem;
-    padding: 0 1.5rem;
-  }
-
   .catalogo-grid-3d {
     grid-template-columns: repeat(4, 1fr);
     gap: 1.25rem;
     padding: 0 1.5rem;
   }
 
+  .btn-estoque-3d {
+    width: 40px;
+    height: 40px;
+  }
+
+  .quantidade-display-3d {
+    font-size: 1.35rem;
+    min-width: 60px;
+  }
+
   .produto-card-3d:hover {
     transform: translateY(-4px);
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
-    border-color: #2563EB;
   }
 
-  /* Botões aparecem só no hover no tablet+ */
-  .btn-upload-foto-3d,
-  .btn-remover-foto-3d {
-    opacity: 0;
-  }
-
-  .produto-card-3d:hover .btn-upload-foto-3d,
-  .produto-card-3d:hover .btn-remover-foto-3d {
-    opacity: 1;
-  }
-
-  .produto-info-3d {
-    padding: 1rem;
-  }
-
-  .produto-nome-3d {
-    font-size: 0.95rem;
-  }
-
-  .produto-modelo-3d {
-    font-size: 0.8rem;
-  }
-
-  .preco-valor-3d {
-    font-size: 1rem;
-  }
-
-  .produto-status-3d {
-    font-size: 0.75rem;
-    padding: 0.5rem;
+  .btn-estoque-3d:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
   }
 }
 
@@ -428,98 +375,492 @@
    DESKTOP (1025px+)
    ======================================== */
 @media (min-width: 1025px) {
-  .filters-container-3d {
-    padding: 0 2rem;
-  }
-
   .catalogo-grid-3d {
     grid-template-columns: repeat(5, 1fr);
     gap: 1.5rem;
     padding: 0 2rem;
   }
 
-  .produto-card-3d:hover .produto-imagem-3d {
-    transform: scale(1.08);
+  .btn-estoque-3d {
+    width: 44px;
+    height: 44px;
   }
 
-  .produto-nome-3d {
-    font-size: 1rem;
+  .quantidade-display-3d {
+    font-size: 1.5rem;
+    min-width: 70px;
+  }
+}
+
+/* Performance */
+.btn-estoque-3d,
+.quantidade-display-3d {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+/* ========================================
+   INPUT EDITÁVEL DE QUANTIDADE
+   ======================================== */
+
+/* Substitui o display estático por input */
+.quantidade-input-3d {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #1e293b;
+  min-width: 50px;
+  max-width: 70px;
+  text-align: center;
+  padding: 0.4rem 0.5rem;
+  background: white;
+  border-radius: 8px;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.06);
+  border: 2px solid #e2e8f0;
+  transition: all 0.2s;
+  -moz-appearance: textfield; /* Remove setas do Firefox */
+}
+
+/* Remove setas do Chrome/Safari/Edge */
+.quantidade-input-3d::-webkit-outer-spin-button,
+.quantidade-input-3d::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Foco no input */
+.quantidade-input-3d:focus {
+  outline: none;
+  border-color: #2563EB;
+  box-shadow: 
+    0 0 0 3px rgba(37, 99, 235, 0.1),
+    inset 0 2px 4px rgba(0, 0, 0, 0.06);
+  background: #ffffff;
+}
+
+/* Hover no input */
+.quantidade-input-3d:hover {
+  border-color: #3b82f6;
+  cursor: text;
+}
+
+/* Estado de edição ativo */
+.quantidade-input-3d:focus {
+  color: #2563EB;
+  font-weight: 900;
+}
+
+/* Animação ao salvar */
+@keyframes pulse-save {
+  0%, 100% {
+    transform: scale(1);
+    border-color: #10B981;
+  }
+  50% {
+    transform: scale(1.05);
+    border-color: #059669;
+  }
+}
+
+.quantidade-input-3d.saved {
+  animation: pulse-save 0.4s ease;
+}
+
+/* ========================================
+   RESPONSIVO MOBILE - INPUT EDITÁVEL
+   ======================================== */
+
+/* Mobile pequeno */
+@media (max-width: 375px) {
+  .quantidade-input-3d {
+    font-size: 1.15rem;
+    min-width: 45px;
+    max-width: 60px;
+    padding: 0.35rem 0.4rem;
+  }
+}
+
+/* Tablet e Desktop */
+@media (min-width: 769px) {
+  .quantidade-input-3d {
+    font-size: 1.35rem;
+    min-width: 60px;
+    max-width: 80px;
+    padding: 0.45rem 0.6rem;
   }
 
-  .produto-modelo-3d {
-    font-size: 0.85rem;
+  .quantidade-input-3d:hover {
+    transform: translateY(-1px);
+    box-shadow: 
+      0 2px 8px rgba(37, 99, 235, 0.15),
+      inset 0 2px 4px rgba(0, 0, 0, 0.06);
   }
+}
 
-  .preco-valor-3d {
-    font-size: 1.05rem;
-  }
-
-  .produto-status-3d {
-    font-size: 0.8rem;
+@media (min-width: 1025px) {
+  .quantidade-input-3d {
+    font-size: 1.5rem;
+    min-width: 70px;
+    max-width: 90px;
   }
 }
 
 /* ========================================
-   DESKTOP GRANDE (1440px+)
+   ACESSIBILIDADE E UX
    ======================================== */
-@media (min-width: 1440px) {
-  .catalogo-grid-3d {
-    grid-template-columns: repeat(6, 1fr);
-    max-width: 1600px;
-    margin: 0 auto;
+
+/* Destaque visual quando editável */
+.quantidade-input-3d::placeholder {
+  color: #94a3b8;
+  font-weight: 600;
+}
+
+/* Feedback visual de erro */
+.quantidade-input-3d.error {
+  border-color: #EF4444;
+  animation: shake 0.3s ease;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
+}
+
+/* Dark mode */
+@media (prefers-color-scheme: dark) {
+  .quantidade-input-3d {
+    background: #0f172a;
+    border-color: #334155;
+    color: #f1f5f9;
+  }
+
+  .quantidade-input-3d:focus {
+    background: #1e293b;
+    border-color: #3b82f6;
+  }
+}
+
+/* Touch feedback mobile */
+@media (hover: none) {
+  .quantidade-input-3d:active {
+    transform: scale(0.98);
+  }
+}
+
+/* Performance */
+.quantidade-input-3d {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+/* ========================================
+   SISTEMA DE CORES DE URGÊNCIA - ESTOQUE
+   Verde (≥10) | Amarelo (5-9) | Vermelho (≤4)
+   ======================================== */
+
+/* ESTOQUE SEGURO - Verde (10 ou mais) */
+.produto-card-3d.estoque-seguro {
+  background: linear-gradient(135deg, 
+    rgba(16, 185, 129, 0.08) 0%, 
+    rgba(5, 150, 105, 0.05) 100%);
+  border: 2px solid rgba(16, 185, 129, 0.3);
+  box-shadow: 
+    0 2px 8px rgba(16, 185, 129, 0.15),
+    inset 0 1px 2px rgba(16, 185, 129, 0.1);
+}
+
+.produto-card-3d.estoque-seguro:active {
+  border-color: rgba(16, 185, 129, 0.5);
+  box-shadow: 
+    0 1px 4px rgba(16, 185, 129, 0.2),
+    inset 0 1px 2px rgba(16, 185, 129, 0.15);
+}
+
+.produto-card-3d.estoque-seguro .estoque-label-3d {
+  color: #059669;
+}
+
+.produto-card-3d.estoque-seguro .quantidade-input-3d {
+  border-color: rgba(16, 185, 129, 0.3);
+  color: #047857;
+  background: rgba(240, 253, 244, 0.8);
+}
+
+.produto-card-3d.estoque-seguro .quantidade-input-3d:focus {
+  border-color: #10B981;
+  box-shadow: 
+    0 0 0 3px rgba(16, 185, 129, 0.15),
+    inset 0 2px 4px rgba(0, 0, 0, 0.06);
+}
+
+/* ESTOQUE ATENÇÃO - Amarelo (5-9) */
+.produto-card-3d.estoque-atencao {
+  background: linear-gradient(135deg, 
+    rgba(245, 158, 11, 0.08) 0%, 
+    rgba(217, 119, 6, 0.05) 100%);
+  border: 2px solid rgba(245, 158, 11, 0.3);
+  box-shadow: 
+    0 2px 8px rgba(245, 158, 11, 0.15),
+    inset 0 1px 2px rgba(245, 158, 11, 0.1);
+}
+
+.produto-card-3d.estoque-atencao:active {
+  border-color: rgba(245, 158, 11, 0.5);
+  box-shadow: 
+    0 1px 4px rgba(245, 158, 11, 0.2),
+    inset 0 1px 2px rgba(245, 158, 11, 0.15);
+}
+
+.produto-card-3d.estoque-atencao .estoque-label-3d {
+  color: #D97706;
+}
+
+.produto-card-3d.estoque-atencao .quantidade-input-3d {
+  border-color: rgba(245, 158, 11, 0.3);
+  color: #B45309;
+  background: rgba(254, 252, 232, 0.8);
+}
+
+.produto-card-3d.estoque-atencao .quantidade-input-3d:focus {
+  border-color: #F59E0B;
+  box-shadow: 
+    0 0 0 3px rgba(245, 158, 11, 0.15),
+    inset 0 2px 4px rgba(0, 0, 0, 0.06);
+}
+
+/* ESTOQUE CRÍTICO - Vermelho (≤4) */
+.produto-card-3d.estoque-critico {
+  background: linear-gradient(135deg, 
+    rgba(239, 68, 68, 0.08) 0%, 
+    rgba(220, 38, 38, 0.05) 100%);
+  border: 2px solid rgba(239, 68, 68, 0.3);
+  box-shadow: 
+    0 2px 8px rgba(239, 68, 68, 0.15),
+    inset 0 1px 2px rgba(239, 68, 68, 0.1);
+  animation: pulse-critical 3s ease-in-out infinite;
+}
+
+@keyframes pulse-critical {
+  0%, 100% {
+    box-shadow: 
+      0 2px 8px rgba(239, 68, 68, 0.15),
+      inset 0 1px 2px rgba(239, 68, 68, 0.1);
+  }
+  50% {
+    box-shadow: 
+      0 4px 16px rgba(239, 68, 68, 0.25),
+      inset 0 1px 2px rgba(239, 68, 68, 0.15);
+  }
+}
+
+.produto-card-3d.estoque-critico:active {
+  border-color: rgba(239, 68, 68, 0.5);
+  box-shadow: 
+    0 1px 4px rgba(239, 68, 68, 0.2),
+    inset 0 1px 2px rgba(239, 68, 68, 0.15);
+  animation: none;
+}
+
+.produto-card-3d.estoque-critico .estoque-label-3d {
+  color: #DC2626;
+  font-weight: 800;
+}
+
+.produto-card-3d.estoque-critico .quantidade-input-3d {
+  border-color: rgba(239, 68, 68, 0.3);
+  color: #B91C1C;
+  background: rgba(254, 242, 242, 0.8);
+  font-weight: 900;
+}
+
+.produto-card-3d.estoque-critico .quantidade-input-3d:focus {
+  border-color: #EF4444;
+  box-shadow: 
+    0 0 0 3px rgba(239, 68, 68, 0.15),
+    inset 0 2px 4px rgba(0, 0, 0, 0.06);
+}
+
+/* Badge de alerta no card crítico */
+.produto-card-3d.estoque-critico::before {
+  content: '⚠️ Estoque Baixo';
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  padding: 0.35rem 0.6rem;
+  background: rgba(239, 68, 68, 0.95);
+  color: white;
+  font-size: 0.65rem;
+  font-weight: 700;
+  border-radius: 6px;
+  z-index: 5;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  box-shadow: 0 2px 8px rgba(239, 68, 68, 0.4);
+  animation: badge-shake 2s ease-in-out infinite;
+}
+
+@keyframes badge-shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-2px); }
+  75% { transform: translateX(2px); }
+}
+
+/* Badge de atenção no card amarelo */
+.produto-card-3d.estoque-atencao::before {
+  content: '⚡ Repor Em Breve';
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  padding: 0.35rem 0.6rem;
+  background: rgba(245, 158, 11, 0.95);
+  color: white;
+  font-size: 0.65rem;
+  font-weight: 700;
+  border-radius: 6px;
+  z-index: 5;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  box-shadow: 0 2px 8px rgba(245, 158, 11, 0.4);
+  opacity: 0.9;
+}
+
+/* ========================================
+   HOVER EFFECTS DESKTOP
+   ======================================== */
+@media (min-width: 769px) {
+  .produto-card-3d.estoque-seguro:hover {
+    transform: translateY(-4px);
+    box-shadow: 
+      0 8px 20px rgba(16, 185, 129, 0.25),
+      inset 0 1px 2px rgba(16, 185, 129, 0.15);
+    border-color: rgba(16, 185, 129, 0.5);
+  }
+
+  .produto-card-3d.estoque-atencao:hover {
+    transform: translateY(-4px);
+    box-shadow: 
+      0 8px 20px rgba(245, 158, 11, 0.25),
+      inset 0 1px 2px rgba(245, 158, 11, 0.15);
+    border-color: rgba(245, 158, 11, 0.5);
+  }
+
+  .produto-card-3d.estoque-critico:hover {
+    transform: translateY(-4px);
+    box-shadow: 
+      0 8px 20px rgba(239, 68, 68, 0.3),
+      inset 0 1px 2px rgba(239, 68, 68, 0.2);
+    border-color: rgba(239, 68, 68, 0.6);
   }
 }
 
 /* ========================================
-   OTIMIZAÇÕES DE PERFORMANCE
+   RESPONSIVO MOBILE - BADGES
+   ======================================== */
+@media (max-width: 768px) {
+  .produto-card-3d.estoque-critico::before,
+  .produto-card-3d.estoque-atencao::before {
+    font-size: 0.6rem;
+    padding: 0.3rem 0.5rem;
+    top: 6px;
+    left: 6px;
+  }
+
+  /* Simplifica animação em mobile */
+  .produto-card-3d.estoque-critico {
+    animation: none;
+  }
+
+  .produto-card-3d.estoque-critico::before {
+    animation: none;
+  }
+}
+
+@media (max-width: 375px) {
+  .produto-card-3d.estoque-critico::before {
+    content: '⚠️ Baixo';
+    font-size: 0.55rem;
+    padding: 0.25rem 0.4rem;
+  }
+
+  .produto-card-3d.estoque-atencao::before {
+    content: '⚡ Repor';
+    font-size: 0.55rem;
+    padding: 0.25rem 0.4rem;
+  }
+}
+
+/* ========================================
+   INDICADOR VISUAL NO CONTROLE DE ESTOQUE
    ======================================== */
 
-/* GPU acceleration */
-.produto-card-3d,
-.produto-imagem-3d {
+/* Estoque Seguro - Botões verdes mais destacados */
+.produto-card-3d.estoque-seguro .btn-mais-3d {
+  background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.4);
+}
+
+/* Estoque Atenção - Botão + laranja */
+.produto-card-3d.estoque-atencao .btn-mais-3d {
+  background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
+  box-shadow: 0 2px 8px rgba(245, 158, 11, 0.4);
+}
+
+/* Estoque Crítico - Botão + vermelho destacado */
+.produto-card-3d.estoque-critico .btn-mais-3d {
+  background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.5);
+  animation: pulse-add-button 2s ease-in-out infinite;
+}
+
+@keyframes pulse-add-button {
+  0%, 100% {
+    box-shadow: 0 2px 8px rgba(16, 185, 129, 0.5);
+  }
+  50% {
+    box-shadow: 0 4px 16px rgba(16, 185, 129, 0.7);
+    transform: scale(1.05);
+  }
+}
+
+/* ========================================
+   ACESSIBILIDADE E PERFORMANCE
+   ======================================== */
+
+/* Reduced motion - desabilita animações */
+@media (prefers-reduced-motion: reduce) {
+  .produto-card-3d.estoque-critico,
+  .produto-card-3d.estoque-critico::before,
+  .produto-card-3d.estoque-critico .btn-mais-3d {
+    animation: none !important;
+  }
+}
+
+/* Dark mode */
+@media (prefers-color-scheme: dark) {
+  .produto-card-3d.estoque-seguro {
+    background: linear-gradient(135deg, 
+      rgba(16, 185, 129, 0.15) 0%, 
+      rgba(5, 150, 105, 0.1) 100%);
+  }
+
+  .produto-card-3d.estoque-atencao {
+    background: linear-gradient(135deg, 
+      rgba(245, 158, 11, 0.15) 0%, 
+      rgba(217, 119, 6, 0.1) 100%);
+  }
+
+  .produto-card-3d.estoque-critico {
+    background: linear-gradient(135deg, 
+      rgba(239, 68, 68, 0.15) 0%, 
+      rgba(220, 38, 38, 0.1) 100%);
+  }
+}
+
+/* GPU Acceleration */
+.produto-card-3d.estoque-critico,
+.produto-card-3d.estoque-critico::before {
   transform: translateZ(0);
   backface-visibility: hidden;
   perspective: 1000px;
 }
-
-/* Prevent layout shift */
-.produto-imagem-container-3d {
-  will-change: transform;
-}
-
-/* Smooth scrolling */
-.catalogo-grid-3d {
-  scroll-behavior: smooth;
-}
-
-/* Touch feedback */
-@media (hover: none) {
-  .produto-card-3d:active {
-    background: #f8fafc;
-  }
-}
-
-/* Reduced motion */
-@media (prefers-reduced-motion: reduce) {
-  .produto-card-3d,
-  .produto-imagem-3d {
-    animation: none;
-    transition: none;
-  }
-}
-
-/* Dark mode ready */
-@media (prefers-color-scheme: dark) {
-  .produto-card-3d {
-    background: #1e293b;
-    border-color: #334155;
-  }
-
-  .produto-nome-3d {
-    color: #f1f5f9;
-  }
-
-  .produto-modelo-3d {
-    color: #94a3b8;
-  }
-}
+/* ========================================
+   INTEGRAÇÃO COM ESTOQUE.JSX
+   ======================================== */
