@@ -309,6 +309,78 @@ function App() {
           {telaAtual === 'configuracoes' && <Configuracoes />}
         </div>
       </main>
+      {/* Bottom Navigation Mobile */}
+<nav className="bottom-nav-mobile">
+  <button
+    className={`bottom-nav-item ${telaAtual === 'dashboard' ? 'active' : ''}`}
+    onClick={() => handleMenuClick('dashboard')}
+  >
+    <div className="bottom-nav-icon">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <rect x="3" y="3" width="7" height="7"/>
+        <rect x="14" y="3" width="7" height="7"/>
+        <rect x="14" y="14" width="7" height="7"/>
+        <rect x="3" y="14" width="7" height="7"/>
+      </svg>
+    </div>
+    <span className="bottom-nav-label">Home</span>
+  </button>
+
+  <button
+    className={`bottom-nav-item ${telaAtual === 'leads' ? 'active' : ''}`}
+    onClick={() => handleMenuClick('leads')}
+  >
+    <div className="bottom-nav-icon">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+        <circle cx="9" cy="7" r="4"/>
+        <path d="M22 21v-2a4 4 0 0 0-3-3.87"/>
+      </svg>
+    </div>
+    <span className="bottom-nav-label">Leads</span>
+    <span className="bottom-nav-badge">3</span>
+  </button>
+
+  <button
+    className={`bottom-nav-item ${telaAtual === 'clientes' ? 'active' : ''}`}
+    onClick={() => handleMenuClick('clientes')}
+  >
+    <div className="bottom-nav-icon">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+        <circle cx="9" cy="7" r="4"/>
+      </svg>
+    </div>
+    <span className="bottom-nav-label">Clientes</span>
+  </button>
+
+  <button
+    className={`bottom-nav-item ${telaAtual === 'produtos' ? 'active' : ''}`}
+    onClick={() => handleMenuClick('produtos')}
+  >
+    <div className="bottom-nav-icon">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <rect x="2" y="7" width="20" height="14" rx="2"/>
+        <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
+      </svg>
+    </div>
+    <span className="bottom-nav-label">Produtos</span>
+  </button>
+
+  <button
+    className={`bottom-nav-item ${telaAtual === 'configuracoes' ? 'active' : ''}`}
+    onClick={() => handleMenuClick('configuracoes')}
+  >
+    <div className="bottom-nav-icon">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <circle cx="12" cy="12" r="3"/>
+        <path d="M12 1v6m0 6v6"/>
+      </svg>
+    </div>
+    <span className="bottom-nav-label">Mais</span>
+  </button>
+</nav>
+
 
       {/* BOTTOM NAVIGATION BAR - MOBILE (Agora com 6 itens) */}
       <nav className="bottom-nav-premium">
