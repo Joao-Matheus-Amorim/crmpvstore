@@ -1,14 +1,19 @@
 import { useState, useEffect } from 'react'
 import { supabase } from './supabaseClient'
 import { generateChecklistPDF } from './utils/checklistGenerator'
+import './Checklist.css'
 
 export default function Checklist() {
   const [checklists, setChecklists] = useState([])
   const [loading, setLoading] = useState(true)
   const [showForm, setShowForm] = useState(false)
   const [editingId, setEditingId] = useState(null)
+  const [ownerId, setOwnerId] = useState(null)
 
   const [formData, setFormData] = useState({
+    owner_id: null,
+    
+    // DADOS DO VENDEDOR (15 campos)
     seller_name: '',
     seller_cpf: '',
     seller_rg: '',
@@ -24,469 +29,118 @@ export default function Checklist() {
     seller_city: '',
     seller_state: '',
     seller_zip: '',
+
+    // DADOS DO APARELHO CELULAR (10 campos)
     device_brand: '',
     device_model: '',
     device_color: '',
     device_imei: '',
     device_storage: '',
     device_ram: '',
-    device_grade: '',
-    device_origin: '',
-    device_authenticity: '',
-    battery_health: 0,
+    device_grade: 'A',
+    device_origin: 'nacional',
+    device_authenticity: 'original',
     has_invoice: false,
     invoice_date: '',
+
+    // VERIFICAÇÃO - Nota fiscal e desbloqueio (9 campos)
+    invoice_key_valid: false,
+    imei_on_invoice: false,
+    invoice_individual: false,
+    not_blacklist: false,
+    not_carrier_locked: false,
+    current_carrier: '',
+    no_debts: false,
+    works_all_carriers: false,
+    avoid_oi_exclusive: false,
+
+    // Manutenção e equipamentos (13 campos)
+    turns_on_correctly: false,
+    never_opened: false,
+    recent_service: false,
+    service_reason: '',
+    has_box_accessories: false,
+    no_auto_shutdown: false,
+    not_overheating: false,
+    all_screws_present: false,
+    battery_health: 0,
+    battery_cycles: 0,
+    battery_not_swollen: false,
+    not_bent: false,
+    no_water_damage: false,
+
+    // Verificações frontais (5 campos)
+    front_camera_ok: false,
+    front_camera_broken: false,
+    face_id_ok: false,
+    proximity_sensor_ok: false,
+    earpiece_speaker_ok: false,
+
+    // Verificações display (6 campos)
+    power_button_ok: false,
+    display_ok: false,
+    display_broken: false,
+    display_stained: false,
+    display_dim: false,
+    touchscreen_ok: false,
+
+    // Verificações traseiras (10 campos)
+    rear_camera_ok: false,
+    rear_camera_broken: false,
+    volume_button_ok: false,
+    mute_switch_ok: false,
+    back_case_perfect: false,
+    back_case_damage: '',
+    microphone_ok: false,
+    loudspeaker_ok: false,
+    charging_port_ok: false,
+    charging_port_perfect: false,
+
+    // Demais itens de funcionamento (11 campos)
+    makes_calls: false,
+    receives_calls: false,
+    ring_vibrate_ok: false,
+    recognizes_sim: false,
+    wifi_ok: false,
+    bluetooth_ok: false,
+    wired_charging_ok: false,
+    fingerprint_ok: false,
+    headphone_jack_ok: false,
+    home_button_ok: false,
+    wireless_charging_ok: false,
+
+    // iCloud (4 campos)
+    icloud_removed: false,
+    find_my_disabled: false,
+    screen_lock_disabled: false,
+    reset_completed: false,
+
+    // Metadados
     evaluation_date: new Date().toISOString().split('T')[0],
-    document_number: ''
+    document_number: '',
+    evaluator_name: '',
+    seller_signature: ''
   })
 
-  // Paleta iOS 26 - Vermelho, Branco e Azul
-  const colors = {
-    primary: '#007AFF',      // Azul iOS
-    secondary: '#FF3B30',    // Vermelho iOS
-    white: '#FFFFFF',
-    lightGray: '#F2F2F7',
-    mediumGray: '#E5E5EA',
-    darkGray: '#8E8E93',
-    text: '#1C1C1E',
-    textSecondary: '#6E6E73'
-  }
+  useEffect(() => { 
+    buscarOwnerId()
+  }, [])
 
-  // Estilos iOS 26 com Glassmorphism Água
-  const styles = {
-    container: {
-      padding: '2rem 1.5rem',
-      minHeight: '100vh',
-      background: `linear-gradient(135deg, 
-        ${colors.lightGray} 0%, 
-        #E8F4FF 25%, 
-        #FFE8E8 50%, 
-        ${colors.lightGray} 75%, 
-        #E8F4FF 100%)`,
-      backgroundSize: '400% 400%',
-      animation: 'gradientShift 15s ease infinite',
-      position: 'relative',
-      overflow: 'hidden'
-    },
-    backgroundBlobs: {
-      position: 'absolute',
-      top: 0,
-      left: 0,
-      width: '100%',
-      height: '100%',
-      overflow: 'hidden',
-      zIndex: 0,
-      pointerEvents: 'none'
-    },
-    blob: (delay, x, y, color) => ({
-      position: 'absolute',
-      width: '400px',
-      height: '400px',
-      borderRadius: '50%',
-      background: `radial-gradient(circle, ${color}15 0%, transparent 70%)`,
-      filter: 'blur(80px)',
-      opacity: 0.6,
-      animation: `floatBlob 20s ease-in-out infinite ${delay}s`,
-      left: x,
-      top: y
-    }),
-    header: {
-      display: 'flex',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      marginBottom: '2.5rem',
-      background: 'rgba(255, 255, 255, 0.75)',
-      backdropFilter: 'blur(30px) saturate(180%)',
-      WebkitBackdropFilter: 'blur(30px) saturate(180%)',
-      padding: '1.75rem 2rem',
-      borderRadius: '24px',
-      border: '1px solid rgba(255, 255, 255, 0.5)',
-      boxShadow: `
-        0 8px 32px rgba(0, 122, 255, 0.12),
-        0 2px 8px rgba(0, 0, 0, 0.08),
-        inset 0 1px 1px rgba(255, 255, 255, 0.9)
-      `,
-      position: 'relative',
-      zIndex: 1,
-      transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
-    },
-    title: {
-      fontSize: '2.2rem',
-      fontWeight: '800',
-      background: `linear-gradient(135deg, ${colors.primary} 0%, ${colors.secondary} 100%)`,
-      WebkitBackgroundClip: 'text',
-      WebkitTextFillColor: 'transparent',
-      backgroundClip: 'text',
-      margin: '0 0 0.5rem 0',
-      letterSpacing: '-0.03em'
-    },
-    subtitle: {
-      color: colors.textSecondary,
-      fontSize: '1rem',
-      margin: 0,
-      fontWeight: '500'
-    },
-    btnNew: {
-      background: `linear-gradient(135deg, ${colors.primary} 0%, #0051D5 100%)`,
-      border: 'none',
-      padding: '1rem 2rem',
-      borderRadius: '16px',
-      color: colors.white,
-      fontSize: '1rem',
-      fontWeight: '700',
-      cursor: 'pointer',
-      boxShadow: `
-        0 8px 24px rgba(0, 122, 255, 0.35),
-        0 2px 8px rgba(0, 0, 0, 0.15),
-        inset 0 1px 1px rgba(255, 255, 255, 0.3)
-      `,
-      display: 'flex',
-      alignItems: 'center',
-      gap: '0.6rem',
-      transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-      transform: 'translateY(0)',
-      position: 'relative',
-      overflow: 'hidden'
-    },
-    btnNewHover: {
-      transform: 'translateY(-2px) scale(1.02)',
-      boxShadow: `
-        0 12px 32px rgba(0, 122, 255, 0.45),
-        0 4px 12px rgba(0, 0, 0, 0.2)
-      `
-    },
-    grid: {
-      display: 'grid',
-      gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))',
-      gap: '1.75rem',
-      marginTop: '2rem',
-      position: 'relative',
-      zIndex: 1
-    },
-    card: {
-      background: 'rgba(255, 255, 255, 0.8)',
-      backdropFilter: 'blur(30px) saturate(180%)',
-      WebkitBackdropFilter: 'blur(30px) saturate(180%)',
-      borderRadius: '24px',
-      padding: '1.75rem',
-      border: '1px solid rgba(255, 255, 255, 0.6)',
-      boxShadow: `
-        0 12px 40px rgba(0, 0, 0, 0.08),
-        0 2px 8px rgba(0, 0, 0, 0.04),
-        inset 0 1px 2px rgba(255, 255, 255, 0.9)
-      `,
-      transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
-      position: 'relative',
-      overflow: 'hidden',
-      transform: 'translateY(0)'
-    },
-    cardHover: {
-      transform: 'translateY(-8px) scale(1.02)',
-      boxShadow: `
-        0 20px 60px rgba(0, 122, 255, 0.15),
-        0 8px 24px rgba(0, 0, 0, 0.12),
-        inset 0 1px 2px rgba(255, 255, 255, 1)
-      `,
-      borderColor: 'rgba(0, 122, 255, 0.3)'
-    },
-    cardGlow: {
-      position: 'absolute',
-      top: 0,
-      left: 0,
-      right: 0,
-      height: '3px',
-      background: `linear-gradient(90deg, ${colors.primary}, ${colors.secondary}, ${colors.primary})`,
-      opacity: 0,
-      transition: 'opacity 0.4s ease',
-      borderRadius: '24px 24px 0 0'
-    },
-    cardHeader: {
-      display: 'flex',
-      justifyContent: 'space-between',
-      alignItems: 'flex-start',
-      marginBottom: '1.25rem',
-      paddingBottom: '1.25rem',
-      borderBottom: `2px solid ${colors.mediumGray}`
-    },
-    cardTitle: {
-      fontSize: '1.3rem',
-      fontWeight: '700',
-      color: colors.text,
-      margin: '0 0 0.5rem 0',
-      letterSpacing: '-0.02em'
-    },
-    badge: {
-      background: `linear-gradient(135deg, rgba(0, 122, 255, 0.15) 0%, rgba(255, 59, 48, 0.15) 100%)`,
-      backdropFilter: 'blur(10px)',
-      padding: '0.5rem 1rem',
-      borderRadius: '16px',
-      fontSize: '0.8rem',
-      fontWeight: '700',
-      color: colors.primary,
-      border: `1px solid rgba(0, 122, 255, 0.3)`,
-      boxShadow: '0 2px 8px rgba(0, 122, 255, 0.15)'
-    },
-    cardBody: {
-      marginBottom: '1.25rem'
-    },
-    cardItem: {
-      display: 'flex',
-      alignItems: 'center',
-      gap: '0.75rem',
-      padding: '0.75rem 0',
-      borderBottom: `1px solid ${colors.lightGray}`
-    },
-    itemLabel: {
-      fontSize: '0.9rem',
-      fontWeight: '600',
-      color: colors.textSecondary,
-      minWidth: '100px'
-    },
-    itemValue: {
-      fontSize: '1rem',
-      fontWeight: '600',
-      color: colors.text,
-      flex: 1
-    },
-    cardActions: {
-      display: 'flex',
-      gap: '0.75rem',
-      paddingTop: '1.25rem',
-      borderTop: `1px solid ${colors.lightGray}`
-    },
-    btnAction: {
-      flex: 1,
-      padding: '0.85rem',
-      borderRadius: '14px',
-      border: 'none',
-      fontWeight: '700',
-      fontSize: '0.9rem',
-      cursor: 'pointer',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      gap: '0.4rem',
-      transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-      position: 'relative',
-      overflow: 'hidden'
-    },
-    btnEdit: {
-      background: `linear-gradient(135deg, ${colors.primary} 0%, #0051D5 100%)`,
-      color: colors.white,
-      boxShadow: `0 4px 16px rgba(0, 122, 255, 0.3), inset 0 1px 1px rgba(255, 255, 255, 0.3)`
-    },
-    btnPdf: {
-      background: `linear-gradient(135deg, #34C759 0%, #28A745 100%)`,
-      color: colors.white,
-      boxShadow: `0 4px 16px rgba(52, 199, 89, 0.3), inset 0 1px 1px rgba(255, 255, 255, 0.3)`
-    },
-    btnDelete: {
-      background: `linear-gradient(135deg, ${colors.secondary} 0%, #D22B2B 100%)`,
-      color: colors.white,
-      boxShadow: `0 4px 16px rgba(255, 59, 48, 0.3), inset 0 1px 1px rgba(255, 255, 255, 0.3)`
-    },
-    emptyState: {
-      textAlign: 'center',
-      padding: '4rem 2rem',
-      background: 'rgba(255, 255, 255, 0.6)',
-      backdropFilter: 'blur(30px) saturate(180%)',
-      borderRadius: '24px',
-      border: `2px dashed ${colors.mediumGray}`,
-      gridColumn: '1 / -1',
-      boxShadow: 'inset 0 2px 8px rgba(0, 0, 0, 0.05)'
-    },
-    emptyTitle: {
-      fontSize: '1.5rem',
-      fontWeight: '700',
-      color: colors.text,
-      marginBottom: '0.75rem'
-    },
-    loading: {
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      justifyContent: 'center',
-      minHeight: '400px',
-      background: 'rgba(255, 255, 255, 0.6)',
-      backdropFilter: 'blur(30px)',
-      borderRadius: '24px',
-      padding: '3rem'
-    },
-    spinner: {
-      width: '60px',
-      height: '60px',
-      border: `4px solid ${colors.lightGray}`,
-      borderTop: `4px solid ${colors.primary}`,
-      borderRadius: '50%',
-      animation: 'spin 1s cubic-bezier(0.4, 0, 0.2, 1) infinite'
-    },
-    modalOverlay: {
-      position: 'fixed',
-      inset: 0,
-      background: 'rgba(0, 0, 0, 0.5)',
-      backdropFilter: 'blur(20px) saturate(150%)',
-      WebkitBackdropFilter: 'blur(20px) saturate(150%)',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      zIndex: 1000,
-      animation: 'fadeIn 0.3s ease'
-    },
-    modalContent: {
-      background: 'rgba(255, 255, 255, 0.95)',
-      backdropFilter: 'blur(40px) saturate(180%)',
-      WebkitBackdropFilter: 'blur(40px) saturate(180%)',
-      borderRadius: '28px',
-      padding: '2.5rem',
-      maxWidth: '750px',
-      width: '92%',
-      maxHeight: '88vh',
-      overflowY: 'auto',
-      boxShadow: `
-        0 24px 80px rgba(0, 0, 0, 0.25),
-        0 8px 32px rgba(0, 122, 255, 0.15),
-        inset 0 1px 2px rgba(255, 255, 255, 1)
-      `,
-      border: '1px solid rgba(255, 255, 255, 0.6)',
-      animation: 'slideUp 0.4s cubic-bezier(0.4, 0, 0.2, 1)'
-    },
-    modalHeader: {
-      display: 'flex',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      marginBottom: '2rem',
-      paddingBottom: '1.5rem',
-      borderBottom: `2px solid ${colors.mediumGray}`
-    },
-    modalTitle: {
-      fontSize: '1.75rem',
-      fontWeight: '800',
-      background: `linear-gradient(135deg, ${colors.primary} 0%, ${colors.secondary} 100%)`,
-      WebkitBackgroundClip: 'text',
-      WebkitTextFillColor: 'transparent',
-      margin: 0
-    },
-    btnClose: {
-      background: `rgba(142, 142, 147, 0.15)`,
-      backdropFilter: 'blur(10px)',
-      border: 'none',
-      width: '40px',
-      height: '40px',
-      borderRadius: '50%',
-      cursor: 'pointer',
-      fontSize: '1.5rem',
-      color: colors.darkGray,
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      transition: 'all 0.3s ease',
-      fontWeight: '300'
-    },
-    formSection: {
-      border: `1px solid ${colors.mediumGray}`,
-      borderRadius: '20px',
-      padding: '1.75rem',
-      background: 'rgba(242, 242, 247, 0.5)',
-      backdropFilter: 'blur(10px)',
-      marginBottom: '1.5rem'
-    },
-    sectionTitle: {
-      fontSize: '1.2rem',
-      fontWeight: '700',
-      color: colors.text,
-      margin: '0 0 1.25rem 0',
-      letterSpacing: '-0.02em'
-    },
-    formRow: {
-      display: 'grid',
-      gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-      gap: '1rem',
-      marginBottom: '1rem'
-    },
-    formInput: {
-      padding: '1rem 1.25rem',
-      border: `2px solid ${colors.mediumGray}`,
-      borderRadius: '14px',
-      fontSize: '1rem',
-      background: 'rgba(255, 255, 255, 0.9)',
-      backdropFilter: 'blur(10px)',
-      width: '100%',
-      boxSizing: 'border-box',
-      transition: 'all 0.3s ease',
-      fontWeight: '500',
-      color: colors.text
-    },
-    formInputFocus: {
-      borderColor: colors.primary,
-      boxShadow: `0 0 0 4px rgba(0, 122, 255, 0.1)`,
-      background: colors.white
-    },
-    btnSave: {
-      flex: 1,
-      background: `linear-gradient(135deg, #34C759 0%, #28A745 100%)`,
-      color: colors.white,
-      padding: '1.2rem',
-      border: 'none',
-      borderRadius: '16px',
-      fontWeight: '700',
-      fontSize: '1.05rem',
-      cursor: 'pointer',
-      boxShadow: `0 8px 24px rgba(52, 199, 89, 0.35), inset 0 1px 1px rgba(255, 255, 255, 0.3)`,
-      transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
-    },
-    btnCancel: {
-      flex: 1,
-      background: `rgba(142, 142, 147, 0.15)`,
-      backdropFilter: 'blur(10px)',
-      color: colors.text,
-      padding: '1.2rem',
-      border: `2px solid ${colors.mediumGray}`,
-      borderRadius: '16px',
-      fontWeight: '600',
-      fontSize: '1.05rem',
-      cursor: 'pointer',
-      transition: 'all 0.3s ease'
-    },
-    formActions: {
-      display: 'flex',
-      gap: '1rem',
-      marginTop: '2rem',
-      paddingTop: '2rem',
-      borderTop: `2px solid ${colors.mediumGray}`
+  useEffect(() => { 
+    if (ownerId) fetchChecklists() 
+  }, [ownerId])
+
+  async function buscarOwnerId() {
+    try {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (user) {
+        const { data } = await supabase.from('owners').select('id').eq('user_id', user.id).single()
+        setOwnerId(data?.id)
+      }
+    } catch (err) { 
+      console.error('Erro ao buscar owner:', err) 
     }
   }
-
-  useEffect(() => {
-    fetchChecklists()
-    
-    // Adiciona animações CSS ao document
-    const style = document.createElement('style')
-    style.textContent = `
-      @keyframes spin {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
-      }
-      @keyframes fadeIn {
-        from { opacity: 0; }
-        to { opacity: 1; }
-      }
-      @keyframes slideUp {
-        from { opacity: 0; transform: translateY(30px); }
-        to { opacity: 1; transform: translateY(0); }
-      }
-      @keyframes gradientShift {
-        0%, 100% { background-position: 0% 50%; }
-        50% { background-position: 100% 50%; }
-      }
-      @keyframes floatBlob {
-        0%, 100% { transform: translate(0, 0) scale(1); }
-        33% { transform: translate(30px, -50px) scale(1.1); }
-        66% { transform: translate(-20px, 20px) scale(0.9); }
-      }
-    `
-    document.head.appendChild(style)
-    return () => document.head.removeChild(style)
-  }, [])
 
   async function fetchChecklists() {
     try {
@@ -494,6 +148,7 @@ export default function Checklist() {
       const { data, error } = await supabase
         .from('checklistspresencial')
         .select('*')
+        .eq('owner_id', ownerId)
         .order('created_at', { ascending: false })
 
       if (error) throw error
@@ -517,26 +172,64 @@ export default function Checklist() {
   const handleSubmit = async (e) => {
     e.preventDefault()
     try {
+      const dataToSave = { ...formData, owner_id: ownerId }
+      
       if (editingId) {
         const { error } = await supabase
           .from('checklistspresencial')
-          .update(formData)
+          .update(dataToSave)
           .eq('id', editingId)
         if (error) throw error
-        alert('✅ Checklist atualizado!')
+        alert('Checklist atualizado com sucesso')
       } else {
         const { error } = await supabase
           .from('checklistspresencial')
-          .insert([formData])
+          .insert([dataToSave])
         if (error) throw error
-        alert('✅ Checklist criado!')
+        alert('Checklist criado com sucesso')
       }
       setShowForm(false)
       setEditingId(null)
+      resetForm()
       fetchChecklists()
     } catch (error) {
-      alert('❌ Erro: ' + error.message)
+      console.error('Erro:', error)
+      alert('Erro ao salvar: ' + error.message)
     }
+  }
+
+  const resetForm = () => {
+    setFormData({
+      owner_id: ownerId,
+      seller_name: '', seller_cpf: '', seller_rg: '', seller_nationality: '',
+      seller_marital_status: '', seller_profession: '', seller_email: '', seller_phone: '',
+      seller_address: '', seller_number: '', seller_complement: '', seller_neighborhood: '',
+      seller_city: '', seller_state: '', seller_zip: '',
+      device_brand: '', device_model: '', device_color: '', device_imei: '',
+      device_storage: '', device_ram: '', device_grade: 'A', device_origin: 'nacional',
+      device_authenticity: 'original', has_invoice: false, invoice_date: '',
+      invoice_key_valid: false, imei_on_invoice: false, invoice_individual: false,
+      not_blacklist: false, not_carrier_locked: false, current_carrier: '',
+      no_debts: false, works_all_carriers: false, avoid_oi_exclusive: false,
+      turns_on_correctly: false, never_opened: false, recent_service: false,
+      service_reason: '', has_box_accessories: false, no_auto_shutdown: false,
+      not_overheating: false, all_screws_present: false, battery_health: 0,
+      battery_cycles: 0, battery_not_swollen: false, not_bent: false,
+      no_water_damage: false, front_camera_ok: false, front_camera_broken: false,
+      face_id_ok: false, proximity_sensor_ok: false, earpiece_speaker_ok: false,
+      power_button_ok: false, display_ok: false, display_broken: false,
+      display_stained: false, display_dim: false, touchscreen_ok: false,
+      rear_camera_ok: false, rear_camera_broken: false, volume_button_ok: false,
+      mute_switch_ok: false, back_case_perfect: false, back_case_damage: '',
+      microphone_ok: false, loudspeaker_ok: false, charging_port_ok: false,
+      charging_port_perfect: false, makes_calls: false, receives_calls: false,
+      ring_vibrate_ok: false, recognizes_sim: false, wifi_ok: false,
+      bluetooth_ok: false, wired_charging_ok: false, fingerprint_ok: false,
+      headphone_jack_ok: false, home_button_ok: false, wireless_charging_ok: false,
+      icloud_removed: false, find_my_disabled: false, screen_lock_disabled: false,
+      reset_completed: false, evaluation_date: new Date().toISOString().split('T')[0],
+      document_number: '', evaluator_name: '', seller_signature: ''
+    })
   }
 
   const handleEdit = (checklist) => {
@@ -546,134 +239,100 @@ export default function Checklist() {
   }
 
   const handleDelete = async (id) => {
-    if (confirm('🗑️ Excluir checklist?')) {
+    if (window.confirm('Excluir este checklist?')) {
       const { error } = await supabase.from('checklistspresencial').delete().eq('id', id)
-      if (!error) fetchChecklists()
+      if (!error) {
+        alert('Checklist excluído com sucesso')
+        fetchChecklists()
+      } else {
+        alert('Erro ao excluir checklist')
+      }
     }
   }
 
   const handleGeneratePDF = (checklist) => {
     try {
       generateChecklistPDF(checklist)
-    // eslint-disable-next-line no-unused-vars
     } catch (error) {
-      alert('❌ Erro ao gerar PDF')
+      console.error('Erro ao gerar PDF:', error)
+      alert('Erro ao gerar PDF')
     }
   }
 
   if (loading) {
     return (
-      <div style={styles.container}>
-        <div style={styles.loading}>
-          <div style={styles.spinner}></div>
-          <p style={{ marginTop: '1.5rem', color: colors.textSecondary, fontSize: '1.1rem', fontWeight: '600' }}>
-            Carregando checklists...
-          </p>
+      <div className="checklist-container">
+        <div className="loading-checklist">
+          <div className="spinner-checklist"></div>
+          <p className="loading-text-checklist">Carregando checklists...</p>
         </div>
       </div>
     )
   }
 
   return (
-    <div style={styles.container}>
-      {/* Blobs animados de fundo */}
-      <div style={styles.backgroundBlobs}>
-        <div style={styles.blob(0, '10%', '20%', colors.primary)}></div>
-        <div style={styles.blob(5, '80%', '60%', colors.secondary)}></div>
-        <div style={styles.blob(10, '40%', '70%', colors.primary)}></div>
-      </div>
-
-      <div style={styles.header}>
+    <div className="checklist-container">
+      <div className="checklist-header">
         <div>
-          <h1 style={styles.title}>Checklist Premium</h1>
-          <p style={styles.subtitle}>Avaliação técnica profissional</p>
+          <h1 className="checklist-title">Checklist Presencial</h1>
+          <p className="checklist-subtitle">Avaliação técnica completa de aparelhos</p>
         </div>
-        <button 
-          style={styles.btnNew}
-          onMouseEnter={(e) => Object.assign(e.target.style, styles.btnNewHover)}
-          onMouseLeave={(e) => Object.assign(e.target.style, styles.btnNew)}
-          onClick={() => setShowForm(true)}
-        >
-          <svg width="22" height="22" fill="currentColor" viewBox="0 0 20 20">
+        <button className="btn-new-checklist" onClick={() => { resetForm(); setShowForm(true) }}>
+          <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20">
             <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd"/>
           </svg>
           Novo Checklist
         </button>
       </div>
 
-      <div style={styles.grid}>
+      <div className="checklists-grid">
         {checklists.length === 0 ? (
-          <div style={styles.emptyState}>
-            <svg width="80" height="80" fill={colors.primary} opacity="0.3" viewBox="0 0 24 24" style={{marginBottom: '1.5rem'}}>
+          <div className="empty-state-checklist">
+            <svg className="empty-icon-checklist" width="80" height="80" fill="currentColor" opacity="0.3" viewBox="0 0 24 24">
               <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/>
               <path fillRule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clipRule="evenodd"/>
             </svg>
-            <h3 style={styles.emptyTitle}>Nenhum checklist ainda</h3>
-            <p style={{ color: colors.textSecondary, fontSize: '1rem', fontWeight: '500' }}>
-              Crie seu primeiro checklist clicando no botão acima
-            </p>
+            <h3 className="empty-title-checklist">Nenhum checklist cadastrado</h3>
+            <p className="empty-subtitle-checklist">Crie seu primeiro checklist clicando no botão acima</p>
           </div>
         ) : (
           checklists.map((checklist) => (
-            <div 
-              key={checklist.id} 
-              style={styles.card}
-              onMouseEnter={(e) => {
-                Object.assign(e.currentTarget.style, styles.cardHover)
-                e.currentTarget.querySelector('.card-glow').style.opacity = '1'
-              }}
-              onMouseLeave={(e) => {
-                Object.assign(e.currentTarget.style, styles.card)
-                e.currentTarget.querySelector('.card-glow').style.opacity = '0'
-              }}
-            >
-              <div className="card-glow" style={styles.cardGlow}></div>
-              <div style={styles.cardHeader}>
+            <div key={checklist.id} className="checklist-card">
+              <div className="card-header-checklist">
                 <div>
-                  <h3 style={styles.cardTitle}>
+                  <h3 className="card-title-checklist">
                     {checklist.device_brand} {checklist.device_model}
                   </h3>
-                  <span style={styles.badge}>{checklist.device_imei}</span>
+                  <span className="imei-badge">IMEI: {checklist.device_imei}</span>
                 </div>
               </div>
-              <div style={styles.cardBody}>
-                <div style={styles.cardItem}>
-                  <span style={styles.itemLabel}>👤 Vendedor</span>
-                  <span style={styles.itemValue}>{checklist.seller_name}</span>
+              <div className="card-body-checklist">
+                <div className="card-item-checklist">
+                  <span className="item-label-checklist">Vendedor:</span>
+                  <span className="item-value-checklist">{checklist.seller_name}</span>
                 </div>
-                <div style={styles.cardItem}>
-                  <span style={styles.itemLabel}>📄 CPF</span>
-                  <span style={styles.itemValue}>{checklist.seller_cpf}</span>
+                <div className="card-item-checklist">
+                  <span className="item-label-checklist">CPF:</span>
+                  <span className="item-value-checklist">{checklist.seller_cpf}</span>
                 </div>
-                <div style={styles.cardItem}>
-                  <span style={styles.itemLabel}>🔋 Bateria</span>
-                  <span style={styles.itemValue}>{checklist.battery_health}%</span>
+                <div className="card-item-checklist">
+                  <span className="item-label-checklist">Bateria:</span>
+                  <span className="item-value-checklist">{checklist.battery_health}%</span>
+                </div>
+                <div className="card-item-checklist">
+                  <span className="item-label-checklist">Grade:</span>
+                  <span className={`badge-${checklist.device_grade}-checklist`}>Grade {checklist.device_grade}</span>
                 </div>
               </div>
-              <div style={styles.cardActions}>
-                <button 
-                  style={{...styles.btnAction, ...styles.btnEdit}} 
-                  onClick={() => handleEdit(checklist)}
-                  onMouseEnter={(e) => e.target.style.transform = 'translateY(-2px)'}
-                  onMouseLeave={(e) => e.target.style.transform = 'translateY(0)'}
-                >
-                  ✏️ Editar
+              <div className="card-actions-checklist">
+                <button className="btn-action-checklist btn-edit-checklist" onClick={() => handleEdit(checklist)}>
+                  Editar
                 </button>
-                <button 
-                  style={{...styles.btnAction, ...styles.btnPdf}} 
-                  onClick={() => handleGeneratePDF(checklist)}
-                  onMouseEnter={(e) => e.target.style.transform = 'translateY(-2px)'}
-                  onMouseLeave={(e) => e.target.style.transform = 'translateY(0)'}
-                >
-                  📄 PDF
+                <button className="btn-action-checklist btn-pdf-checklist" onClick={() => handleGeneratePDF(checklist)}>
+                  PDF
                 </button>
-                <button 
-                  style={{...styles.btnAction, ...styles.btnDelete}} 
-                  onClick={() => handleDelete(checklist.id)}
-                  onMouseEnter={(e) => e.target.style.transform = 'translateY(-2px)'}
-                  onMouseLeave={(e) => e.target.style.transform = 'translateY(0)'}
-                >
-                  🗑️
+                <button className="btn-action-checklist btn-delete-checklist" onClick={() => handleDelete(checklist.id)}>
+                  Excluir
                 </button>
               </div>
             </div>
@@ -682,138 +341,527 @@ export default function Checklist() {
       </div>
 
       {showForm && (
-        <div style={styles.modalOverlay} onClick={() => setShowForm(false)}>
-          <div style={styles.modalContent} onClick={(e) => e.stopPropagation()}>
-            <div style={styles.modalHeader}>
-              <h2 style={styles.modalTitle}>
-                {editingId ? '✏️ Editar' : '✨ Novo'} Checklist
+        <div className="modal-overlay-checklist" onClick={() => setShowForm(false)}>
+          <div className="modal-content-checklist" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header-checklist">
+              <h2 className="modal-title-checklist">
+                {editingId ? 'Editar Checklist' : 'Novo Checklist'}
               </h2>
-              <button 
-                style={styles.btnClose} 
-                onClick={() => setShowForm(false)}
-                onMouseEnter={(e) => e.target.style.background = 'rgba(142, 142, 147, 0.25)'}
-                onMouseLeave={(e) => e.target.style.background = 'rgba(142, 142, 147, 0.15)'}
-              >
-                ×
-              </button>
+              <button className="btn-close-checklist" onClick={() => setShowForm(false)}>×</button>
             </div>
-            <form onSubmit={handleSubmit}>
-              <div style={styles.formSection}>
-                <h3 style={styles.sectionTitle}>👤 Dados do Vendedor</h3>
-                <div style={styles.formRow}>
-                  <input 
-                    style={styles.formInput} 
-                    name="seller_name" 
-                    value={formData.seller_name} 
-                    onChange={handleInputChange} 
-                    placeholder="Nome completo" 
-                    required
-                    onFocus={(e) => Object.assign(e.target.style, styles.formInputFocus)}
-                    onBlur={(e) => Object.assign(e.target.style, styles.formInput)}
-                  />
-                  <input 
-                    style={styles.formInput} 
-                    name="seller_cpf" 
-                    value={formData.seller_cpf} 
-                    onChange={handleInputChange} 
-                    placeholder="CPF"
-                    onFocus={(e) => Object.assign(e.target.style, styles.formInputFocus)}
-                    onBlur={(e) => Object.assign(e.target.style, styles.formInput)}
-                  />
+
+            <form onSubmit={handleSubmit} className="form-container-checklist">
+              
+              {/* PÁGINA 1 - DADOS DO VENDEDOR */}
+              <div className="form-section-checklist">
+                <h3 className="section-title-checklist">DADOS DO VENDEDOR</h3>
+                
+                <div className="form-row-checklist">
+                  <div className="form-group-checklist">
+                    <label className="form-label-checklist">Nome</label>
+                    <input className="form-input-checklist" name="seller_name" value={formData.seller_name} onChange={handleInputChange} />
+                  </div>
+                  <div className="form-group-checklist">
+                    <label className="form-label-checklist">Estado civil</label>
+                    <input className="form-input-checklist" name="seller_marital_status" value={formData.seller_marital_status} onChange={handleInputChange} />
+                  </div>
+                  <div className="form-group-checklist">
+                    <label className="form-label-checklist">Profissão</label>
+                    <input className="form-input-checklist" name="seller_profession" value={formData.seller_profession} onChange={handleInputChange} />
+                  </div>
                 </div>
-                <div style={styles.formRow}>
-                  <input 
-                    style={styles.formInput} 
-                    name="seller_email" 
-                    value={formData.seller_email} 
-                    onChange={handleInputChange} 
-                    placeholder="Email" 
-                    type="email"
-                    onFocus={(e) => Object.assign(e.target.style, styles.formInputFocus)}
-                    onBlur={(e) => Object.assign(e.target.style, styles.formInput)}
-                  />
-                  <input 
-                    style={styles.formInput} 
-                    name="seller_phone" 
-                    value={formData.seller_phone} 
-                    onChange={handleInputChange} 
-                    placeholder="Telefone"
-                    onFocus={(e) => Object.assign(e.target.style, styles.formInputFocus)}
-                    onBlur={(e) => Object.assign(e.target.style, styles.formInput)}
-                  />
+
+                <div className="form-row-checklist">
+                  <div className="form-group-checklist">
+                    <label className="form-label-checklist">CPF</label>
+                    <input className="form-input-checklist" name="seller_cpf" value={formData.seller_cpf} onChange={handleInputChange} />
+                  </div>
+                  <div className="form-group-checklist">
+                    <label className="form-label-checklist">RG</label>
+                    <input className="form-input-checklist" name="seller_rg" value={formData.seller_rg} onChange={handleInputChange} />
+                  </div>
+                  <div className="form-group-checklist">
+                    <label className="form-label-checklist">Nacionalidade</label>
+                    <input className="form-input-checklist" name="seller_nationality" value={formData.seller_nationality} onChange={handleInputChange} />
+                  </div>
+                </div>
+
+                <div className="form-row-checklist">
+                  <div className="form-group-checklist">
+                    <label className="form-label-checklist">E-mail</label>
+                    <input className="form-input-checklist" type="email" name="seller_email" value={formData.seller_email} onChange={handleInputChange} />
+                  </div>
+                  <div className="form-group-checklist">
+                    <label className="form-label-checklist">Celular</label>
+                    <input className="form-input-checklist" name="seller_phone" value={formData.seller_phone} onChange={handleInputChange} />
+                  </div>
+                </div>
+
+                <div className="form-row-checklist">
+                  <div className="form-group-checklist">
+                    <label className="form-label-checklist">Endereço</label>
+                    <input className="form-input-checklist" name="seller_address" value={formData.seller_address} onChange={handleInputChange} />
+                  </div>
+                  <div className="form-group-checklist">
+                    <label className="form-label-checklist">Número</label>
+                    <input className="form-input-checklist" name="seller_number" value={formData.seller_number} onChange={handleInputChange} />
+                  </div>
+                </div>
+
+                <div className="form-row-checklist">
+                  <div className="form-group-checklist">
+                    <label className="form-label-checklist">Complemento</label>
+                    <input className="form-input-checklist" name="seller_complement" value={formData.seller_complement} onChange={handleInputChange} />
+                  </div>
+                  <div className="form-group-checklist">
+                    <label className="form-label-checklist">Bairro</label>
+                    <input className="form-input-checklist" name="seller_neighborhood" value={formData.seller_neighborhood} onChange={handleInputChange} />
+                  </div>
+                </div>
+
+                <div className="form-row-checklist">
+                  <div className="form-group-checklist">
+                    <label className="form-label-checklist">CEP</label>
+                    <input className="form-input-checklist" name="seller_zip" value={formData.seller_zip} onChange={handleInputChange} />
+                  </div>
+                  <div className="form-group-checklist">
+                    <label className="form-label-checklist">Cidade</label>
+                    <input className="form-input-checklist" name="seller_city" value={formData.seller_city} onChange={handleInputChange} />
+                  </div>
+                  <div className="form-group-checklist">
+                    <label className="form-label-checklist">UF</label>
+                    <input className="form-input-checklist" name="seller_state" value={formData.seller_state} onChange={handleInputChange} maxLength="2" style={{textTransform: 'uppercase'}} />
+                  </div>
                 </div>
               </div>
 
-              <div style={styles.formSection}>
-                <h3 style={styles.sectionTitle}>📱 Dados do Aparelho</h3>
-                <div style={styles.formRow}>
-                  <input 
-                    style={styles.formInput} 
-                    name="device_brand" 
-                    value={formData.device_brand} 
-                    onChange={handleInputChange} 
-                    placeholder="Marca (Ex: Apple)"
-                    onFocus={(e) => Object.assign(e.target.style, styles.formInputFocus)}
-                    onBlur={(e) => Object.assign(e.target.style, styles.formInput)}
-                  />
-                  <input 
-                    style={styles.formInput} 
-                    name="device_model" 
-                    value={formData.device_model} 
-                    onChange={handleInputChange} 
-                    placeholder="Modelo (Ex: iPhone 15 Pro)"
-                    onFocus={(e) => Object.assign(e.target.style, styles.formInputFocus)}
-                    onBlur={(e) => Object.assign(e.target.style, styles.formInput)}
-                  />
-                  <input 
-                    style={styles.formInput} 
-                    name="device_color" 
-                    value={formData.device_color} 
-                    onChange={handleInputChange} 
-                    placeholder="Cor"
-                    onFocus={(e) => Object.assign(e.target.style, styles.formInputFocus)}
-                    onBlur={(e) => Object.assign(e.target.style, styles.formInput)}
-                  />
+              {/* DADOS DO APARELHO CELULAR */}
+              <div className="form-section-checklist">
+                <h3 className="section-title-checklist">DADOS DO APARELHO CELULAR</h3>
+                
+                <div className="form-row-checklist">
+                  <div className="form-group-checklist">
+                    <label className="form-label-checklist">Marca</label>
+                    <input className="form-input-checklist" name="device_brand" value={formData.device_brand} onChange={handleInputChange} placeholder="Ex: Apple" />
+                  </div>
+                  <div className="form-group-checklist">
+                    <label className="form-label-checklist">Modelo</label>
+                    <input className="form-input-checklist" name="device_model" value={formData.device_model} onChange={handleInputChange} placeholder="Ex: iPhone 15 Pro" />
+                  </div>
+                  <div className="form-group-checklist">
+                    <label className="form-label-checklist">Cor</label>
+                    <input className="form-input-checklist" name="device_color" value={formData.device_color} onChange={handleInputChange} />
+                  </div>
                 </div>
-                <input 
-                  style={{...styles.formInput, marginBottom: '1rem'}} 
-                  name="device_imei" 
-                  value={formData.device_imei} 
-                  onChange={handleInputChange} 
-                  placeholder="IMEI (15 dígitos)"
-                  onFocus={(e) => Object.assign(e.target.style, styles.formInputFocus)}
-                  onBlur={(e) => Object.assign(e.target.style, styles.formInput)}
-                />
-                <input 
-                  style={styles.formInput} 
-                  type="number" 
-                  name="battery_health" 
-                  value={formData.battery_health} 
-                  onChange={handleInputChange} 
-                  placeholder="Saúde da bateria (%)" 
-                  min="0" 
-                  max="100"
-                  onFocus={(e) => Object.assign(e.target.style, styles.formInputFocus)}
-                  onBlur={(e) => Object.assign(e.target.style, styles.formInput)}
-                />
+
+                <div className="form-row-checklist">
+                  <div className="form-group-checklist">
+                    <label className="form-label-checklist">IMEI</label>
+                    <input className="form-input-checklist" name="device_imei" value={formData.device_imei} onChange={handleInputChange} />
+                  </div>
+                  <div className="form-group-checklist">
+                    <label className="form-label-checklist">Armazenamento</label>
+                    <input className="form-input-checklist" name="device_storage" value={formData.device_storage} onChange={handleInputChange} placeholder="Ex: 256GB" />
+                  </div>
+                  <div className="form-group-checklist">
+                    <label className="form-label-checklist">Memória RAM</label>
+                    <input className="form-input-checklist" name="device_ram" value={formData.device_ram} onChange={handleInputChange} placeholder="Ex: 8GB" />
+                  </div>
+                </div>
+
+                <div className="form-row-checklist">
+                  <div className="form-group-checklist">
+                    <label className="form-label-checklist">Classificação</label>
+                    <div className="form-checkbox-row">
+                      <label className="checkbox-group-checklist">
+                        <input type="radio" name="device_grade" value="A" checked={formData.device_grade === 'A'} onChange={handleInputChange} />
+                        <span className="checkbox-label-checklist">Grade A</span>
+                      </label>
+                      <label className="checkbox-group-checklist">
+                        <input type="radio" name="device_grade" value="B" checked={formData.device_grade === 'B'} onChange={handleInputChange} />
+                        <span className="checkbox-label-checklist">Grade B</span>
+                      </label>
+                      <label className="checkbox-group-checklist">
+                        <input type="radio" name="device_grade" value="C" checked={formData.device_grade === 'C'} onChange={handleInputChange} />
+                        <span className="checkbox-label-checklist">Grade C</span>
+                      </label>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="form-row-checklist">
+                  <div className="form-group-checklist">
+                    <label className="form-label-checklist">Origem</label>
+                    <div className="form-checkbox-row">
+                      <label className="checkbox-group-checklist">
+                        <input type="radio" name="device_origin" value="nacional" checked={formData.device_origin === 'nacional'} onChange={handleInputChange} />
+                        <span className="checkbox-label-checklist">Nacional</span>
+                      </label>
+                      <label className="checkbox-group-checklist">
+                        <input type="radio" name="device_origin" value="importado" checked={formData.device_origin === 'importado'} onChange={handleInputChange} />
+                        <span className="checkbox-label-checklist">Importado</span>
+                      </label>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="form-row-checklist">
+                  <div className="form-group-checklist">
+                    <label className="form-label-checklist">Originalidade</label>
+                    <div className="form-checkbox-row">
+                      <label className="checkbox-group-checklist">
+                        <input type="radio" name="device_authenticity" value="original" checked={formData.device_authenticity === 'original'} onChange={handleInputChange} />
+                        <span className="checkbox-label-checklist">Original</span>
+                      </label>
+                      <label className="checkbox-group-checklist">
+                        <input type="radio" name="device_authenticity" value="replica" checked={formData.device_authenticity === 'replica'} onChange={handleInputChange} />
+                        <span className="checkbox-label-checklist">Réplica</span>
+                      </label>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="form-row-checklist">
+                  <div className="form-group-checklist">
+                    <label className="form-label-checklist">Nota fiscal</label>
+                    <div className="form-checkbox-row">
+                      <label className="checkbox-group-checklist">
+                        <input type="checkbox" name="has_invoice" checked={formData.has_invoice} onChange={handleInputChange} />
+                        <span className="checkbox-label-checklist">Sim, possui nota fiscal</span>
+                      </label>
+                    </div>
+                  </div>
+                  {formData.has_invoice && (
+                    <div className="form-group-checklist">
+                      <label className="form-label-checklist">Data da nota</label>
+                      <input className="form-input-checklist" type="date" name="invoice_date" value={formData.invoice_date} onChange={handleInputChange} />
+                    </div>
+                  )}
+                </div>
               </div>
 
-              <div style={styles.formActions}>
-                <button 
-                  type="submit" 
-                  style={styles.btnSave}
-                  onMouseEnter={(e) => e.target.style.transform = 'translateY(-2px)'}
-                  onMouseLeave={(e) => e.target.style.transform = 'translateY(0)'}
-                >
-                  {editingId ? '✅ Atualizar' : '💾 Salvar'}
+              {/* PÁGINA 2 - VERIFICAÇÃO DO APARELHO */}
+              <div className="form-section-checklist">
+                <h3 className="section-title-checklist">VERIFICAÇÃO DO APARELHO - Nota fiscal e desbloqueio</h3>
+                
+                <div className="form-checkbox-row">
+                  <label className="checkbox-group-checklist">
+                    <input type="checkbox" name="invoice_key_valid" checked={formData.invoice_key_valid} onChange={handleInputChange} />
+                    <span className="checkbox-label-checklist">Chave de acesso da nota é válida</span>
+                  </label>
+                  <label className="checkbox-group-checklist">
+                    <input type="checkbox" name="imei_on_invoice" checked={formData.imei_on_invoice} onChange={handleInputChange} />
+                    <span className="checkbox-label-checklist">Modelo e IMEI consta na nota fiscal</span>
+                  </label>
+                  <label className="checkbox-group-checklist">
+                    <input type="checkbox" name="invoice_individual" checked={formData.invoice_individual} onChange={handleInputChange} />
+                    <span className="checkbox-label-checklist">Destinatário da nota é pessoa física</span>
+                  </label>
+                  <label className="checkbox-group-checklist">
+                    <input type="checkbox" name="not_blacklist" checked={formData.not_blacklist} onChange={handleInputChange} />
+                    <span className="checkbox-label-checklist">IMEI não consta em Blacklist</span>
+                  </label>
+                  <label className="checkbox-group-checklist">
+                    <input type="checkbox" name="not_carrier_locked" checked={formData.not_carrier_locked} onChange={handleInputChange} />
+                    <span className="checkbox-label-checklist">Aparelho não é de operadora</span>
+                  </label>
+                  <label className="checkbox-group-checklist">
+                    <input type="checkbox" name="no_debts" checked={formData.no_debts} onChange={handleInputChange} />
+                    <span className="checkbox-label-checklist">Aparelho não tem débitos</span>
+                  </label>
+                  <label className="checkbox-group-checklist">
+                    <input type="checkbox" name="works_all_carriers" checked={formData.works_all_carriers} onChange={handleInputChange} />
+                    <span className="checkbox-label-checklist">Funciona em todas as operadoras</span>
+                  </label>
+                  <label className="checkbox-group-checklist">
+                    <input type="checkbox" name="avoid_oi_exclusive" checked={formData.avoid_oi_exclusive} onChange={handleInputChange} />
+                    <span className="checkbox-label-checklist">Não é exclusivo Oi</span>
+                  </label>
+                </div>
+
+                <div className="form-row-checklist">
+                  <div className="form-group-checklist">
+                    <label className="form-label-checklist">Operadora atual</label>
+                    <input className="form-input-checklist" name="current_carrier" value={formData.current_carrier} onChange={handleInputChange} />
+                  </div>
+                </div>
+              </div>
+
+              {/* Manutenção e equipamentos */}
+              <div className="form-section-checklist">
+                <h3 className="section-title-checklist">Manutenção e equipamentos</h3>
+                
+                <div className="form-checkbox-row">
+                  <label className="checkbox-group-checklist">
+                    <input type="checkbox" name="turns_on_correctly" checked={formData.turns_on_correctly} onChange={handleInputChange} />
+                    <span className="checkbox-label-checklist">Aparelho liga corretamente</span>
+                  </label>
+                  <label className="checkbox-group-checklist">
+                    <input type="checkbox" name="never_opened" checked={formData.never_opened} onChange={handleInputChange} />
+                    <span className="checkbox-label-checklist">Aparelho nunca foi aberto</span>
+                  </label>
+                  <label className="checkbox-group-checklist">
+                    <input type="checkbox" name="recent_service" checked={formData.recent_service} onChange={handleInputChange} />
+                    <span className="checkbox-label-checklist">Passou recentemente por assistência</span>
+                  </label>
+                  <label className="checkbox-group-checklist">
+                    <input type="checkbox" name="has_box_accessories" checked={formData.has_box_accessories} onChange={handleInputChange} />
+                    <span className="checkbox-label-checklist">Possui caixa e acessórios</span>
+                  </label>
+                  <label className="checkbox-group-checklist">
+                    <input type="checkbox" name="no_auto_shutdown" checked={formData.no_auto_shutdown} onChange={handleInputChange} />
+                    <span className="checkbox-label-checklist">Não desliga sozinho</span>
+                  </label>
+                  <label className="checkbox-group-checklist">
+                    <input type="checkbox" name="not_overheating" checked={formData.not_overheating} onChange={handleInputChange} />
+                    <span className="checkbox-label-checklist">Não está superaquecendo</span>
+                  </label>
+                  <label className="checkbox-group-checklist">
+                    <input type="checkbox" name="all_screws_present" checked={formData.all_screws_present} onChange={handleInputChange} />
+                    <span className="checkbox-label-checklist">Todos os parafusos presentes</span>
+                  </label>
+                  <label className="checkbox-group-checklist">
+                    <input type="checkbox" name="battery_not_swollen" checked={formData.battery_not_swollen} onChange={handleInputChange} />
+                    <span className="checkbox-label-checklist">Bateria não está inchada</span>
+                  </label>
+                  <label className="checkbox-group-checklist">
+                    <input type="checkbox" name="not_bent" checked={formData.not_bent} onChange={handleInputChange} />
+                    <span className="checkbox-label-checklist">Não está entortado</span>
+                  </label>
+                  <label className="checkbox-group-checklist">
+                    <input type="checkbox" name="no_water_damage" checked={formData.no_water_damage} onChange={handleInputChange} />
+                    <span className="checkbox-label-checklist">Não teve contato com líquidos</span>
+                  </label>
+                </div>
+
+                <div className="form-row-checklist">
+                  <div className="form-group-checklist">
+                    <label className="form-label-checklist">Motivo da assistência (se aplicável)</label>
+                    <textarea className="form-input-checklist form-textarea-checklist" name="service_reason" value={formData.service_reason} onChange={handleInputChange}></textarea>
+                  </div>
+                </div>
+
+                <div className="form-row-checklist">
+                  <div className="form-group-checklist">
+                    <label className="form-label-checklist">Saúde da bateria (%)</label>
+                    <input className="form-input-checklist" type="number" name="battery_health" value={formData.battery_health} onChange={handleInputChange} min="0" max="100" />
+                  </div>
+                  <div className="form-group-checklist">
+                    <label className="form-label-checklist">Ciclos da bateria</label>
+                    <input className="form-input-checklist" type="number" name="battery_cycles" value={formData.battery_cycles} onChange={handleInputChange} min="0" />
+                  </div>
+                </div>
+              </div>
+
+              {/* PÁGINA 3 - VERIFICAÇÕES VISUAIS E FUNCIONAIS */}
+              <div className="form-section-checklist">
+                <h3 className="section-title-checklist">Verificações frontais</h3>
+                
+                <div className="form-checkbox-row">
+                  <label className="checkbox-group-checklist">
+                    <input type="checkbox" name="front_camera_ok" checked={formData.front_camera_ok} onChange={handleInputChange} />
+                    <span className="checkbox-label-checklist">Câmera frontal OK</span>
+                  </label>
+                  <label className="checkbox-group-checklist">
+                    <input type="checkbox" name="front_camera_broken" checked={formData.front_camera_broken} onChange={handleInputChange} />
+                    <span className="checkbox-label-checklist">Câmera frontal quebrada</span>
+                  </label>
+                  <label className="checkbox-group-checklist">
+                    <input type="checkbox" name="face_id_ok" checked={formData.face_id_ok} onChange={handleInputChange} />
+                    <span className="checkbox-label-checklist">Face ID OK</span>
+                  </label>
+                  <label className="checkbox-group-checklist">
+                    <input type="checkbox" name="proximity_sensor_ok" checked={formData.proximity_sensor_ok} onChange={handleInputChange} />
+                    <span className="checkbox-label-checklist">Sensor de proximidade OK</span>
+                  </label>
+                  <label className="checkbox-group-checklist">
+                    <input type="checkbox" name="earpiece_speaker_ok" checked={formData.earpiece_speaker_ok} onChange={handleInputChange} />
+                    <span className="checkbox-label-checklist">Alto-falante auricular OK</span>
+                  </label>
+                </div>
+              </div>
+
+              <div className="form-section-checklist">
+                <h3 className="section-title-checklist">Verificações display</h3>
+                
+                <div className="form-checkbox-row">
+                  <label className="checkbox-group-checklist">
+                    <input type="checkbox" name="power_button_ok" checked={formData.power_button_ok} onChange={handleInputChange} />
+                    <span className="checkbox-label-checklist">Botão Power OK</span>
+                  </label>
+                  <label className="checkbox-group-checklist">
+                    <input type="checkbox" name="display_ok" checked={formData.display_ok} onChange={handleInputChange} />
+                    <span className="checkbox-label-checklist">Display OK</span>
+                  </label>
+                  <label className="checkbox-group-checklist">
+                    <input type="checkbox" name="display_broken" checked={formData.display_broken} onChange={handleInputChange} />
+                    <span className="checkbox-label-checklist">Display quebrado</span>
+                  </label>
+                  <label className="checkbox-group-checklist">
+                    <input type="checkbox" name="display_stained" checked={formData.display_stained} onChange={handleInputChange} />
+                    <span className="checkbox-label-checklist">Display manchado</span>
+                  </label>
+                  <label className="checkbox-group-checklist">
+                    <input type="checkbox" name="display_dim" checked={formData.display_dim} onChange={handleInputChange} />
+                    <span className="checkbox-label-checklist">Display escurecido</span>
+                  </label>
+                  <label className="checkbox-group-checklist">
+                    <input type="checkbox" name="touchscreen_ok" checked={formData.touchscreen_ok} onChange={handleInputChange} />
+                    <span className="checkbox-label-checklist">Touch screen OK</span>
+                  </label>
+                </div>
+              </div>
+
+              <div className="form-section-checklist">
+                <h3 className="section-title-checklist">Verificações traseiras</h3>
+                
+                <div className="form-checkbox-row">
+                  <label className="checkbox-group-checklist">
+                    <input type="checkbox" name="rear_camera_ok" checked={formData.rear_camera_ok} onChange={handleInputChange} />
+                    <span className="checkbox-label-checklist">Câmera traseira OK</span>
+                  </label>
+                  <label className="checkbox-group-checklist">
+                    <input type="checkbox" name="rear_camera_broken" checked={formData.rear_camera_broken} onChange={handleInputChange} />
+                    <span className="checkbox-label-checklist">Câmera traseira quebrada</span>
+                  </label>
+                  <label className="checkbox-group-checklist">
+                    <input type="checkbox" name="volume_button_ok" checked={formData.volume_button_ok} onChange={handleInputChange} />
+                    <span className="checkbox-label-checklist">Botões de volume OK</span>
+                  </label>
+                  <label className="checkbox-group-checklist">
+                    <input type="checkbox" name="mute_switch_ok" checked={formData.mute_switch_ok} onChange={handleInputChange} />
+                    <span className="checkbox-label-checklist">Botão mudo OK</span>
+                  </label>
+                  <label className="checkbox-group-checklist">
+                    <input type="checkbox" name="back_case_perfect" checked={formData.back_case_perfect} onChange={handleInputChange} />
+                    <span className="checkbox-label-checklist">Carcaça traseira perfeita</span>
+                  </label>
+                  <label className="checkbox-group-checklist">
+                    <input type="checkbox" name="microphone_ok" checked={formData.microphone_ok} onChange={handleInputChange} />
+                    <span className="checkbox-label-checklist">Microfone OK</span>
+                  </label>
+                  <label className="checkbox-group-checklist">
+                    <input type="checkbox" name="loudspeaker_ok" checked={formData.loudspeaker_ok} onChange={handleInputChange} />
+                    <span className="checkbox-label-checklist">Alto-falante viva-voz OK</span>
+                  </label>
+                  <label className="checkbox-group-checklist">
+                    <input type="checkbox" name="charging_port_ok" checked={formData.charging_port_ok} onChange={handleInputChange} />
+                    <span className="checkbox-label-checklist">Porta de carregamento OK</span>
+                  </label>
+                  <label className="checkbox-group-checklist">
+                    <input type="checkbox" name="charging_port_perfect" checked={formData.charging_port_perfect} onChange={handleInputChange} />
+                    <span className="checkbox-label-checklist">Porta de carregamento perfeita</span>
+                  </label>
+                </div>
+
+                <div className="form-row-checklist">
+                  <div className="form-group-checklist">
+                    <label className="form-label-checklist">Avarias na carcaça traseira</label>
+                    <textarea className="form-input-checklist form-textarea-checklist" name="back_case_damage" value={formData.back_case_damage} onChange={handleInputChange} placeholder="Descreva avarias se houver"></textarea>
+                  </div>
+                </div>
+              </div>
+
+              {/* PÁGINA 4 - DEMAIS ITENS E iCLOUD */}
+              <div className="form-section-checklist">
+                <h3 className="section-title-checklist">Demais itens de funcionamento</h3>
+                
+                <div className="form-checkbox-row">
+                  <label className="checkbox-group-checklist">
+                    <input type="checkbox" name="makes_calls" checked={formData.makes_calls} onChange={handleInputChange} />
+                    <span className="checkbox-label-checklist">Faz ligações</span>
+                  </label>
+                  <label className="checkbox-group-checklist">
+                    <input type="checkbox" name="receives_calls" checked={formData.receives_calls} onChange={handleInputChange} />
+                    <span className="checkbox-label-checklist">Recebe ligações</span>
+                  </label>
+                  <label className="checkbox-group-checklist">
+                    <input type="checkbox" name="ring_vibrate_ok" checked={formData.ring_vibrate_ok} onChange={handleInputChange} />
+                    <span className="checkbox-label-checklist">Toque/vibração OK</span>
+                  </label>
+                  <label className="checkbox-group-checklist">
+                    <input type="checkbox" name="recognizes_sim" checked={formData.recognizes_sim} onChange={handleInputChange} />
+                    <span className="checkbox-label-checklist">Reconhece SIM card</span>
+                  </label>
+                  <label className="checkbox-group-checklist">
+                    <input type="checkbox" name="wifi_ok" checked={formData.wifi_ok} onChange={handleInputChange} />
+                    <span className="checkbox-label-checklist">Wi-Fi OK</span>
+                  </label>
+                  <label className="checkbox-group-checklist">
+                    <input type="checkbox" name="bluetooth_ok" checked={formData.bluetooth_ok} onChange={handleInputChange} />
+                    <span className="checkbox-label-checklist">Bluetooth OK</span>
+                  </label>
+                  <label className="checkbox-group-checklist">
+                    <input type="checkbox" name="wired_charging_ok" checked={formData.wired_charging_ok} onChange={handleInputChange} />
+                    <span className="checkbox-label-checklist">Carregamento com fio OK</span>
+                  </label>
+                  <label className="checkbox-group-checklist">
+                    <input type="checkbox" name="fingerprint_ok" checked={formData.fingerprint_ok} onChange={handleInputChange} />
+                    <span className="checkbox-label-checklist">Leitor biométrico OK</span>
+                  </label>
+                  <label className="checkbox-group-checklist">
+                    <input type="checkbox" name="headphone_jack_ok" checked={formData.headphone_jack_ok} onChange={handleInputChange} />
+                    <span className="checkbox-label-checklist">Entrada de fone OK</span>
+                  </label>
+                  <label className="checkbox-group-checklist">
+                    <input type="checkbox" name="home_button_ok" checked={formData.home_button_ok} onChange={handleInputChange} />
+                    <span className="checkbox-label-checklist">Botão home OK</span>
+                  </label>
+                  <label className="checkbox-group-checklist">
+                    <input type="checkbox" name="wireless_charging_ok" checked={formData.wireless_charging_ok} onChange={handleInputChange} />
+                    <span className="checkbox-label-checklist">Carregamento sem fio OK</span>
+                  </label>
+                </div>
+              </div>
+
+              <div className="form-section-checklist">
+                <h3 className="section-title-checklist">iCloud</h3>
+                
+                <div className="form-checkbox-row">
+                  <label className="checkbox-group-checklist">
+                    <input type="checkbox" name="icloud_removed" checked={formData.icloud_removed} onChange={handleInputChange} />
+                    <span className="checkbox-label-checklist">iCloud removido</span>
+                  </label>
+                  <label className="checkbox-group-checklist">
+                    <input type="checkbox" name="find_my_disabled" checked={formData.find_my_disabled} onChange={handleInputChange} />
+                    <span className="checkbox-label-checklist">Buscar iPhone desativado</span>
+                  </label>
+                  <label className="checkbox-group-checklist">
+                    <input type="checkbox" name="screen_lock_disabled" checked={formData.screen_lock_disabled} onChange={handleInputChange} />
+                    <span className="checkbox-label-checklist">Bloqueio de tela desativado</span>
+                  </label>
+                  <label className="checkbox-group-checklist">
+                    <input type="checkbox" name="reset_completed" checked={formData.reset_completed} onChange={handleInputChange} />
+                    <span className="checkbox-label-checklist">Restauração completada</span>
+                  </label>
+                </div>
+              </div>
+
+              {/* METADADOS */}
+              <div className="form-section-checklist">
+                <h3 className="section-title-checklist">Informações da avaliação</h3>
+                
+                <div className="form-row-checklist">
+                  <div className="form-group-checklist">
+                    <label className="form-label-checklist">Data da avaliação</label>
+                    <input className="form-input-checklist" type="date" name="evaluation_date" value={formData.evaluation_date} onChange={handleInputChange} />
+                  </div>
+                  <div className="form-group-checklist">
+                    <label className="form-label-checklist">Número do documento</label>
+                    <input className="form-input-checklist" name="document_number" value={formData.document_number} onChange={handleInputChange} />
+                  </div>
+                  <div className="form-group-checklist">
+                    <label className="form-label-checklist">Nome do avaliador</label>
+                    <input className="form-input-checklist" name="evaluator_name" value={formData.evaluator_name} onChange={handleInputChange} />
+                  </div>
+                </div>
+              </div>
+
+              <div className="form-actions-checklist">
+                <button type="submit" className="btn-save-checklist">
+                  {editingId ? 'Atualizar Checklist' : 'Salvar Checklist'}
                 </button>
-                <button 
-                  type="button" 
-                  style={styles.btnCancel} 
-                  onClick={() => setShowForm(false)}
-                  onMouseEnter={(e) => e.target.style.background = 'rgba(142, 142, 147, 0.25)'}
-                  onMouseLeave={(e) => e.target.style.background = 'rgba(142, 142, 147, 0.15)'}
-                >
+                <button type="button" className="btn-cancel-checklist" onClick={() => setShowForm(false)}>
                   Cancelar
                 </button>
               </div>
