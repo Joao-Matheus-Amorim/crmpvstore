@@ -1,5 +1,17 @@
 {
   "extends": [
     "development"
-  ]
+  ],
+  "hints": {
+    "compat-api/css": [
+      "default",
+      {
+        "ignore": [
+          "-webkit-overflow-scrolling",
+          "scrollbar-width",
+          "scrollbar-width: none"
+        ]
+      }
+    ]
+  }
 }

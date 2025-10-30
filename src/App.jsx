@@ -1,4 +1,4 @@
-// App.jsx - Completo com Kanban e Checklist integrados
+// App.jsx - Completo com Kanban, Checklist e Ordem de Serviço integrados
 import { useState, useEffect } from 'react'
 import { supabase } from './supabaseClient.js'
 import Login from './Login.jsx'
@@ -11,6 +11,8 @@ import Configuracoes from './Configuracoes.jsx'
 import Estoque from './Estoque.jsx'
 import Kanban from './Kanban.jsx'
 import Checklist from './Checklist.jsx'
+import OrdemServico from './OrdemServico.jsx'
+
 
 
 function App() {
@@ -20,6 +22,7 @@ function App() {
   const [menuAberto, setMenuAberto] = useState(false)
 
 
+
   // Autenticação Supabase
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -27,12 +30,15 @@ function App() {
       setLoading(false)
     })
 
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       setUser(session?.user ?? null)
     })
 
+
     return () => subscription.unsubscribe()
   }, [])
+
 
 
   // Se carregando, mostrar loading
@@ -48,13 +54,15 @@ function App() {
   }
 
 
+
   // Se não logado, mostrar login
   if (!user) {
     return <Login onLogin={setUser} />
   }
 
 
-  // ✅ ÍCONES SVG (Mantém o mesmo padrão)
+
+  // ✅ ÍCONES SVG (Mantém o mesmo padrão + Ordem de Serviço)
   const icones = {
     dashboard: (
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -96,10 +104,7 @@ function App() {
     ),
     estoque: (
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <rect x="3" y="3" width="7" height="7" rx="1"/>
-        <rect x="14" y="3" width="7" height="7" rx="1"/>
-        <rect x="14" y="14" width="7" height="7" rx="1"/>
-        <rect x="3" y="14" width="7" height="7" rx="1"/>
+        <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
       </svg>
     ),
     contratos: (
@@ -119,13 +124,23 @@ function App() {
     ),
     checklist: (
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+        <path d="M9 11l3 3L22 4"/>
+        <path d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+      </svg>
+    ),
+    ordens: (
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+        <polyline points="14 2 14 8 20 8"/>
+        <line x1="12" y1="13" x2="16" y2="13"/>
+        <line x1="12" y1="17" x2="16" y2="17"/>
       </svg>
     ),
   }
 
 
-  // ✅ MENU COM CHECKLIST
+
+  // ✅ MENU COM ORDEM DE SERVIÇO
   const menus = [
     { id: 'dashboard', label: 'Dashboard' },
     { id: 'leads', label: 'Leads' },
@@ -134,9 +149,11 @@ function App() {
     { id: 'kanban', label: 'Kanban' },
     { id: 'estoque', label: 'Estoque' },
     { id: 'contratos', label: 'Contratos' },
+    { id: 'ordens', label: 'Ordens de Servico' },
+    { id: 'checklist', label: 'Checklist' },
     { id: 'configuracoes', label: 'Configurações' },
-    { id: 'checklist', label: 'Checklist' }, // ✅ ADICIONADO
   ]
+
 
 
   const handleMenuClick = (id) => {
@@ -144,6 +161,7 @@ function App() {
     setMenuAberto(false)
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
+
 
 
   const handleLogout = async () => {
@@ -158,10 +176,12 @@ function App() {
   }
 
 
+
   // Informações do usuário
   const userEmail = user?.email || 'usuário'
   const userInitial = userEmail.charAt(0).toUpperCase()
   const userName = userEmail.split('@')[0]
+
 
 
   return (
@@ -181,6 +201,7 @@ function App() {
           </div>
 
 
+
           {/* Navegação Desktop */}
           <div className="nav-premium desktop-nav">
             {menus.map((m) => (
@@ -198,6 +219,7 @@ function App() {
           </div>
 
 
+
           {/* User Section Desktop */}
           <div className="user-section-premium desktop-user">
             <div className="user-avatar-premium">{userInitial}</div>
@@ -210,6 +232,7 @@ function App() {
               </svg>
             </button>
           </div>
+
 
 
           {/* Hamburger Mobile */}
@@ -227,6 +250,7 @@ function App() {
       </nav>
 
 
+
       {/* Drawer Mobile */}
       <div className={`mobile-drawer-premium ${menuAberto ? 'open' : ''}`}>
         <div className="drawer-header-premium">
@@ -236,6 +260,7 @@ function App() {
             <span className="drawer-user-email">{userEmail}</span>
           </div>
         </div>
+
 
 
         <div className="drawer-menu-premium">
@@ -254,6 +279,7 @@ function App() {
         </div>
 
 
+
         <div className="drawer-footer-premium">
           <button className="btn-logout-drawer-premium" onClick={handleLogout} type="button">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -267,8 +293,10 @@ function App() {
       </div>
 
 
+
       {/* Overlay Mobile */}
       {menuAberto && <div className="overlay-premium" onClick={() => setMenuAberto(false)}></div>}
+
 
 
       {/* Main Content */}
@@ -281,13 +309,15 @@ function App() {
           {telaAtual === 'kanban' && <Kanban />}
           {telaAtual === 'estoque' && <Estoque />}
           {telaAtual === 'contratos' && <Contratos />}
+          {telaAtual === 'ordens' && <OrdemServico />}
+          {telaAtual === 'checklist' && <Checklist />}
           {telaAtual === 'configuracoes' && <Configuracoes />}
-          {telaAtual === 'checklist' && <Checklist />} {/* ✅ ADICIONADO */}
         </div>
       </main>
     </div>
   )
 }
+
 
 
 export default App
