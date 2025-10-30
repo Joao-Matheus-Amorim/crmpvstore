@@ -2,6 +2,9 @@
    LEADS - ESTILO 3D FUTURISTA
    Cores: Branco, Vermelho (#DC2626), Azul (#2563EB)
    ================================= */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+* { font-family: 'Inter', sans-serif; }
 
 .dashboard-3d {
   padding: 2rem;
@@ -1406,9 +1409,6 @@
 @media (max-width: 360px) {
   .leads-grid { grid-template-columns: 1fr; }
 }
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-
-* { font-family: 'Inter', sans-serif; }
 
 /* Glassmorphism Base */
 .glass-card,

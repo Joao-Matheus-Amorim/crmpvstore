@@ -2,6 +2,10 @@
    CLIENTES - ESTILO 3D FUTURISTA
    Cores: Branco, Vermelho (#DC2626), Azul (#2563EB)
    ================================= */
+   /* Base Glassmorphism (igual Leads) */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+* { font-family: 'Inter', sans-serif; }
+
 
 .dashboard-3d {
   padding: 2rem;
@@ -392,9 +396,6 @@
   color: #64748b;
   font-size: 1.1rem;
 }
-/* Base Glassmorphism (igual Leads) */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-* { font-family: 'Inter', sans-serif; }
 
 .glass-card, .glass-header, .glass-input, .glass-btn, .glass-tile, .glass-sheet {
   background: rgba(255, 255, 255, 0.1);
