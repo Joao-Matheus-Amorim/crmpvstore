@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { supabase } from './supabaseClient.js';
-import './Leads.css'; // CSS glassmorphism premium (use o do response anterior)
+import './Leads.css';
+
 
 const STATUS_OPTIONS = [
   { value: 'novo', label: 'Novo', color: '#2563EB' },
@@ -10,6 +11,7 @@ const STATUS_OPTIONS = [
   { value: 'convertido', label: 'Convertido', color: '#10B981' },
   { value: 'perdido', label: 'Perdido', color: '#DC2626' },
 ];
+
 
 export default function Leads() {
   const [leads, setLeads] = useState([]);
@@ -22,6 +24,7 @@ export default function Leads() {
   const [showSheet, setShowSheet] = useState(false);
   const [selectedLead, setSelectedLead] = useState(null);
 
+
   const estadoInicialForm = useMemo(() => ({
     nome: '',
     telefone: '',
@@ -30,9 +33,12 @@ export default function Leads() {
     status: 'novo'
   }), []);
 
+
   const [formData, setFormData] = useState(estadoInicialForm);
 
+
   useEffect(() => { buscarOwnerId(); }, []);
+
 
   const carregarLeads = useCallback(async () => {
     if (!ownerId) return;
@@ -52,11 +58,13 @@ export default function Leads() {
     } finally {
       setCarregando(false);
     }
-  }, [ownerId, supabase]);
+  }, [ownerId]);
+
 
   useEffect(() => {
     if (ownerId) carregarLeads();
   }, [ownerId, carregarLeads]);
+
 
   async function buscarOwnerId() {
     try {
@@ -70,6 +78,7 @@ export default function Leads() {
     }
   }
 
+
   const handleTelefoneChange = (e) => {
     let value = e.target.value.replace(/\D/g, '');
     value = value.replace(/(\d{2})(\d)/, '($1) $2');
@@ -77,12 +86,14 @@ export default function Leads() {
     setFormData({ ...formData, telefone: value });
   };
 
+
   async function salvarLead(e) {
     e.preventDefault();
     if (!formData.nome || formData.nome.trim().length < 3) { alert('Nome mínimo 3 chars.'); return; }
     const telefoneLimpo = formData.telefone.replace(/\D/g, '');
     if (!telefoneLimpo || telefoneLimpo.length < 10) { alert('Telefone inválido.'); return; }
     if (!formData.origem) { alert('Selecione origem.'); return; }
+
 
     setSalvando(true);
     const dadosLead = {
@@ -92,6 +103,7 @@ export default function Leads() {
       origem: formData.origem,
       status: formData.status
     };
+
 
     try {
       let error;
@@ -112,6 +124,7 @@ export default function Leads() {
     }
   }
 
+
   async function deletarLead(id) {
     if (window.confirm('Excluir lead?')) {
       try {
@@ -123,6 +136,7 @@ export default function Leads() {
       }
     }
   }
+
 
   async function converterEmCliente(lead) {
     if (window.confirm(`Converter "${lead.nome}"?`)) {
@@ -144,6 +158,7 @@ export default function Leads() {
     }
   }
 
+
   function editarLead(lead) {
     setEditando(lead);
     setFormData({
@@ -158,11 +173,13 @@ export default function Leads() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
+
   function resetForm() {
     setFormData(estadoInicialForm);
     setEditando(null);
     setMostrarForm(false);
   }
+
 
   const abrirSheet = (lead) => {
     setSelectedLead(lead);
@@ -170,10 +187,12 @@ export default function Leads() {
     if (navigator.vibrate) navigator.vibrate(50);
   };
 
+
   const fecharSheet = () => {
     setShowSheet(false);
     setSelectedLead(null);
   };
+
 
   const leadsFiltrados = useMemo(() => 
     leads.filter(lead => 
@@ -182,11 +201,13 @@ export default function Leads() {
     ), [leads, filtro]
   );
 
+
   const statsLeads = useMemo(() => ({
     ativos: leads.filter(l => !['convertido', 'perdido'].includes(l.status)).length,
     negociando: leads.filter(l => ['em_contato', 'qualificado', 'em_negociacao'].includes(l.status)).length,
     convertidos: leads.filter(l => l.status === 'convertido').length,
   }), [leads]);
+
 
   if (carregando) {
     return (
@@ -197,7 +218,9 @@ export default function Leads() {
     );
   }
 
+
   const statusOpt = selectedLead ? STATUS_OPTIONS.find(s => s.value === selectedLead.status) : null;
+
 
   return (
     <div className="dashboard-container">
@@ -205,11 +228,15 @@ export default function Leads() {
         <h1 className="dash-title gradient-text">Gestão de Leads</h1>
         <div className="header-search-actions">
           <input 
-            type="text" 
+            type="search"
             placeholder="Buscar leads..." 
             value={filtro} 
             onChange={(e) => setFiltro(e.target.value)} 
-            className="search-input glass-input" 
+            className="search-input glass-input"
+            autoComplete="nope"
+            autoCorrect="off"
+            autoCapitalize="none"
+            spellCheck="false"
           />
           <button 
             className="btn-primary glass-btn" 
@@ -219,6 +246,7 @@ export default function Leads() {
           </button>
         </div>
       </div>
+
 
       <div className="stats-row glass-stats">
         <div className="stat-card">
@@ -259,6 +287,7 @@ export default function Leads() {
         </div>
       </div>
 
+
       {mostrarForm && (
         <div className="form-accordion glass-card">
           <button className="accordion-header" onClick={() => setMostrarForm(false)}>
@@ -267,22 +296,92 @@ export default function Leads() {
               <path d="M19 9l-7 7-7-7"></path>
             </svg>
           </button>
-          <form onSubmit={salvarLead} className="lead-form">
+          
+          {/* FORM COM AUTOFILL 100% DESABILITADO */}
+          <form onSubmit={salvarLead} className="lead-form" autoComplete="nope">
+            {/* Inputs fake para enganar navegadores */}
+            <input 
+              type="text" 
+              name="fakeusernameremembered" 
+              autoComplete="nope" 
+              style={{ position: 'absolute', top: '-9999px', left: '-9999px' }} 
+              tabIndex="-1"
+              readOnly
+            />
+            <input 
+              type="password" 
+              name="fakepasswordremembered" 
+              autoComplete="new-password" 
+              style={{ position: 'absolute', top: '-9999px', left: '-9999px' }} 
+              tabIndex="-1"
+              readOnly
+            />
+            
             <div className="form-group">
               <label>Nome *</label>
-              <input type="text" className="glass-input" value={formData.nome} onChange={(e) => setFormData({...formData, nome: e.target.value})} required minLength="3" />
+              <input 
+                type="text" 
+                name="lead-fullname-xyz"
+                id="lead-nome-input"
+                className="glass-input" 
+                value={formData.nome} 
+                onChange={(e) => setFormData({...formData, nome: e.target.value})} 
+                required 
+                minLength="3"
+                autoComplete="nope"
+                autoCorrect="off"
+                autoCapitalize="words"
+                spellCheck="false"
+                data-form-type="other"
+              />
             </div>
+            
             <div className="form-group">
               <label>Telefone *</label>
-              <input type="tel" className="glass-input" value={formData.telefone} onChange={handleTelefoneChange} required />
+              <input 
+                type="tel" 
+                name="lead-phone-xyz"
+                id="lead-telefone-input"
+                className="glass-input" 
+                value={formData.telefone} 
+                onChange={handleTelefoneChange} 
+                required
+                autoComplete="nope"
+                autoCorrect="off"
+                autoCapitalize="none"
+                spellCheck="false"
+                data-form-type="other"
+              />
             </div>
+            
             <div className="form-group">
               <label>Email</label>
-              <input type="email" className="glass-input" value={formData.email} onChange={(e) => setFormData({...formData, email: e.target.value})} />
+              <input 
+                type="email" 
+                name="lead-email-xyz"
+                id="lead-email-input"
+                className="glass-input" 
+                value={formData.email} 
+                onChange={(e) => setFormData({...formData, email: e.target.value})}
+                autoComplete="nope"
+                autoCorrect="off"
+                autoCapitalize="none"
+                spellCheck="false"
+                data-form-type="other"
+              />
             </div>
+            
             <div className="form-group">
               <label>Origem *</label>
-              <select className="glass-input" value={formData.origem} onChange={(e) => setFormData({...formData, origem: e.target.value})} required>
+              <select 
+                name="lead-origin-xyz"
+                id="lead-origem-select"
+                className="glass-input" 
+                value={formData.origem} 
+                onChange={(e) => setFormData({...formData, origem: e.target.value})} 
+                required
+                autoComplete="nope"
+              >
                 <option value="">Selecione...</option>
                 <option value="Instagram">Instagram</option>
                 <option value="Facebook">Facebook</option>
@@ -292,14 +391,24 @@ export default function Leads() {
                 <option value="Outros">Outros</option>
               </select>
             </div>
+            
             <div className="form-group">
               <label>Status *</label>
-              <select className="glass-input" value={formData.status} onChange={(e) => setFormData({...formData, status: e.target.value})} required>
+              <select 
+                name="lead-status-xyz"
+                id="lead-status-select"
+                className="glass-input" 
+                value={formData.status} 
+                onChange={(e) => setFormData({...formData, status: e.target.value})} 
+                required
+                autoComplete="nope"
+              >
                 {STATUS_OPTIONS.map(option => (
                   <option key={option.value} value={option.value}>{option.label}</option>
                 ))}
               </select>
             </div>
+            
             <div className="form-actions">
               <button type="submit" className="glass-btn primary" disabled={salvando}>
                 {salvando ? 'Salvando...' : (editando ? 'Atualizar' : 'Salvar')}
@@ -309,6 +418,7 @@ export default function Leads() {
           </form>
         </div>
       )}
+
 
       <div className="leads-section">
         <h2 className="section-title gradient-text">Lista de Leads ({leadsFiltrados.length})</h2>
@@ -337,6 +447,7 @@ export default function Leads() {
         )}
       </div>
 
+
       {showSheet && (
         <div className="bottom-sheet-overlay" onClick={fecharSheet}>
           <div className="bottom-sheet glass-sheet" onClick={(e) => e.stopPropagation()}>
@@ -363,6 +474,7 @@ export default function Leads() {
           </div>
         </div>
       )}
+
 
       <div className="quick-actions dash-quick-icons">
         <button className="quick-icon glass-btn" onClick={() => setMostrarForm(true)}>

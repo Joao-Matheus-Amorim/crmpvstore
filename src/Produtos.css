@@ -62,6 +62,16 @@
   box-shadow: 0 2px 8px rgba(37, 99, 235, 0.4);
 }
 
+.btn-secondary-3d {
+  background: white;
+  color: #64748b;
+  border: 2px solid #e2e8f0;
+}
+
+.btn-secondary-3d:active {
+  background: #f8fafc;
+}
+
 /* Stats Grid Mobile - 1 coluna */
 .stats-grid-3d {
   display: grid;
@@ -128,6 +138,10 @@
   margin-bottom: 1rem;
 }
 
+.form-section-3d {
+  margin-bottom: 1.5rem;
+}
+
 .form-section-title-3d {
   font-size: 0.95rem;
   font-weight: 700;
@@ -136,9 +150,8 @@
   background: #f8fafc;
   border-radius: 8px;
   margin: 0 0 1rem 0;
-  cursor: pointer;
   display: flex;
-  justify-content: space-between;
+  gap: 0.5rem;
   align-items: center;
 }
 
@@ -167,7 +180,10 @@
 .form-input-3d,
 .form-input-3d input,
 .form-input-3d select,
-.form-input-3d textarea {
+.form-input-3d textarea,
+input.form-input-3d,
+select.form-input-3d,
+textarea.form-input-3d {
   width: 100%;
   padding: 0.875rem;
   border: 2px solid #e2e8f0;
@@ -181,15 +197,16 @@
   appearance: none;
 }
 
-.form-input-3d input:focus,
-.form-input-3d select:focus,
-.form-input-3d textarea:focus {
+.form-input-3d:focus,
+input.form-input-3d:focus,
+select.form-input-3d:focus,
+textarea.form-input-3d:focus {
   outline: none;
   border-color: #2563EB;
   box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
 }
 
-.form-input-3d textarea {
+textarea.form-input-3d {
   min-height: 80px;
   resize: vertical;
 }
@@ -212,26 +229,6 @@
   border: none;
   cursor: pointer;
   transition: all 0.2s;
-}
-
-.btn-success-3d {
-  background: linear-gradient(135deg, #10B981 0%, #059669 100%);
-  color: white;
-  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
-}
-
-.btn-success-3d:active {
-  transform: scale(0.98);
-}
-
-.btn-cancel-3d {
-  background: white;
-  color: #64748b;
-  border: 2px solid #e2e8f0;
-}
-
-.btn-cancel-3d:active {
-  background: #f8fafc;
 }
 
 /* Search/Filter Mobile */
@@ -274,198 +271,9 @@
   display: none !important;
 }
 
-/* CARDS MOBILE - Lista vertical compacta */
+/* ESCONDE CARDS MOBILE COMPLETAMENTE */
 .produtos-mobile-cards {
-  display: flex !important;
-  flex-direction: column;
-  gap: 0.75rem;
-  padding: 0 0.5rem;
-  margin-bottom: 1rem;
-}
-
-.produto-card-mobile {
-  background: white;
-  border: 2px solid #f1f5f9;
-  border-radius: 12px;
-  padding: 1rem;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
-  transition: all 0.2s;
-}
-
-.produto-card-mobile:active {
-  transform: scale(0.99);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
-  background: #f8fafc;
-}
-
-/* Header Card Mobile */
-.produto-header-mobile {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 0.75rem;
-  margin-bottom: 0.75rem;
-  padding-bottom: 0.75rem;
-  border-bottom: 1px solid #f1f5f9;
-}
-
-.produto-info-mobile {
-  flex: 1;
-  min-width: 0;
-}
-
-.produto-info-mobile h4 {
-  font-size: 0.95rem;
-  font-weight: 700;
-  color: #1e293b;
-  margin: 0 0 0.25rem 0;
-  line-height: 1.2;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.produto-info-mobile p {
-  font-size: 0.75rem;
-  color: #64748b;
-  margin: 0;
-  font-weight: 500;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-/* Status Badge Mobile */
-.produto-status-mobile {
-  padding: 0.4rem 0.7rem;
-  border-radius: 8px;
-  font-size: 0.65rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  white-space: nowrap;
-  flex-shrink: 0;
-}
-
-.produto-status-mobile.badge-disponivel {
-  background: #10B981;
-  color: white;
-}
-
-.produto-status-mobile.badge-vendido {
-  background: #6B7280;
-  color: white;
-}
-
-.produto-status-mobile.badge-reservado {
-  background: #F59E0B;
-  color: white;
-}
-
-.produto-status-mobile.badge-manutencao {
-  background: #EF4444;
-  color: white;
-}
-
-/* Detalhes Grid Mobile - 2 colunas */
-.produto-detalhes-mobile {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0.75rem;
-  margin-bottom: 0.75rem;
-}
-
-.produto-detalhe-item {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-}
-
-.produto-detalhe-label {
-  font-size: 0.65rem;
-  color: #94a3b8;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  font-weight: 600;
-  margin: 0;
-}
-
-.produto-detalhe-valor {
-  font-size: 0.85rem;
-  font-weight: 700;
-  color: #1e293b;
-  line-height: 1.2;
-  margin: 0;
-}
-
-/* Ações Card Mobile */
-.produto-acoes-mobile {
-  display: flex;
-  gap: 0.5rem;
-  padding-top: 0.75rem;
-  border-top: 1px solid #f1f5f9;
-}
-
-.produto-acoes-mobile select {
-  flex: 1;
-  padding: 0.7rem;
-  border-radius: 8px;
-  border: 2px solid #e2e8f0;
-  font-size: 14px;
-  font-weight: 600;
-  background: white;
-  color: #1e293b;
-  cursor: pointer;
-  transition: all 0.2s;
-  -webkit-appearance: none;
-  appearance: none;
-}
-
-.produto-acoes-mobile select:focus {
-  outline: none;
-  border-color: #2563EB;
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
-}
-
-.produto-acoes-mobile button {
-  padding: 0.7rem;
-  border-radius: 8px;
-  border: none;
-  cursor: pointer;
-  transition: all 0.2s;
-  min-width: 44px;
-  min-height: 44px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.btn-edit-mobile {
-  background: #2563EB;
-  color: white;
-  box-shadow: 0 2px 6px rgba(37, 99, 235, 0.3);
-}
-
-.btn-edit-mobile:active {
-  transform: scale(0.95);
-  background: #1d4ed8;
-}
-
-.btn-delete-mobile {
-  background: #EF4444;
-  color: white;
-  box-shadow: 0 2px 6px rgba(239, 68, 68, 0.3);
-}
-
-.btn-delete-mobile:active {
-  transform: scale(0.95);
-  background: #DC2626;
-}
-
-.btn-edit-mobile svg,
-.btn-delete-mobile svg {
-  width: 18px;
-  height: 18px;
+  display: none !important;
 }
 
 /* Empty State Mobile */
@@ -477,13 +285,6 @@
   padding: 3rem 1.5rem;
   text-align: center;
   color: #94a3b8;
-}
-
-.empty-state-3d svg {
-  width: 64px;
-  height: 64px;
-  margin-bottom: 1rem;
-  opacity: 0.5;
 }
 
 .empty-state-3d p {
@@ -538,18 +339,6 @@
   .page-title-3d {
     font-size: 1.65rem;
   }
-
-  .produto-card-mobile {
-    padding: 1.125rem;
-  }
-
-  .produto-info-mobile h4 {
-    font-size: 1rem;
-  }
-
-  .produto-info-mobile p {
-    font-size: 0.8rem;
-  }
 }
 
 /* ========================================
@@ -593,10 +382,6 @@
   .form-actions-3d button {
     flex: 1;
   }
-
-  .produto-card-mobile {
-    padding: 1.25rem;
-  }
 }
 
 /* ========================================
@@ -605,7 +390,7 @@
 @media (min-width: 769px) {
   .dashboard-3d {
     padding: 1.5rem;
-    padding-bottom: 1.5rem; /* Remove espaço bottom nav */
+    padding-bottom: 1.5rem;
   }
 
   .page-title-3d {
@@ -621,27 +406,139 @@
     gap: 1.25rem;
   }
 
-  /* MOSTRA TABELA - ESCONDE CARDS */
+  /* MOSTRA TABELA - CARDS CONTINUAM ESCONDIDOS */
   .table-container-3d {
     display: block !important;
+    overflow-x: auto;
   }
 
   .table-3d {
     display: table !important;
     width: 100%;
+    border-collapse: collapse;
   }
 
-  .produtos-mobile-cards {
-    display: none !important;
+  .table-3d thead {
+    background: #f8fafc;
+  }
+
+  .table-3d th {
+    padding: 1rem;
+    text-align: left;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-bottom: 2px solid #e2e8f0;
+  }
+
+  .table-3d td {
+    padding: 1rem;
+    border-bottom: 1px solid #f1f5f9;
+  }
+
+  .table-3d tbody tr:hover {
+    background: #f8fafc;
+  }
+
+  .text-primary-3d {
+    font-weight: 700;
+    color: #1e293b;
+    font-size: 0.95rem;
+  }
+
+  .text-secondary-3d {
+    font-size: 0.85rem;
+    color: #64748b;
+    margin-top: 0.25rem;
+  }
+
+  .lucro-badge {
+    padding: 0.4rem 0.8rem;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 700;
+  }
+
+  .lucro-positivo {
+    background: #DCFCE7;
+    color: #15803D;
+  }
+
+  .lucro-negativo {
+    background: #FEE2E2;
+    color: #DC2626;
+  }
+
+  .badge-status-produto {
+    padding: 0.4rem 0.8rem;
+    border-radius: 8px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .badge-disponivel {
+    background: #10B981;
+    color: white;
+  }
+
+  .badge-vendido {
+    background: #6B7280;
+    color: white;
+  }
+
+  .badge-reservado {
+    background: #F59E0B;
+    color: white;
+  }
+
+  .badge-manutencao {
+    background: #EF4444;
+    color: white;
+  }
+
+  .table-actions-3d {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+  }
+
+  .btn-icon-3d {
+    padding: 0.5rem;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .btn-edit-3d {
+    background: #2563EB;
+    color: white;
+  }
+
+  .btn-edit-3d:hover {
+    background: #1d4ed8;
+    transform: translateY(-2px);
+  }
+
+  .btn-delete-3d {
+    background: #EF4444;
+    color: white;
+  }
+
+  .btn-delete-3d:hover {
+    background: #DC2626;
+    transform: translateY(-2px);
   }
 
   .form-row-3d {
     grid-template-columns: repeat(3, 1fr);
-  }
-
-  .produto-card-mobile:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
   }
 }
 
@@ -686,23 +583,10 @@
    ======================================== */
 
 /* GPU Acceleration */
-.produto-card-mobile,
 .stat-card-3d,
 .form-card-3d {
   transform: translateZ(0);
   backface-visibility: hidden;
-}
-
-/* Smooth scroll */
-.produtos-mobile-cards {
-  scroll-behavior: smooth;
-}
-
-/* Touch feedback visual */
-@media (hover: none) {
-  .produto-card-mobile:active {
-    background: #f8fafc;
-  }
 }
 
 /* Reduced motion */
@@ -715,20 +599,17 @@
 
 /* Dark mode ready */
 @media (prefers-color-scheme: dark) {
-  .produto-card-mobile,
   .card-3d,
   .stat-card-3d {
     background: #1e293b;
     border-color: #334155;
   }
 
-  .produto-info-mobile h4,
   .page-title-3d,
   .stat-value-3d {
     color: #f1f5f9;
   }
 
-  .produto-info-mobile p,
   .page-subtitle-3d,
   .stat-title-3d {
     color: #94a3b8;
