@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import { supabase } from './supabaseClient.js';
 import './Clientes.css';
 
+
 export default function Clientes() {
   const [clientes, setClientes] = useState([]);
   const [ownerId, setOwnerId] = useState(null);
@@ -12,6 +13,7 @@ export default function Clientes() {
   const [filtro, setFiltro] = useState('');
   const [showSheet, setShowSheet] = useState(false);
   const [selectedClient, setSelectedClient] = useState(null);
+
 
   const estadoInicialForm = useMemo(() => ({
     nome: '',
@@ -27,23 +29,27 @@ export default function Clientes() {
     cep: ''
   }), []);
 
+
   const [formData, setFormData] = useState(estadoInicialForm);
+
 
   useEffect(() => {
     buscarOwnerId();
   }, []);
 
+
   async function buscarOwnerId() {
     try {
       const { data: { user } } = await supabase.auth.getUser();
-     if (user) {
-  const { data } = await supabase.from('owners').select('id').eq('user_id', user.id).single();
-  setOwnerId(data?.id);
-}
-} catch (error) {
-  console.error('Erro ao buscar owner:', error);
-}
+      if (user) {
+        const { data } = await supabase.from('owners').select('id').eq('user_id', user.id).single();
+        setOwnerId(data?.id);
+      }
+    } catch (error) {
+      console.error('Erro ao buscar owner:', error);
+    }
   }
+
 
   const carregarClientes = useCallback(async () => {
     if (!ownerId) return;
@@ -64,9 +70,11 @@ export default function Clientes() {
     }
   }, [ownerId]);
 
+
   useEffect(() => {
     if (ownerId) carregarClientes();
   }, [ownerId, carregarClientes]);
+
 
   const handleCpfChange = (e) => {
     let value = e.target.value.replace(/\D/g, '');
@@ -76,6 +84,7 @@ export default function Clientes() {
     setFormData({ ...formData, cpf: value });
   };
 
+
   const handleTelefoneChange = (e) => {
     let value = e.target.value.replace(/\D/g, '');
     value = value.replace(/(\d{2})(\d)/, '($1) $2');
@@ -83,11 +92,13 @@ export default function Clientes() {
     setFormData({ ...formData, telefone: value });
   };
 
+
   const handleCepChange = (e) => {
     let value = e.target.value.replace(/\D/g, '');
     value = value.replace(/(\d{5})(\d)/, '$1-$2');
     setFormData({ ...formData, cep: value });
   };
+
 
   async function salvarCliente(e) {
     e.preventDefault();
@@ -96,6 +107,7 @@ export default function Clientes() {
     if (!cpfLimpo || cpfLimpo.length < 11) { alert('❌ CPF é obrigatório! Digite no mínimo 11 dígitos.'); return; }
     const telLimpo = formData.telefone.replace(/\D/g, '');
     if (!telLimpo || telLimpo.length < 10) { alert('❌ Telefone é obrigatório! Digite no mínimo 10 dígitos.'); return; }
+
 
     setSalvando(true);
     const clienteData = {
@@ -111,6 +123,7 @@ export default function Clientes() {
       uf: formData.estado?.trim() || null,
       cep: formData.cep?.trim() || null
     };
+
 
     try {
       let error = null;
@@ -134,6 +147,7 @@ export default function Clientes() {
     }
   }
 
+
   async function deletarCliente(id) {
     if (window.confirm('⚠️ Tem certeza que deseja excluir este cliente?')) {
       try {
@@ -147,6 +161,7 @@ export default function Clientes() {
       }
     }
   }
+
 
   function editarCliente(cliente) {
     setEditando(cliente);
@@ -168,11 +183,13 @@ export default function Clientes() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
+
   function resetForm() {
     setFormData(estadoInicialForm);
     setEditando(null);
     setMostrarForm(false);
   }
+
 
   const abrirSheet = (cliente) => {
     setSelectedClient(cliente);
@@ -180,10 +197,12 @@ export default function Clientes() {
     if (navigator.vibrate) navigator.vibrate(50);
   };
 
+
   const fecharSheet = () => {
     setShowSheet(false);
     setSelectedClient(null);
   };
+
 
   const clientesFiltrados = useMemo(() => 
     clientes.filter(cliente => 
@@ -194,11 +213,13 @@ export default function Clientes() {
     ), [clientes, filtro]
   );
 
+
   const statsClientes = useMemo(() => ({
     total: clientes.length,
     pessoaFisica: clientes.filter(c => c.tipo === 'pessoa_fisica').length,
     pessoaJuridica: clientes.filter(c => c.tipo === 'pessoa_juridica').length,
   }), [clientes]);
+
 
   if (carregando) {
     return (
@@ -209,7 +230,9 @@ export default function Clientes() {
     );
   }
 
+
   const tipoOpt = selectedClient ? (selectedClient.tipo === 'pessoa_fisica' ? { label: 'PF', color: '#0066CC' } : { label: 'PJ', color: '#DC2626' }) : null;
+
 
   return (
     <div className="dashboard-container" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
@@ -217,11 +240,15 @@ export default function Clientes() {
         <h1 className="dash-title gradient-text">Gestão de Clientes</h1>
         <div className="header-search-actions">
           <input 
-            type="text" 
+            type="search"
             placeholder="Buscar clientes..." 
             value={filtro} 
             onChange={(e) => setFiltro(e.target.value)} 
-            className="search-input glass-input" 
+            className="search-input glass-input"
+            autoComplete="nope"
+            autoCorrect="off"
+            autoCapitalize="none"
+            spellCheck="false"
           />
           <button 
             className="btn-primary glass-btn" 
@@ -231,6 +258,7 @@ export default function Clientes() {
           </button>
         </div>
       </div>
+
 
       <div className="stats-row glass-stats" style={{ overflowX: 'auto', paddingBottom: '0.5rem' }}>
         <div className="stat-card">
@@ -273,6 +301,7 @@ export default function Clientes() {
         </div>
       </div>
 
+
       {mostrarForm && (
         <div className="form-accordion glass-card">
           <button className="accordion-header" onClick={() => setMostrarForm(false)}>
@@ -281,69 +310,226 @@ export default function Clientes() {
               <path d="M19 9l-7 7-7-7"></path>
             </svg>
           </button>
-          <form onSubmit={salvarCliente} className="client-form">
+          
+          {/* FORM SEM AUTOFILL */}
+          <form onSubmit={salvarCliente} className="client-form" autoComplete="nope">
+            {/* Inputs fake escondidos */}
+            <input 
+              type="text" 
+              name="fakeusernameremembered" 
+              autoComplete="nope" 
+              style={{ position: 'absolute', top: '-9999px', left: '-9999px' }} 
+              tabIndex="-1"
+              readOnly
+            />
+            <input 
+              type="password" 
+              name="fakepasswordremembered" 
+              autoComplete="new-password" 
+              style={{ position: 'absolute', top: '-9999px', left: '-9999px' }} 
+              tabIndex="-1"
+              readOnly
+            />
+            
             <div className="form-section">
               <h4 className="form-section-title">Informações Pessoais</h4>
               <div className="form-row">
                 <div className="form-group">
                   <label>Nome Completo *</label>
-                  <input type="text" className="glass-input" value={formData.nome} onChange={(e) => setFormData({...formData, nome: e.target.value})} required minLength="3" />
+                  <input 
+                    type="text" 
+                    name="client-fullname-xyz"
+                    id="client-nome-input"
+                    className="glass-input" 
+                    value={formData.nome} 
+                    onChange={(e) => setFormData({...formData, nome: e.target.value})} 
+                    required 
+                    minLength="3"
+                    autoComplete="nope"
+                    autoCorrect="off"
+                    autoCapitalize="words"
+                    spellCheck="false"
+                    data-form-type="other"
+                  />
                 </div>
                 <div className="form-group">
                   <label>CPF *</label>
-                  <input type="text" className="glass-input" value={formData.cpf} onChange={handleCpfChange} required minLength="14" />
+                  <input 
+                    type="text" 
+                    name="client-cpf-xyz"
+                    id="client-cpf-input"
+                    className="glass-input" 
+                    value={formData.cpf} 
+                    onChange={handleCpfChange} 
+                    required 
+                    minLength="14"
+                    autoComplete="nope"
+                    autoCorrect="off"
+                    autoCapitalize="none"
+                    spellCheck="false"
+                    data-form-type="other"
+                  />
                 </div>
               </div>
               <div className="form-row">
                 <div className="form-group">
                   <label>Email</label>
-                  <input type="email" className="glass-input" value={formData.email} onChange={(e) => setFormData({...formData, email: e.target.value})} />
+                  <input 
+                    type="email" 
+                    name="client-email-xyz"
+                    id="client-email-input"
+                    className="glass-input" 
+                    value={formData.email} 
+                    onChange={(e) => setFormData({...formData, email: e.target.value})}
+                    autoComplete="nope"
+                    autoCorrect="off"
+                    autoCapitalize="none"
+                    spellCheck="false"
+                    data-form-type="other"
+                  />
                 </div>
                 <div className="form-group">
                   <label>Telefone *</label>
-                  <input type="tel" className="glass-input" value={formData.telefone} onChange={handleTelefoneChange} required minLength="14" />
+                  <input 
+                    type="tel" 
+                    name="client-phone-xyz"
+                    id="client-telefone-input"
+                    className="glass-input" 
+                    value={formData.telefone} 
+                    onChange={handleTelefoneChange} 
+                    required 
+                    minLength="14"
+                    autoComplete="nope"
+                    autoCorrect="off"
+                    autoCapitalize="none"
+                    spellCheck="false"
+                    data-form-type="other"
+                  />
                 </div>
               </div>
               <div className="form-group">
                 <label>Tipo de Cliente *</label>
-                <select className="glass-input" value={formData.tipo} onChange={(e) => setFormData({...formData, tipo: e.target.value})} required>
+                <select 
+                  name="client-type-xyz"
+                  id="client-tipo-select"
+                  className="glass-input" 
+                  value={formData.tipo} 
+                  onChange={(e) => setFormData({...formData, tipo: e.target.value})} 
+                  required
+                  autoComplete="nope"
+                >
                   <option value="comprador">Comprador</option>
                   <option value="vendedor">Vendedor</option>
                   <option value="ambos">Ambos</option>
                 </select>
               </div>
             </div>
+            
             <div className="form-section">
               <h4 className="form-section-title">Endereço</h4>
               <div className="form-row">
                 <div className="form-group">
                   <label>Logradouro</label>
-                  <input type="text" className="glass-input" value={formData.endereco} onChange={(e) => setFormData({...formData, endereco: e.target.value})} />
+                  <input 
+                    type="text" 
+                    name="client-street-xyz"
+                    id="client-endereco-input"
+                    className="glass-input" 
+                    value={formData.endereco} 
+                    onChange={(e) => setFormData({...formData, endereco: e.target.value})}
+                    autoComplete="nope"
+                    autoCorrect="off"
+                    autoCapitalize="words"
+                    spellCheck="false"
+                    data-form-type="other"
+                  />
                 </div>
                 <div className="form-group">
                   <label>Número</label>
-                  <input type="text" className="glass-input" value={formData.numero} onChange={(e) => setFormData({...formData, numero: e.target.value})} />
+                  <input 
+                    type="text" 
+                    name="client-number-xyz"
+                    id="client-numero-input"
+                    className="glass-input" 
+                    value={formData.numero} 
+                    onChange={(e) => setFormData({...formData, numero: e.target.value})}
+                    autoComplete="nope"
+                    autoCorrect="off"
+                    autoCapitalize="none"
+                    spellCheck="false"
+                    data-form-type="other"
+                  />
                 </div>
               </div>
               <div className="form-row">
                 <div className="form-group">
                   <label>Bairro</label>
-                  <input type="text" className="glass-input" value={formData.bairro} onChange={(e) => setFormData({...formData, bairro: e.target.value})} />
+                  <input 
+                    type="text" 
+                    name="client-district-xyz"
+                    id="client-bairro-input"
+                    className="glass-input" 
+                    value={formData.bairro} 
+                    onChange={(e) => setFormData({...formData, bairro: e.target.value})}
+                    autoComplete="nope"
+                    autoCorrect="off"
+                    autoCapitalize="words"
+                    spellCheck="false"
+                    data-form-type="other"
+                  />
                 </div>
                 <div className="form-group">
                   <label>Cidade</label>
-                  <input type="text" className="glass-input" value={formData.cidade} onChange={(e) => setFormData({...formData, cidade: e.target.value})} />
+                  <input 
+                    type="text" 
+                    name="client-city-xyz"
+                    id="client-cidade-input"
+                    className="glass-input" 
+                    value={formData.cidade} 
+                    onChange={(e) => setFormData({...formData, cidade: e.target.value})}
+                    autoComplete="nope"
+                    autoCorrect="off"
+                    autoCapitalize="words"
+                    spellCheck="false"
+                    data-form-type="other"
+                  />
                 </div>
                 <div className="form-group">
                   <label>Estado</label>
-                  <input type="text" className="glass-input" value={formData.estado} onChange={(e) => setFormData({...formData, estado: e.target.value.toUpperCase()})} maxLength="2" />
+                  <input 
+                    type="text" 
+                    name="client-state-xyz"
+                    id="client-estado-input"
+                    className="glass-input" 
+                    value={formData.estado} 
+                    onChange={(e) => setFormData({...formData, estado: e.target.value.toUpperCase()})} 
+                    maxLength="2"
+                    autoComplete="nope"
+                    autoCorrect="off"
+                    autoCapitalize="characters"
+                    spellCheck="false"
+                    data-form-type="other"
+                  />
                 </div>
                 <div className="form-group">
                   <label>CEP</label>
-                  <input type="text" className="glass-input" value={formData.cep} onChange={handleCepChange} />
+                  <input 
+                    type="text" 
+                    name="client-zipcode-xyz"
+                    id="client-cep-input"
+                    className="glass-input" 
+                    value={formData.cep} 
+                    onChange={handleCepChange}
+                    autoComplete="nope"
+                    autoCorrect="off"
+                    autoCapitalize="none"
+                    spellCheck="false"
+                    data-form-type="other"
+                  />
                 </div>
               </div>
             </div>
+            
             <div className="form-actions">
               <button type="submit" className="glass-btn primary" disabled={salvando || !ownerId}>
                 {salvando ? 'Salvando...' : (editando ? 'Atualizar' : 'Salvar')}
@@ -353,6 +539,7 @@ export default function Clientes() {
           </form>
         </div>
       )}
+
 
       <div className="clientes-section">
         <h2 className="section-title gradient-text">Lista de Clientes ({clientesFiltrados.length})</h2>
@@ -382,6 +569,7 @@ export default function Clientes() {
         )}
       </div>
 
+
       {showSheet && (
         <div className="bottom-sheet-overlay" onClick={fecharSheet}>
           <div className="bottom-sheet glass-sheet" onClick={(e) => e.stopPropagation()}>
@@ -407,6 +595,7 @@ export default function Clientes() {
           </div>
         </div>
       )}
+
 
       <div className="quick-actions dash-quick-icons">
         <button className="quick-icon glass-btn" onClick={() => setMostrarForm(true)}>
