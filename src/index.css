@@ -1,7 +1,4 @@
 /* ========== SISTEMA DE DESIGN PROFISSIONAL 3D ========== */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-
-* { font-family: 'Inter', sans-serif; }
 
 :root {
   /* Cores Primárias Profissionais */
@@ -199,8 +196,8 @@ body::before {
 
 .header-professional {
   background: var(--bg-glass-white);
-  backdrop-filter: blur(24px) saturate(180%);
-  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  --webkit--backdrop-filter: blur(24px) saturate(180%);
+  --webkit--backdrop-filter: blur(24px) saturate(180%);
   border-bottom: 1px solid rgba(0, 102, 204, 0.08);
   box-shadow: var(--shadow-md);
   position: sticky;
@@ -475,7 +472,7 @@ body::before {
   flex-direction: column;
   gap: 5px;
   background: rgba(255, 255, 255, 0.8);
-  backdrop-filter: blur(8px);
+  --webkit--backdrop-filter: blur(8px);
   border: 1px solid rgba(0, 102, 204, 0.1);
   border-radius: var(--radius-md);
   cursor: pointer;
@@ -524,8 +521,8 @@ body::before {
   max-width: 85vw;
   height: 100vh;
   background: var(--bg-glass-white);
-  backdrop-filter: blur(32px) saturate(180%);
-  -webkit-backdrop-filter: blur(32px) saturate(180%);
+  --webkit--backdrop-filter: blur(32px) saturate(180%);
+  --webkit--backdrop-filter: blur(32px) saturate(180%);
   border-left: 1px solid rgba(0, 102, 204, 0.1);
   box-shadow: -8px 0 32px rgba(0, 102, 204, 0.15);
   transition: right var(--transition-normal);
@@ -716,7 +713,7 @@ body::before {
   position: fixed;
   inset: 0;
   background: rgba(15, 23, 42, 0.6);
-  backdrop-filter: blur(4px);
+  --webkit--backdrop-filter: blur(4px);
   z-index: 999;
   opacity: 0;
   animation: fadeIn var(--transition-fast) forwards;
@@ -837,7 +834,7 @@ body::before {
 
 .btn-secondary {
   background: var(--bg-glass-white);
-  backdrop-filter: blur(12px);
+  --webkit--backdrop-filter: blur(12px);
   color: var(--text-primary);
   border: 1px solid rgba(0, 102, 204, 0.2);
   padding: 12px 24px;
@@ -872,8 +869,8 @@ body::before {
 
 .stat-card-pro {
   background: var(--bg-glass-white);
-  backdrop-filter: blur(20px) saturate(180%);
-  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  --webkit--backdrop-filter: blur(20px) saturate(180%);
+  --webkit--backdrop-filter: blur(20px) saturate(180%);
   border: 1px solid rgba(0, 102, 204, 0.08);
   border-radius: var(--radius-xl);
   padding: var(--spacing-xl);
@@ -978,8 +975,8 @@ body::before {
 
 .quick-actions-pro {
   background: var(--bg-glass-white);
-  backdrop-filter: blur(20px) saturate(180%);
-  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  --webkit--backdrop-filter: blur(20px) saturate(180%);
+  --webkit--backdrop-filter: blur(20px) saturate(180%);
   border: 1px solid rgba(0, 102, 204, 0.08);
   border-radius: var(--radius-xl);
   padding: var(--spacing-xl);
@@ -1002,7 +999,7 @@ body::before {
 
 .action-card {
   background: var(--bg-glass-white);
-  backdrop-filter: blur(8px);
+  --webkit--backdrop-filter: blur(8px);
   border: 1px solid rgba(0, 102, 204, 0.1);
   border-radius: var(--radius-lg);
   padding: var(--spacing-lg);
@@ -1064,7 +1061,7 @@ body::before {
 
 .error-card {
   background: var(--bg-glass-white);
-  backdrop-filter: blur(20px);
+  --webkit--backdrop-filter: blur(20px);
   border: 1px solid rgba(230, 57, 70, 0.2);
   border-radius: var(--radius-xl);
   padding: var(--spacing-2xl);
@@ -1119,8 +1116,8 @@ body::before {
 
 .login-card {
   background: var(--bg-glass-white);
-  backdrop-filter: blur(24px) saturate(180%);
-  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  --webkit--backdrop-filter: blur(24px) saturate(180%);
+  --webkit--backdrop-filter: blur(24px) saturate(180%);
   border: 1px solid rgba(0, 102, 204, 0.1);
   border-radius: var(--radius-2xl);
   padding: var(--spacing-2xl);
@@ -1188,7 +1185,7 @@ textarea {
   font-size: 15px;
   color: var(--text-primary);
   background: var(--bg-glass-white);
-  backdrop-filter: blur(8px);
+  --webkit--backdrop-filter: blur(8px);
   transition: all var(--transition-fast);
   font-family: inherit;
   font-weight: 500;
@@ -2082,8 +2079,8 @@ textarea::placeholder {
   right: 0;
   height: 72px;
   background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(20px) saturate(180%);
-  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  --webkit--backdrop-filter: blur(20px) saturate(180%);
+  --webkit--backdrop-filter: blur(20px) saturate(180%);
   border-bottom: 1px solid rgba(0, 0, 0, 0.08);
   box-shadow: 
     0 1px 3px rgba(0, 0, 0, 0.05),
@@ -2508,7 +2505,7 @@ textarea::placeholder {
   right: 0;
   bottom: 0;
   background: rgba(0, 0, 0, 0.4);
-  backdrop-filter: blur(4px);
+  --webkit--backdrop-filter: blur(4px);
   z-index: 999;
   animation: fadeIn 0.3s ease;
 }
