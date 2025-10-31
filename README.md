@@ -1,16 +1,21 @@
-# React + Vite
+# João Matheus Amorim
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## Professional Portfolio
 
-Currently, two official plugins are available:
+### About Me
+I am João Matheus Amorim, a student at Estácio de Sá, graduating in 2026. I have developed a strong foundation in web development and programming.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+### Skills
+- JavaScript
+- React
+- Vite
+- MySQL
+- HTML
+- CSS
 
-## React Compiler
+### Projects
+1. **Blog de Plano de Saúde** - A lead generation blog focused on health plans.
+2. **CRM de Celulares** - A customer relationship management system for mobile devices.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+### Contact
+You can reach me at: [joaomatheus.lab@gmail.com](mailto:joaomatheus.lab@gmail.com)
